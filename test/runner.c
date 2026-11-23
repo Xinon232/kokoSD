@@ -10,6 +10,20 @@
  */
 #include <mgba/core/core.h>
 #include <mgba/core/log.h>
+/* kokoSD: built with CART_MODEL=1/2/3 (tools/build_runner.py), the cartridge's
+ * SD card is gbaSD's model of a SuperCard SD / EZ-Flash Omega / EverDrive GBA
+ * with the card image SD_IMAGE (environment). */
+#ifdef CART_MODEL
+#include <mgba/core/timing.h>
+#include <mgba/internal/gba/gba.h>
+#endif
+#if CART_MODEL == 1
+#include "../gbasd/tests/models/scsd_model.h"
+#elif CART_MODEL == 2
+#include "../gbasd/tests/models/ezfo_model.h"
+#elif CART_MODEL == 3
+#include "../gbasd/tests/models/edgba_model.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,6 +52,9 @@ int main(int argc, char **argv) {
     core->setVideoBuffer(core, buf, w);
     if (!mCoreLoadFile(core, argv[1])) { fprintf(stderr, "load failed\n"); return 1; }
     core->reset(core);
+#ifdef CART_MODEL
+    model_install(core);
+#endif
     long frames = 0;
     for (int i = 2; i < argc; i++) {
         char *s = argv[i];

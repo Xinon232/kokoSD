@@ -1,3 +1,34 @@
+# kokoSD: Koko the Chatbot with an SD card
+
+kokoSD is Koko (below) on SD-card flash carts: SuperCard SD, EZ-Flash Omega (and
+Definitive Edition, started from the SD card) and EverDrive GBA, through
+[gbaSD](https://github.com/Xinon232/gbaSD). Planned: the fact table on the SD card
+with all of Simple English Wikipedia and "Tell me more", and gbawriter typing
+instead of the on-screen keyboard. GBA only (no browser version).
+
+## Building kokoSD
+The weights are not in git. Take Koko's data block out of a released `koko.gba`,
+then build (devkitARM in /opt/devkitpro, Python 3 with numpy):
+
+    git submodule update --init                  # gbaSD
+    python3 tools/blob_from_rom.py koko.gba     # -> build/koko.bin
+    python3 tools/build.py                      # -> build/koko.gba
+    python3 tools/build.py --cardtest           # -> build/koko-cardtest.gba
+    python3 tools/build_runner.py               # emulator runners (libmgba), with gbaSD's card models
+    python3 engine/test_game.py                 # KOKO_RUNNER=build/runner-sc | -ezfo | -edgba
+
+**Card test** (`koko-cardtest.gba`): reads the SD card for about 15 seconds (0.5,
+4 and 8 KB pieces from random places, and 8 KB pieces in a row), shows the time
+per read and saves the results to `/koko-cardtest.txt`. Nothing else is written.
+
+## Licence (kokoSD)
+gbaSD and the kokoSD additions are GPL-3.0-or-later (LICENSE-GPL), so the
+cartridge as a whole is distributed under GPL-3.0-or-later. Koko's own files keep
+their MIT licence (LICENSE); the weights, fact table and artwork stay
+CC BY-SA 4.0 (LICENSE-MODEL).
+
+---
+
 # Koko the Chatbot: a language model on a Game Boy Advance cartridge
 
 A language model that runs entirely on an unmodified Game Boy Advance: 72 million two-bit weights, lookup

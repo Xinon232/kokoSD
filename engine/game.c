@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include "koko.h"
 #include "ui.h"
+#include "sd.h"
+#include "cart_io.h"
 int sum_reply(const char *s, int n, char *out);   /* engine/sums.c */
 int fact_reply(const char *msg, int n, uint16_t *ids, int max);   /* engine/facts.c */
 
@@ -33,12 +35,11 @@ struct Dbg {
     uint32_t magic, state, seed, turns, ntok, ticks, made, nsug, rewinds;
     uint16_t sug[2], newchats, pure;
     uint16_t hist[HISTMAX];             /* every token the model has taken in (and not taken back), in order */
+    uint32_t sd;                        /* kokoSD: bit 0 card mounted, bits 8-15 gbaSD's cart_kind */
 };
 enum { ST_EDIT = 0, ST_RUNNING = 1, ST_DONE = 2, ST_IDLE = 3 };   /* IDLE: editing, model caught up, suggestions shown */
 volatile struct Dbg dbg __attribute__((section(".bss.dbg")));
 
-void *memset(void *d, int c, unsigned long n) { uint8_t *p = d; while (n--) *p++ = (uint8_t)c; return d; }
-void *memcpy(void *d, const void *s, unsigned long n) { uint8_t *p = d; const uint8_t *q = s; while (n--) *p++ = *q++; return d; }
 
 static void vsync(void) { while (REG_VCOUNT >= 160) {} while (REG_VCOUNT < 160) {} }
 static void video_init(void) {
@@ -254,6 +255,8 @@ int main(void) {
     koko_yield = poll; ui_yield = poll;
     dbg.magic = 0x4B4F4B4F; dbg.turns = 0; dbg.ntok = 0; dbg.made = 0; dbg.rewinds = 0; dbg.newchats = 0; dbg.pure = 0;
     koko_reset();
+    sd_mount();                                   /* kokoSD: the SD card (nothing uses it yet; 0 without a card) */
+    dbg.sd = (uint32_t)sd_ready | (uint32_t)cart_kind << 8;
     ui_title();                                   /* Koko's portrait until START (or A) is pressed */
     for (int f = 0;; f++) {
         vsync();

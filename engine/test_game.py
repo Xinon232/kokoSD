@@ -3,6 +3,15 @@ training tokenizer encodes them, replies equal the native engine's for the same 
 native engine's, and deleting into a finished word rewinds correctly."""
 import struct, subprocess, sys, os
 os.chdir('/home/user/kokosd')
+# kokoSD: the cartridge with an SD card (gbaSD's card model; KOKO_RUNNER = build/runner-sc,
+# -ezfo or -edgba from tools/build_runner.py, or build/runner for no card at all).
+RUNNER = os.environ.get('KOKO_RUNNER', 'build/runner-sc')
+if 'SD_IMAGE' not in os.environ:
+    os.environ['SD_IMAGE'] = 'out/test-card.img'
+    if not os.path.exists('out/test-card.img'):
+        os.makedirs('out', exist_ok=True)
+        with open('out/test-card.img', 'wb') as f: f.truncate(64 << 20)
+        subprocess.run(['mformat', '-i', 'out/test-card.img', '-F', '-T', str(64 * 2048), '-h', '64', '-s', '32', '::'], check=True)
 sys.path.insert(0, 'engine')
 from ctok import tokenizer   # kokoSD: the cartridge's tokenizer tables (no training files here)
 tok = tokenizer()
@@ -47,7 +56,7 @@ class Pad:
 
 def run(name, steps, nturn):
     steps = BOOT + steps + [f'until:{DBG + 12:#x}:{nturn}:400000', 'f:5', f'shot:out/{name}.ppm', f'dump:{DBG:#x}:{44 + 2 * HISTMAX}:out/{name}.bin']
-    subprocess.run(['build/runner', ROM] + steps, check=True)
+    subprocess.run([RUNNER, ROM] + steps, check=True)
     from PIL import Image
     Image.open(f'out/{name}.ppm').resize((480, 320), Image.NEAREST).save(f'out/{name}.png')
     return parse(f'out/{name}.bin')
@@ -89,6 +98,13 @@ def check(cond, what):
     global ok
     ok &= bool(cond); print('PASS' if cond else 'FAIL', what)
 
+# 0. kokoSD: the SD card was mounted at start (dbg.sd: bit 0 mounted, bits 8-15 gbaSD's cart_kind)
+subprocess.run([RUNNER, ROM, 'f:20', f'dump:{DBG + 44 + 2 * HISTMAX:#x}:4:out/sd.bin'], check=True)
+sd = struct.unpack('I', open('out/sd.bin', 'rb').read())[0]
+want_sd = {'build/runner': 0, 'build/runner-sc': 1, 'build/runner-ezfo': 2, 'build/runner-edgba': 4}.get(RUNNER)
+check((sd & 1) == (RUNNER != 'build/runner') and (sd >> 8) == (want_sd if want_sd else sd >> 8),
+      f'SD card at start: mounted {sd & 1}, cart kind {sd >> 8} ({RUNNER})')
+
 # 1. a ready-made message: START fills it in, START sends it
 r = run('koko_quick', [f'k:{START}', IDLE, f'k:{START}'], 1)
 t = turns_of(r['hist'])
@@ -98,7 +114,7 @@ check(native_reply(r['hist'], r['seed']), 'reply identical to the native engine'
 # 2. typed on the keyboard; suggestions checked against the native engine; one accepted with L
 pad = Pad()
 typed = pad.text('what is the ')
-subprocess.run(['build/runner', ROM] + BOOT + typed + [IDLE, 'f:5', 'shot:out/koko_suggest.ppm', f'dump:{DBG:#x}:{44 + 2 * HISTMAX}:out/s.bin'], check=True)
+subprocess.run([RUNNER, ROM] + BOOT + typed + [IDLE, 'f:5', 'shot:out/koko_suggest.ppm', f'dump:{DBG:#x}:{44 + 2 * HISTMAX}:out/s.bin'], check=True)
 from PIL import Image
 Image.open('out/koko_suggest.ppm').resize((480, 320), Image.NEAREST).save('out/koko_suggest.png')
 s = parse('out/s.bin')
