@@ -1,0 +1,2180 @@
+{
+ "stories_1_j1": [
+  {
+   "item": 1,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a small dragon"
+  },
+  {
+   "item": 2,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a boy who finds a map"
+  },
+  {
+   "item": 3,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a train that is late"
+  },
+  {
+   "item": 4,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a sleepy bear"
+  },
+  {
+   "item": 5,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a cat and a ghost"
+  },
+  {
+   "item": 6,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a boat on a river"
+  },
+  {
+   "item": 7,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a lost sock"
+  },
+  {
+   "item": 8,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a lost sock"
+  },
+  {
+   "item": 9,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a snowman who wants to see summer"
+  },
+  {
+   "item": 10,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a boat on a river"
+  },
+  {
+   "item": 11,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a fox who finds a key"
+  },
+  {
+   "item": 12,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a magic pencil"
+  },
+  {
+   "item": 13,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a boy who finds a map"
+  },
+  {
+   "item": 14,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "two best friends who argue"
+  },
+  {
+   "item": 15,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a cat and a ghost"
+  },
+  {
+   "item": 16,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a rabbit and a turtle"
+  },
+  {
+   "item": 17,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a snowman who wants to see summer"
+  },
+  {
+   "item": 18,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a rabbit and a turtle"
+  },
+  {
+   "item": 19,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a birthday cake"
+  },
+  {
+   "item": 20,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a birthday cake"
+  },
+  {
+   "item": 21,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a train that is late"
+  },
+  {
+   "item": 22,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a small dragon"
+  },
+  {
+   "item": 23,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a lighthouse"
+  },
+  {
+   "item": 24,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a robot that is afraid of rain"
+  },
+  {
+   "item": 25,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a girl and her kite"
+  },
+  {
+   "item": 26,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a penguin who cannot swim"
+  },
+  {
+   "item": 27,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "an old clock"
+  },
+  {
+   "item": 28,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "two best friends who argue"
+  },
+  {
+   "item": 29,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a girl and her kite"
+  },
+  {
+   "item": 30,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a rainy day"
+  },
+  {
+   "item": 31,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a brave mouse"
+  },
+  {
+   "item": 32,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a rainy day"
+  },
+  {
+   "item": 33,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a lighthouse"
+  },
+  {
+   "item": 34,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a robot that is afraid of rain"
+  },
+  {
+   "item": 35,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a fox who finds a key"
+  },
+  {
+   "item": 36,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a penguin who cannot swim"
+  },
+  {
+   "item": 37,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a brave mouse"
+  },
+  {
+   "item": 38,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "an old clock"
+  },
+  {
+   "item": 39,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a sleepy bear"
+  },
+  {
+   "item": 40,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a magic pencil"
+  }
+ ],
+ "stories_1_j2": [
+  {
+   "item": 1,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a rainy day"
+  },
+  {
+   "item": 2,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a rainy day"
+  },
+  {
+   "item": 3,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a boy who finds a map"
+  },
+  {
+   "item": 4,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a girl and her kite"
+  },
+  {
+   "item": 5,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a lost sock"
+  },
+  {
+   "item": 6,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a snowman who wants to see summer"
+  },
+  {
+   "item": 7,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a small dragon"
+  },
+  {
+   "item": 8,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a snowman who wants to see summer"
+  },
+  {
+   "item": 9,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a lighthouse"
+  },
+  {
+   "item": 10,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a birthday cake"
+  },
+  {
+   "item": 11,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "an old clock"
+  },
+  {
+   "item": 12,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a fox who finds a key"
+  },
+  {
+   "item": 13,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a magic pencil"
+  },
+  {
+   "item": 14,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a sleepy bear"
+  },
+  {
+   "item": 15,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a magic pencil"
+  },
+  {
+   "item": 16,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a rabbit and a turtle"
+  },
+  {
+   "item": 17,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a train that is late"
+  },
+  {
+   "item": 18,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a cat and a ghost"
+  },
+  {
+   "item": 19,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a sleepy bear"
+  },
+  {
+   "item": 20,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a boy who finds a map"
+  },
+  {
+   "item": 21,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a small dragon"
+  },
+  {
+   "item": 22,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "an old clock"
+  },
+  {
+   "item": 23,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a robot that is afraid of rain"
+  },
+  {
+   "item": 24,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a brave mouse"
+  },
+  {
+   "item": 25,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a rabbit and a turtle"
+  },
+  {
+   "item": 26,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a boat on a river"
+  },
+  {
+   "item": 27,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a train that is late"
+  },
+  {
+   "item": 28,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a robot that is afraid of rain"
+  },
+  {
+   "item": 29,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a girl and her kite"
+  },
+  {
+   "item": 30,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a brave mouse"
+  },
+  {
+   "item": 31,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a boat on a river"
+  },
+  {
+   "item": 32,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a cat and a ghost"
+  },
+  {
+   "item": 33,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a lighthouse"
+  },
+  {
+   "item": 34,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "two best friends who argue"
+  },
+  {
+   "item": 35,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "two best friends who argue"
+  },
+  {
+   "item": 36,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a birthday cake"
+  },
+  {
+   "item": 37,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a lost sock"
+  },
+  {
+   "item": 38,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a penguin who cannot swim"
+  },
+  {
+   "item": 39,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a fox who finds a key"
+  },
+  {
+   "item": 40,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a penguin who cannot swim"
+  }
+ ],
+ "stories_1_j3": [
+  {
+   "item": 1,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a penguin who cannot swim"
+  },
+  {
+   "item": 2,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a boy who finds a map"
+  },
+  {
+   "item": 3,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a brave mouse"
+  },
+  {
+   "item": 4,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a girl and her kite"
+  },
+  {
+   "item": 5,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a rabbit and a turtle"
+  },
+  {
+   "item": 6,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a lighthouse"
+  },
+  {
+   "item": 7,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a lost sock"
+  },
+  {
+   "item": 8,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a small dragon"
+  },
+  {
+   "item": 9,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a birthday cake"
+  },
+  {
+   "item": 10,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a snowman who wants to see summer"
+  },
+  {
+   "item": 11,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a lost sock"
+  },
+  {
+   "item": 12,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a birthday cake"
+  },
+  {
+   "item": 13,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a magic pencil"
+  },
+  {
+   "item": 14,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a train that is late"
+  },
+  {
+   "item": 15,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a train that is late"
+  },
+  {
+   "item": 16,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "two best friends who argue"
+  },
+  {
+   "item": 17,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a fox who finds a key"
+  },
+  {
+   "item": 18,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a girl and her kite"
+  },
+  {
+   "item": 19,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "an old clock"
+  },
+  {
+   "item": 20,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a rainy day"
+  },
+  {
+   "item": 21,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a sleepy bear"
+  },
+  {
+   "item": 22,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a cat and a ghost"
+  },
+  {
+   "item": 23,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a fox who finds a key"
+  },
+  {
+   "item": 24,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a boy who finds a map"
+  },
+  {
+   "item": 25,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a robot that is afraid of rain"
+  },
+  {
+   "item": 26,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a rabbit and a turtle"
+  },
+  {
+   "item": 27,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a brave mouse"
+  },
+  {
+   "item": 28,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a small dragon"
+  },
+  {
+   "item": 29,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a cat and a ghost"
+  },
+  {
+   "item": 30,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a boat on a river"
+  },
+  {
+   "item": 31,
+   "other": "TinyStories-8M",
+   "koko": "B",
+   "prompt": "a lighthouse"
+  },
+  {
+   "item": 32,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a magic pencil"
+  },
+  {
+   "item": 33,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a snowman who wants to see summer"
+  },
+  {
+   "item": 34,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a rainy day"
+  },
+  {
+   "item": 35,
+   "other": "TinyStories-33M",
+   "koko": "B",
+   "prompt": "a penguin who cannot swim"
+  },
+  {
+   "item": 36,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a robot that is afraid of rain"
+  },
+  {
+   "item": 37,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "a sleepy bear"
+  },
+  {
+   "item": 38,
+   "other": "TinyStories-8M",
+   "koko": "A",
+   "prompt": "a boat on a river"
+  },
+  {
+   "item": 39,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "two best friends who argue"
+  },
+  {
+   "item": 40,
+   "other": "TinyStories-33M",
+   "koko": "A",
+   "prompt": "an old clock"
+  }
+ ],
+ "stories_2_j1": [
+  {
+   "item": 1,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a small dragon"
+  },
+  {
+   "item": 2,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a boy who finds a map"
+  },
+  {
+   "item": 3,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a train that is late"
+  },
+  {
+   "item": 4,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a sleepy bear"
+  },
+  {
+   "item": 5,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a cat and a ghost"
+  },
+  {
+   "item": 6,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a boat on a river"
+  },
+  {
+   "item": 7,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a lost sock"
+  },
+  {
+   "item": 8,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a lost sock"
+  },
+  {
+   "item": 9,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a snowman who wants to see summer"
+  },
+  {
+   "item": 10,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a boat on a river"
+  },
+  {
+   "item": 11,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a fox who finds a key"
+  },
+  {
+   "item": 12,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a magic pencil"
+  },
+  {
+   "item": 13,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a boy who finds a map"
+  },
+  {
+   "item": 14,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "two best friends who argue"
+  },
+  {
+   "item": 15,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a cat and a ghost"
+  },
+  {
+   "item": 16,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a rabbit and a turtle"
+  },
+  {
+   "item": 17,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a snowman who wants to see summer"
+  },
+  {
+   "item": 18,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a rabbit and a turtle"
+  },
+  {
+   "item": 19,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a birthday cake"
+  },
+  {
+   "item": 20,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a birthday cake"
+  },
+  {
+   "item": 21,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a train that is late"
+  },
+  {
+   "item": 22,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a small dragon"
+  },
+  {
+   "item": 23,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a lighthouse"
+  },
+  {
+   "item": 24,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a robot that is afraid of rain"
+  },
+  {
+   "item": 25,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a girl and her kite"
+  },
+  {
+   "item": 26,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a penguin who cannot swim"
+  },
+  {
+   "item": 27,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "an old clock"
+  },
+  {
+   "item": 28,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "two best friends who argue"
+  },
+  {
+   "item": 29,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a girl and her kite"
+  },
+  {
+   "item": 30,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a rainy day"
+  },
+  {
+   "item": 31,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a brave mouse"
+  },
+  {
+   "item": 32,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a rainy day"
+  },
+  {
+   "item": 33,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a lighthouse"
+  },
+  {
+   "item": 34,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a robot that is afraid of rain"
+  },
+  {
+   "item": 35,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a fox who finds a key"
+  },
+  {
+   "item": 36,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a penguin who cannot swim"
+  },
+  {
+   "item": 37,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a brave mouse"
+  },
+  {
+   "item": 38,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "an old clock"
+  },
+  {
+   "item": 39,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a sleepy bear"
+  },
+  {
+   "item": 40,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a magic pencil"
+  }
+ ],
+ "stories_2_j2": [
+  {
+   "item": 1,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a rainy day"
+  },
+  {
+   "item": 2,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a rainy day"
+  },
+  {
+   "item": 3,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a boy who finds a map"
+  },
+  {
+   "item": 4,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a girl and her kite"
+  },
+  {
+   "item": 5,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a lost sock"
+  },
+  {
+   "item": 6,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a snowman who wants to see summer"
+  },
+  {
+   "item": 7,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a small dragon"
+  },
+  {
+   "item": 8,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a snowman who wants to see summer"
+  },
+  {
+   "item": 9,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a lighthouse"
+  },
+  {
+   "item": 10,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a birthday cake"
+  },
+  {
+   "item": 11,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "an old clock"
+  },
+  {
+   "item": 12,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a fox who finds a key"
+  },
+  {
+   "item": 13,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a magic pencil"
+  },
+  {
+   "item": 14,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a sleepy bear"
+  },
+  {
+   "item": 15,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a magic pencil"
+  },
+  {
+   "item": 16,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a rabbit and a turtle"
+  },
+  {
+   "item": 17,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a train that is late"
+  },
+  {
+   "item": 18,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a cat and a ghost"
+  },
+  {
+   "item": 19,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a sleepy bear"
+  },
+  {
+   "item": 20,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a boy who finds a map"
+  },
+  {
+   "item": 21,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a small dragon"
+  },
+  {
+   "item": 22,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "an old clock"
+  },
+  {
+   "item": 23,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a robot that is afraid of rain"
+  },
+  {
+   "item": 24,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a brave mouse"
+  },
+  {
+   "item": 25,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a rabbit and a turtle"
+  },
+  {
+   "item": 26,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a boat on a river"
+  },
+  {
+   "item": 27,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a train that is late"
+  },
+  {
+   "item": 28,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a robot that is afraid of rain"
+  },
+  {
+   "item": 29,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a girl and her kite"
+  },
+  {
+   "item": 30,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a brave mouse"
+  },
+  {
+   "item": 31,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a boat on a river"
+  },
+  {
+   "item": 32,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a cat and a ghost"
+  },
+  {
+   "item": 33,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a lighthouse"
+  },
+  {
+   "item": 34,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "two best friends who argue"
+  },
+  {
+   "item": 35,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "two best friends who argue"
+  },
+  {
+   "item": 36,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a birthday cake"
+  },
+  {
+   "item": 37,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a lost sock"
+  },
+  {
+   "item": 38,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a penguin who cannot swim"
+  },
+  {
+   "item": 39,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a fox who finds a key"
+  },
+  {
+   "item": 40,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a penguin who cannot swim"
+  }
+ ],
+ "stories_2_j3": [
+  {
+   "item": 1,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a penguin who cannot swim"
+  },
+  {
+   "item": 2,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a boy who finds a map"
+  },
+  {
+   "item": 3,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a brave mouse"
+  },
+  {
+   "item": 4,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a girl and her kite"
+  },
+  {
+   "item": 5,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a rabbit and a turtle"
+  },
+  {
+   "item": 6,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a lighthouse"
+  },
+  {
+   "item": 7,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a lost sock"
+  },
+  {
+   "item": 8,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a small dragon"
+  },
+  {
+   "item": 9,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a birthday cake"
+  },
+  {
+   "item": 10,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a snowman who wants to see summer"
+  },
+  {
+   "item": 11,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a lost sock"
+  },
+  {
+   "item": 12,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a birthday cake"
+  },
+  {
+   "item": 13,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a magic pencil"
+  },
+  {
+   "item": 14,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a train that is late"
+  },
+  {
+   "item": 15,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a train that is late"
+  },
+  {
+   "item": 16,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "two best friends who argue"
+  },
+  {
+   "item": 17,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a fox who finds a key"
+  },
+  {
+   "item": 18,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a girl and her kite"
+  },
+  {
+   "item": 19,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "an old clock"
+  },
+  {
+   "item": 20,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a rainy day"
+  },
+  {
+   "item": 21,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a sleepy bear"
+  },
+  {
+   "item": 22,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a cat and a ghost"
+  },
+  {
+   "item": 23,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a fox who finds a key"
+  },
+  {
+   "item": 24,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a boy who finds a map"
+  },
+  {
+   "item": 25,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a robot that is afraid of rain"
+  },
+  {
+   "item": 26,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a rabbit and a turtle"
+  },
+  {
+   "item": 27,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a brave mouse"
+  },
+  {
+   "item": 28,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a small dragon"
+  },
+  {
+   "item": 29,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a cat and a ghost"
+  },
+  {
+   "item": 30,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a boat on a river"
+  },
+  {
+   "item": 31,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "a lighthouse"
+  },
+  {
+   "item": 32,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a magic pencil"
+  },
+  {
+   "item": 33,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a snowman who wants to see summer"
+  },
+  {
+   "item": 34,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a rainy day"
+  },
+  {
+   "item": 35,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "a penguin who cannot swim"
+  },
+  {
+   "item": 36,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a robot that is afraid of rain"
+  },
+  {
+   "item": 37,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "a sleepy bear"
+  },
+  {
+   "item": 38,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "a boat on a river"
+  },
+  {
+   "item": 39,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "two best friends who argue"
+  },
+  {
+   "item": 40,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "an old clock"
+  }
+ ],
+ "chat_1_j1": [
+  {
+   "item": 1,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "good night"
+  },
+  {
+   "item": 2,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "good night"
+  },
+  {
+   "item": 3,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "why is the sky blue"
+  },
+  {
+   "item": 4,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "i got a new bike today"
+  },
+  {
+   "item": 5,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "what do you want to do today"
+  },
+  {
+   "item": 6,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "what is your favourite food"
+  },
+  {
+   "item": 7,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "i won my football game"
+  },
+  {
+   "item": 8,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "can you tell me a joke"
+  },
+  {
+   "item": 9,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "do you like snow"
+  },
+  {
+   "item": 10,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "i dont want to do my homework"
+  },
+  {
+   "item": 11,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "i won my football game"
+  },
+  {
+   "item": 12,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "i had a bad day at school"
+  },
+  {
+   "item": 13,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "what is the best pet"
+  },
+  {
+   "item": 14,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "what is the best pet"
+  },
+  {
+   "item": 15,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "what should i do when i am bored"
+  },
+  {
+   "item": 16,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "its my birthday tomorrow"
+  },
+  {
+   "item": 17,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "can you tell me a joke"
+  },
+  {
+   "item": 18,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "hi"
+  },
+  {
+   "item": 19,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "i cant sleep"
+  },
+  {
+   "item": 20,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "i am scared of the dark"
+  },
+  {
+   "item": 21,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "i had a bad day at school"
+  },
+  {
+   "item": 22,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "i am hungry"
+  },
+  {
+   "item": 23,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "why is the sky blue"
+  },
+  {
+   "item": 24,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "i am hungry"
+  },
+  {
+   "item": 25,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "i got a new bike today"
+  },
+  {
+   "item": 26,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "my dog is sick"
+  },
+  {
+   "item": 27,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "its my birthday tomorrow"
+  },
+  {
+   "item": 28,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "what is your favourite food"
+  },
+  {
+   "item": 29,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "i dont want to do my homework"
+  },
+  {
+   "item": 30,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "do you like snow"
+  },
+  {
+   "item": 31,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "i miss my friend"
+  },
+  {
+   "item": 32,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "i am scared of the dark"
+  },
+  {
+   "item": 33,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "i miss my friend"
+  },
+  {
+   "item": 34,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "i cant sleep"
+  },
+  {
+   "item": 35,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "hi"
+  },
+  {
+   "item": 36,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "what should i do when i am bored"
+  },
+  {
+   "item": 37,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "are you real"
+  },
+  {
+   "item": 38,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "what do you want to do today"
+  },
+  {
+   "item": 39,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "my dog is sick"
+  },
+  {
+   "item": 40,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "are you real"
+  }
+ ],
+ "chat_1_j2": [
+  {
+   "item": 1,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "good night"
+  },
+  {
+   "item": 2,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "i cant sleep"
+  },
+  {
+   "item": 3,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "can you tell me a joke"
+  },
+  {
+   "item": 4,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "what is the best pet"
+  },
+  {
+   "item": 5,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "my dog is sick"
+  },
+  {
+   "item": 6,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "its my birthday tomorrow"
+  },
+  {
+   "item": 7,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "i got a new bike today"
+  },
+  {
+   "item": 8,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "i am hungry"
+  },
+  {
+   "item": 9,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "can you tell me a joke"
+  },
+  {
+   "item": 10,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "i miss my friend"
+  },
+  {
+   "item": 11,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "i am scared of the dark"
+  },
+  {
+   "item": 12,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "i am hungry"
+  },
+  {
+   "item": 13,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "what do you want to do today"
+  },
+  {
+   "item": 14,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "i had a bad day at school"
+  },
+  {
+   "item": 15,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "what do you want to do today"
+  },
+  {
+   "item": 16,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "good night"
+  },
+  {
+   "item": 17,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "i had a bad day at school"
+  },
+  {
+   "item": 18,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "what is your favourite food"
+  },
+  {
+   "item": 19,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "my dog is sick"
+  },
+  {
+   "item": 20,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "i got a new bike today"
+  },
+  {
+   "item": 21,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "i won my football game"
+  },
+  {
+   "item": 22,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "i won my football game"
+  },
+  {
+   "item": 23,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "what should i do when i am bored"
+  },
+  {
+   "item": 24,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "what is the best pet"
+  },
+  {
+   "item": 25,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "do you like snow"
+  },
+  {
+   "item": 26,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "why is the sky blue"
+  },
+  {
+   "item": 27,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "i cant sleep"
+  },
+  {
+   "item": 28,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "do you like snow"
+  },
+  {
+   "item": 29,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "i miss my friend"
+  },
+  {
+   "item": 30,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "are you real"
+  },
+  {
+   "item": 31,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "are you real"
+  },
+  {
+   "item": 32,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "i dont want to do my homework"
+  },
+  {
+   "item": 33,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "its my birthday tomorrow"
+  },
+  {
+   "item": 34,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "hi"
+  },
+  {
+   "item": 35,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "why is the sky blue"
+  },
+  {
+   "item": 36,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "hi"
+  },
+  {
+   "item": 37,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "what is your favourite food"
+  },
+  {
+   "item": 38,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "i dont want to do my homework"
+  },
+  {
+   "item": 39,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "i am scared of the dark"
+  },
+  {
+   "item": 40,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "what should i do when i am bored"
+  }
+ ],
+ "chat_1_j3": [
+  {
+   "item": 1,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "what is the best pet"
+  },
+  {
+   "item": 2,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "are you real"
+  },
+  {
+   "item": 3,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "are you real"
+  },
+  {
+   "item": 4,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "why is the sky blue"
+  },
+  {
+   "item": 5,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "i had a bad day at school"
+  },
+  {
+   "item": 6,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "i won my football game"
+  },
+  {
+   "item": 7,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "my dog is sick"
+  },
+  {
+   "item": 8,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "what is your favourite food"
+  },
+  {
+   "item": 9,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "good night"
+  },
+  {
+   "item": 10,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "what is the best pet"
+  },
+  {
+   "item": 11,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "good night"
+  },
+  {
+   "item": 12,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "what should i do when i am bored"
+  },
+  {
+   "item": 13,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "i am scared of the dark"
+  },
+  {
+   "item": 14,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "i dont want to do my homework"
+  },
+  {
+   "item": 15,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "can you tell me a joke"
+  },
+  {
+   "item": 16,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "hi"
+  },
+  {
+   "item": 17,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "i miss my friend"
+  },
+  {
+   "item": 18,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "what do you want to do today"
+  },
+  {
+   "item": 19,
+   "other": "GPT-2 small",
+   "koko": "A",
+   "prompt": "can you tell me a joke"
+  },
+  {
+   "item": 20,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "i miss my friend"
+  },
+  {
+   "item": 21,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "i won my football game"
+  },
+  {
+   "item": 22,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "i got a new bike today"
+  },
+  {
+   "item": 23,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "what should i do when i am bored"
+  },
+  {
+   "item": 24,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "i had a bad day at school"
+  },
+  {
+   "item": 25,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "what do you want to do today"
+  },
+  {
+   "item": 26,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "i dont want to do my homework"
+  },
+  {
+   "item": 27,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "do you like snow"
+  },
+  {
+   "item": 28,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "i am hungry"
+  },
+  {
+   "item": 29,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "i cant sleep"
+  },
+  {
+   "item": 30,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "i got a new bike today"
+  },
+  {
+   "item": 31,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "i cant sleep"
+  },
+  {
+   "item": 32,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "what is your favourite food"
+  },
+  {
+   "item": 33,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "why is the sky blue"
+  },
+  {
+   "item": 34,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "B",
+   "prompt": "its my birthday tomorrow"
+  },
+  {
+   "item": 35,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "i am hungry"
+  },
+  {
+   "item": 36,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "hi"
+  },
+  {
+   "item": 37,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "i am scared of the dark"
+  },
+  {
+   "item": 38,
+   "other": "SmolLM2-135M-Instruct",
+   "koko": "A",
+   "prompt": "do you like snow"
+  },
+  {
+   "item": 39,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "my dog is sick"
+  },
+  {
+   "item": 40,
+   "other": "GPT-2 small",
+   "koko": "B",
+   "prompt": "its my birthday tomorrow"
+  }
+ ]
+}

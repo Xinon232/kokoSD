@@ -1,0 +1,108 @@
+<title>Koko Scoreboard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap">
+<style>
+/* Layout: one reading column of short sections, each a claim, a table and its caveats. */
+:root { --bg: #f6f8fc; --panel: #ffffff; --ink: #162036; --dim: #5a6784; --line: #d9e0ee; --accent: #2f5fd0; --win: #0f6b4f;
+  --display: "Space Grotesk", Inter, system-ui, sans-serif; --body: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #10141f; --panel: #171d2c; --ink: #e8ecf6; --dim: #9aa6c2; --line: #2a3349; --accent: #8fb0ff; --win: #6fd3ae; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #10141f; --panel: #171d2c; --ink: #e8ecf6; --dim: #9aa6c2; --line: #2a3349; --accent: #8fb0ff; --win: #6fd3ae; color-scheme: dark }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.55 var(--body); }
+main { max-width: 860px; margin: 0 auto; padding-block: 28px 56px; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 30px; }
+h1 { font: 600 34px/1.15 var(--display); margin: 0 0 8px; text-wrap: balance; }
+h2 { font: 600 21px/1.25 var(--display); margin: 0 0 8px; text-wrap: balance; }
+p { margin: 0 0 10px; max-width: 68ch; }
+.lede { color: var(--dim); font-size: 17px; }
+section { min-width: 0; }
+ul { margin: 0 0 10px; padding-left: 20px; max-width: 68ch; }
+li { margin-bottom: 5px; }
+.scroll { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; margin: 10px 0; }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; color: var(--dim); font-size: 13px; }
+tbody tr:last-child td { border-bottom: 0; }
+td b { color: var(--win); font-weight: 600; }
+.note { color: var(--dim); font-size: 14px; }
+dl { margin: 10px 0; display: grid; grid-template-columns: minmax(120px, 190px) 1fr; gap: 6px 14px; font-size: 14.5px; }
+dt { color: var(--dim); font-weight: 500; }
+dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 560px) { dl { grid-template-columns: 1fr; gap: 2px; } dd { margin-bottom: 8px; } h1 { font-size: 28px; } }
+a { color: var(--accent); }
+</style>
+<main>
+<header>
+  <h1>Koko against five public small models</h1>
+  <p class="lede">Koko is a chatbot that runs on an unmodified Game Boy Advance from a 32 MB cartridge. This page measures it against small public language models on the same text, the same questions and the same prompts. Measured 20 November 2026.</p>
+</header>
+
+<section>
+  <h2>The short version</h2>
+  <ul>
+    <li><b>Chat:</b> blind judges preferred Koko's replies to SmolLM2-135M-Instruct's on 18 of 20 everyday messages, and to GPT-2's on all 20.</li>
+    <li><b>Stories:</b> judges preferred Koko to GPT-2 (19 of 20) and to both TinyStories models (15 and 16 of 20), and rated it about level with SmolLM2-135M-Instruct (9 to 11).</li>
+    <li><b>Facts:</b> Koko alone is weak. It answered 22 of 60 general-knowledge questions; SmolLM2-135M answered 43. It knows capitals (35 of 40) because it was drilled on them.</li>
+    <li><b>Size:</b> Koko is the only model here built to fit a cartridge. The others are 15 to 540 MB as published.</li>
+    <li><b>Cost:</b> Koko was trained in 7.4 hours on one rented graphics card.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>The contenders</h2>
+  <div class="scroll"><table class=""><thead><tr><th>Model</th><th>Weights</th><th>Size as published</th><th>Fits a 32 MB cartridge</th><th>Memory (context)</th><th>Training, as reported</th></tr></thead><tbody><tr><td><b>Koko</b> (this project)</td><td>72.1M 2-bit weights + 21.0M table values</td><td>32 MB cartridge, everything included</td><td>Yes</td><td>256 tokens</td><td>4.8 billion tokens; 7.4 hours on one RTX 5090</td></tr><tr><td>TinyStories-1M</td><td>3.7M</td><td>14 MB</td><td>Would fit at 8 bits (4 MB)</td><td>2,048</td><td>Under a day on one GPU (its paper)</td></tr><tr><td>TinyStories-8M</td><td>19.7M</td><td>75 MB</td><td>Would fit at 8 bits (19 MB)</td><td>2,048</td><td>Under a day on one GPU (its paper)</td></tr><tr><td>TinyStories-33M</td><td>68.5M</td><td>261 MB</td><td>No (65 MB at 8 bits)</td><td>2,048</td><td>Under a day on one GPU (its paper)</td></tr><tr><td>GPT-2 small</td><td>124.4M</td><td>475 MB</td><td>No (119 MB at 8 bits)</td><td>1,024</td><td>40 GB of web text; compute not published</td></tr><tr><td>SmolLM2-135M</td><td>134.5M</td><td>513 MB</td><td>No (128 MB at 8 bits)</td><td>8,192</td><td>2 trillion tokens on 64 H100 GPUs (its model card)</td></tr></tbody></table></div>
+  <p class="note">"Would fit" is about storage only. Nobody has shown those models running in a Game Boy Advance's 288 KB of memory; Koko's design exists to make that possible. Parameter counts are what the downloaded files contain, so the TinyStories models count higher than their names.</p>
+</section>
+
+<section>
+  <h2>Predicting the same text</h2>
+  <p>Each model reads 200 held-out children's stories and 200 held-out Simple English Wikipedia passages, and is scored on how well it predicts every next character. Lower is better.</p>
+  <div class="scroll"><table class=""><thead><tr><th>Model</th><th>Stories (bits per character)</th><th>Encyclopedia (bits per character)</th></tr></thead><tbody><tr><td><b>Koko</b> on the cartridge</td><td>0.545</td><td>1.178</td></tr><tr><td>Koko full-precision twin</td><td>0.496</td><td>1.176</td></tr><tr><td>TinyStories-1M</td><td>0.781</td><td>2.892</td></tr><tr><td>TinyStories-8M</td><td>0.513</td><td>2.834</td></tr><tr><td>TinyStories-33M</td><td><b>0.435</b></td><td>3.119</td></tr><tr><td>GPT-2 small</td><td>0.862</td><td>1.003</td></tr><tr><td>SmolLM2-135M</td><td>0.695</td><td><b>0.898</b></td></tr><tr><td>SmolLM2-135M-Instruct</td><td>0.731</td><td>0.981</td></tr></tbody></table></div>
+  <ul>
+    <li>On stories Koko sits between TinyStories-8M and TinyStories-33M, and ahead of GPT-2 and SmolLM2.</li>
+    <li>On encyclopedia text GPT-2 and SmolLM2 are better. They are general models trained on far more text.</li>
+    <li>The 2-bit weights cost Koko 0.05 on stories against its own full-precision twin, and nothing on encyclopedia text.</li>
+  </ul>
+  <p class="note">Home advantage: Koko and the TinyStories models were trained on text from the same sources as these passages (not these passages). GPT-2's training data deliberately excluded Wikipedia.</p>
+</section>
+
+<section>
+  <h2>Answering questions</h2>
+  <p>130 questions with one checkable answer each, most-likely answer only. Chat models were asked in their chat format; plain language models were given "Question: … Answer:".</p>
+  <div class="scroll"><table class=""><thead><tr><th>Model</th><th>Capitals (40)</th><th>General knowledge (60)</th><th>Sums (30)</th></tr></thead><tbody><tr><td><b>Koko</b>, model only</td><td>35/40</td><td>22/60</td><td>14/30</td></tr><tr><td><b>Koko</b> with its fact table and calculator</td><td>35/40</td><td>22/60</td><td>30/30</td></tr><tr><td>SmolLM2-135M-Instruct</td><td>39/40</td><td>38/60</td><td>6/30 (11/30 when given room to show its working)</td></tr><tr><td>SmolLM2-135M</td><td>36/40</td><td>43/60</td><td>14/30</td></tr><tr><td>GPT-2 small</td><td>3/40</td><td>12/60</td><td>0/30</td></tr><tr><td>TinyStories-33M</td><td>0/40</td><td>2/60</td><td>0/30</td></tr></tbody></table></div>
+  <ul>
+    <li>Koko's fact table and calculator fix sums completely but did not help here on general knowledge. The table answers "what is X" and "who was X"; these questions are phrased differently, for example "What do bees make?".</li>
+    <li>GPT-2 mostly repeated the question back ("The capital of France is the capital of France").</li>
+  </ul>
+  <p>Some of Koko's wrong answers, model only:</p>
+  <dl><dt>How many legs does a spider have?</dt><dd>Four legs have four legs.</dd><dt>What is frozen water called?</dt><dd>Frozen water is called frozen water.</dd><dt>What is the opposite of hot?</dt><dd>Hot water is the opposite of hot water. It&#x27;s used to make things like hot water and hot water.</dd><dt>What animal says meow?</dt><dd>Yes, it does. It&#x27;s like a bird that&#x27;s not a bird.</dd></dl>
+</section>
+
+<section>
+  <h2>Blind side-by-side judging</h2>
+  <p>Twenty story subjects and twenty everyday chat messages. For each, three judges saw two anonymous outputs in random order and picked the better one.</p>
+  <div class="scroll"><table class=""><thead><tr><th>Task</th><th>Koko against</th><th>Items won (Koko – other)</th><th>Individual votes</th><th>All three judges agreed</th></tr></thead><tbody><tr><td>Stories</td><td>TinyStories-8M</td><td><b>16</b> – 4</td><td>51 – 9</td><td>17 of 20</td></tr><tr><td>Stories</td><td>TinyStories-33M</td><td><b>15</b> – 5</td><td>44 – 16</td><td>17 of 20</td></tr><tr><td>Stories</td><td>GPT-2 small</td><td><b>19</b> – 1</td><td>58 – 2</td><td>19 of 20</td></tr><tr><td>Stories</td><td>SmolLM2-135M-Instruct</td><td><b>9</b> – 11</td><td>28 – 32</td><td>15 of 20</td></tr><tr><td>Chat</td><td>SmolLM2-135M-Instruct</td><td><b>18</b> – 2</td><td>56 – 4</td><td>18 of 20</td></tr><tr><td>Chat</td><td>GPT-2 small</td><td><b>20</b> – 0</td><td>60 – 0</td><td>20 of 20</td></tr></tbody></table></div>
+  <p>One story subject, "a fox who finds a key":</p>
+  <dl><dt>Koko</dt><dd>Once there was a fox named Finn who loved exploring the forest. One day, Finn found a shiny key under a big oak tree. Curious, Finn followed the key&#x27;s clues and found a hidden garden. Finn searched and searched, and found a shiny stone. Finn was so happy, and his heart was full of joy. From that day on, Finn was known as the most lucky fox in the forest.</dd><dt>TinyStories-33M</dt><dd>Once upon a time, there was a jolly fox who lived in the woods. He had the biggest heart and the smallest bell in the forest. But he was lonely so he decided to go for a walk and he saw a small rabbit. The fox asked the rabbit, &quot;Do you know where I can find a key?&quot; The rabbit replied, &quot;Yes, I know a place. It&#x27;s very far away and it&#x27;s very quiet and peaceful.&quot; The fox thanked the rabbit and he set off.</dd><dt>GPT-2 small</dt><dd>Once upon a time, there was a man named Joseph Smith who wanted to become the president of the United States. He had been out of prison for over fifteen years and had been trying to get his wife out of prison. He was known as a well known and well respected man. In the days before his arrest, Joseph had been a good man and had been the only man to get the word out on what he considered to be the most serious crimes in American history.</dd><dt>SmolLM2-135M-Instruct</dt><dd>The fox found a key. She was a curious and adventurous fox, always eager to explore the world around her. One day, as she wandered through the forest, she stumbled upon a small, hidden clearing. She climbed up the tree to examine the key, which was attached to a branch. As she looked at the key, she saw that it was a symbol of protection and guidance. The key had been chosen by a wise old fox who lived in the forest.</dd></dl>
+  <p>One chat message, "i had a bad day at school":</p>
+  <dl><dt>Koko</dt><dd>I&#x27;m sorry to hear that. What happened?</dd><dt>SmolLM2-135M-Instruct</dt><dd>I&#x27;m sorry for any confusion, but as a text-based AI model, I don&#x27;t have the capability to provide personal experiences or real-time responses. I&#x27;d recommend checking your school&#x27;s website or a trusted online platform for guidance.</dd><dt>GPT-2 small</dt><dd>I had a bad day at school</dd></dl>
+  <p class="note">The judges were nine separate runs of an AI model (Claude), not people, and the same family of model wrote Koko's code. The messages are the kind Koko was trained for. The TinyStories models and GPT-2 do not follow instructions, so they often ignored the subject; that is a real difference in ability, but it means this compares "asked for a story about X", not raw story-writing.</p>
+</section>
+
+<section>
+  <h2>Speed</h2>
+  <div class="scroll"><table class=""><thead><tr><th>Model</th><th>Tokens per second on a Game Boy Advance</th><th>Tokens per second on the same PC processor</th></tr></thead><tbody><tr><td><b>Koko</b>, cartridge engine</td><td>about 3.5 short chats, 2.9 with a full memory</td><td>1,471 (one thread)</td></tr><tr><td>TinyStories-1M</td><td>no version exists</td><td>367 (four threads)</td></tr><tr><td>TinyStories-8M</td><td>no version exists</td><td>244 (four threads)</td></tr><tr><td>TinyStories-33M</td><td>no version exists</td><td>129 (four threads)</td></tr><tr><td>GPT-2 small</td><td>no version exists</td><td>65 (four threads)</td></tr><tr><td>SmolLM2-135M</td><td>no version exists</td><td>42 (four threads)</td></tr></tbody></table></div>
+  <ul>
+    <li>The Game Boy Advance figures were measured in the mGBA emulator, not on a real console.</li>
+    <li>A Game Boy Advance runs for roughly 15 hours on two AA batteries, which is about half a watt. At 3 tokens per second that is on the order of 0.2 joules per token. This is an estimate from battery life, not a measurement.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>How to read this</h2>
+  <ul>
+    <li>One run of each test, with fixed random seeds. Small differences are not meaningful.</li>
+    <li>Koko on the cartridge samples at temperature 0.5 and blocks repeated phrases; the other models sampled at 0.7 for stories and chat. Question answering used each model's most likely answer.</li>
+    <li>Sources for the other models' training: the <a href="https://huggingface.co/HuggingFaceTB/SmolLM2-135M">SmolLM2-135M model card</a>, the <a href="https://arxiv.org/abs/2305.07759">TinyStories paper</a>, and <a href="https://openai.com/index/better-language-models/">OpenAI's GPT-2 announcement</a> with its <a href="https://raw.githubusercontent.com/openai/gpt-2/master/model_card.md">model card</a>.</li>
+  </ul>
+</section>
+</main>

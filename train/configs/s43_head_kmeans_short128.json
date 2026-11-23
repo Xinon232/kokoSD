@@ -1,0 +1,6 @@
+{
+ "base": "base.json",
+ "head": "two_level",
+ "head_clusters": "kmeans",
+ "head_short": 128
+}

@@ -1,0 +1,103 @@
+{
+ "name": "c_s43_head_kmeans_short128",
+ "val_nats_per_token": 2.7289,
+ "val_bits_per_char": 1.0845,
+ "val_by_domain": {
+  "chat": {
+   "nats_per_token": 2.3521,
+   "bits_per_char": 0.8798
+  },
+  "facts": {
+   "nats_per_token": 3.8573,
+   "bits_per_char": 1.7243
+  },
+  "stories": {
+   "nats_per_token": 2.3542,
+   "bits_per_char": 0.8923
+  }
+ },
+ "train_loss_first": 8.0228,
+ "train_loss_last": 2.702,
+ "steps": 15000,
+ "train_tokens": 491520000,
+ "train_tokens_facts": 0,
+ "wall_s": 1518.1,
+ "train_tokens_per_s": 323764,
+ "params": {
+  "total": 1467408,
+  "tables": 524288,
+  "matrices": 943120
+ },
+ "expert_usage_entropy": null,
+ "gba": {
+  "cycles_per_token": 3955228,
+  "gba_tokens_per_s": 4.24,
+  "gba_tokens_per_s_two_step_head": 4.24,
+  "active_weights": 425728,
+  "stored_weights": 917504,
+  "rom_mb": 1.38
+ },
+ "facts": null,
+ "fact_exposures": null,
+ "device": "cuda",
+ "config": {
+  "V": 4096,
+  "D": 128,
+  "L": 4,
+  "T": 256,
+  "NH": 4,
+  "DK": 64,
+  "DV": 64,
+  "mlp": "dense",
+  "HD": 256,
+  "E": 16,
+  "router": "learned",
+  "moe_aux": 0.01,
+  "tie_head": false,
+  "head": "two_level",
+  "head_clusters": "kmeans",
+  "head_short": 128,
+  "head_C": 0,
+  "att_layers": null,
+  "mixer": "none",
+  "x0_mix": false,
+  "copy_head": false,
+  "hashmem_heads": 0,
+  "hashmem_bits": 14,
+  "hashmem_layers": [],
+  "wq": "fp",
+  "arenas": false,
+  "arenas_frac": 0.6,
+  "wq_start_frac": 0.0,
+  "wq_lr_mult": 1.0,
+  "row_gain": false,
+  "aq": 0,
+  "keyq": "none",
+  "rescore_m": 32,
+  "att_bias": false,
+  "topk": 0,
+  "inject": [],
+  "seed": 1,
+  "opt": "adamw",
+  "muon_lr": 0.02,
+  "lr": 0.002,
+  "wd": 0.05,
+  "wd_off_frac": 1.0,
+  "table_lr_mult": 1.0,
+  "warmup": 500,
+  "steps": 15000,
+  "batch": 128,
+  "eval_every": 3000,
+  "val_seqs": 512,
+  "data": "mix0",
+  "mix": {
+   "chat": 0.5,
+   "facts": 0.25,
+   "stories": 0.25
+  },
+  "facts_n": 0,
+  "facts_frac": 0.25,
+  "facts_marker": false,
+  "name": "c_s43_head_kmeans_short128"
+ }
+}

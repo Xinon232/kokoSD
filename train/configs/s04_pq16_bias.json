@@ -1,0 +1,6 @@
+{
+ "base": "base.json",
+ "keyq": "pq16",
+ "topk": 8,
+ "att_bias": true
+}

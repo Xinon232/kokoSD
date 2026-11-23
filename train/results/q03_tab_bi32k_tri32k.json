@@ -1,0 +1,75 @@
+{
+ "name": "q03_tab_bi32k_tri32k",
+ "val_nats_per_token": 1.7285,
+ "val_bits_per_char": 0.6295,
+ "train_loss_first": 8.8169,
+ "train_loss_last": 1.7027,
+ "steps": 15000,
+ "train_tokens": 491520000,
+ "wall_s": 996.6,
+ "train_tokens_per_s": 493176,
+ "params": {
+  "total": 9831568,
+  "tables": 8912896,
+  "matrices": 918672
+ },
+ "expert_usage_entropy": null,
+ "gba": {
+  "cycles_per_token": 3514000,
+  "gba_tokens_per_s": 4.77,
+  "active_weights": 409600,
+  "stored_weights": 917504,
+  "rom_mb": 9.38
+ },
+ "device": "cuda",
+ "config": {
+  "V": 4096,
+  "D": 128,
+  "L": 4,
+  "T": 256,
+  "NH": 4,
+  "DK": 64,
+  "DV": 64,
+  "mlp": "dense",
+  "HD": 256,
+  "E": 16,
+  "moe_aux": 0.01,
+  "tie_head": false,
+  "wq": "fp",
+  "arenas": false,
+  "arenas_frac": 0.6,
+  "wq_start_frac": 0.0,
+  "wq_lr_mult": 1.0,
+  "aq": 0,
+  "keyq": "none",
+  "topk": 0,
+  "inject": [
+   {
+    "kind": "bigram",
+    "rows": 32768,
+    "layers": [
+     0
+    ],
+    "gate": false
+   },
+   {
+    "kind": "trigram",
+    "rows": 32768,
+    "layers": [
+     0
+    ],
+    "gate": false
+   }
+  ],
+  "seed": 1,
+  "lr": 0.002,
+  "wd": 0.05,
+  "warmup": 500,
+  "steps": 15000,
+  "batch": 128,
+  "eval_every": 3000,
+  "val_seqs": 512,
+  "data": "tinystories",
+  "name": "q03_tab_bi32k_tri32k"
+ }
+}

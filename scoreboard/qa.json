@@ -1,0 +1,3476 @@
+{
+ "results": {
+  "Koko (cartridge, model only)": {
+   "capitals": [
+    35,
+    40
+   ],
+   "general": [
+    22,
+    60
+   ],
+   "arithmetic": [
+    14,
+    30
+   ]
+  },
+  "Koko (cartridge, with fact table and calculator)": {
+   "capitals": [
+    35,
+    40
+   ],
+   "general": [
+    22,
+    60
+   ],
+   "arithmetic": [
+    30,
+    30
+   ]
+  },
+  "SmolLM2-135M-Instruct": {
+   "capitals": [
+    39,
+    40
+   ],
+   "general": [
+    38,
+    60
+   ],
+   "arithmetic": [
+    6,
+    30
+   ]
+  },
+  "SmolLM2-135M": {
+   "capitals": [
+    36,
+    40
+   ],
+   "general": [
+    43,
+    60
+   ],
+   "arithmetic": [
+    14,
+    30
+   ]
+  },
+  "GPT-2 small": {
+   "capitals": [
+    3,
+    40
+   ],
+   "general": [
+    12,
+    60
+   ],
+   "arithmetic": [
+    0,
+    30
+   ]
+  },
+  "TinyStories-33M": {
+   "capitals": [
+    0,
+    40
+   ],
+   "general": [
+    2,
+    60
+   ],
+   "arithmetic": [
+    0,
+    30
+   ]
+  }
+ },
+ "answers": {
+  "capitals": {
+   "What is the capital of France?": {
+    "Koko (cartridge, model only)": [
+     "Paris.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Paris.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of France is Paris.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Paris.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of France is the capital of France.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is France?",
+     false
+    ]
+   },
+   "What is the capital of Germany?": {
+    "Koko (cartridge, model only)": [
+     "The capital of Germany is Berlin.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The capital of Germany is Berlin.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Germany is Berlin.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Berlin.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Germany is the capital of the German people.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Tiddle: Tiddle, Germany. I answer one question: I want to see what is the best place in the",
+     false
+    ]
+   },
+   "What is the capital of Italy?": {
+    "Koko (cartridge, model only)": [
+     "Rome.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Rome.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Italy is Rome.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "It is the capital of Italy.",
+     false
+    ],
+    "GPT-2 small": [
+     "The capital of Italy is the capital of Italy.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital of Germany?",
+     false
+    ]
+   },
+   "What is the capital of Spain?": {
+    "Koko (cartridge, model only)": [
+     "The capital of Spain is Madrid.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The capital of Spain is Madrid.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Spain is Madrid.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Madrid.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Spain is the capital of Spain.",
+     false
+    ],
+    "TinyStories-33M": [
+     "It's the capital of France. So, the little girl followed the voice and soon enough, she arrived in the most",
+     false
+    ]
+   },
+   "What is the capital of Japan?": {
+    "Koko (cartridge, model only)": [
+     "Tokyo.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Tokyo.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Japan is Tokyo.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Tokyo.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Japan is the capital of Japan.",
+     false
+    ],
+    "TinyStories-33M": [
+     "The left page is a country of Jupiter. It is very far away. It has a lot of Jupiter. It is",
+     false
+    ]
+   },
+   "What is the capital of China?": {
+    "Koko (cartridge, model only)": [
+     "The capital of China is Beijing.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The capital of China is Beijing.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of China is Beijing.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The capital of China is Beijing.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of China is the capital of China.",
+     false
+    ],
+    "TinyStories-33M": [
+     "The capital of France?",
+     false
+    ]
+   },
+   "What is the capital of Russia?": {
+    "Koko (cartridge, model only)": [
+     "The capital of Russia is Moscow.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The capital of Russia is Moscow.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Russia is Moscow.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Moscow.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Russia is the Russian Federation.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital?\"",
+     false
+    ]
+   },
+   "What is the capital of Egypt?": {
+    "Koko (cartridge, model only)": [
+     "C Egypt's capital is Cairo.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "C Egypt's capital is Cairo.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Egypt is Cairo.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The capital of Egypt is Cairo.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Egypt is the capital of the Kingdom of God.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the name of the number of the number?",
+     false
+    ]
+   },
+   "What is the capital of India?": {
+    "Koko (cartridge, model only)": [
+     "New Delhi is the capital of India.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "New Delhi is the capital of India.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "India is a country located in South Asia, known for its rich cultural heritage, diverse landscapes, and vibrant cities. The capital of India is New Delhi, a cit",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The capital of India is New Delhi.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of India is the capital of India.",
+     false
+    ],
+    "TinyStories-33M": [
+     "The capital of India.",
+     false
+    ]
+   },
+   "What is the capital of Canada?": {
+    "Koko (cartridge, model only)": [
+     "Ottawa.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Ottawa.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Canada is Ottawa.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Canada is a country in North America. It is a country with a population of 31,000,",
+     false
+    ],
+    "GPT-2 small": [
+     "The capital of Canada is the capital of Canada.",
+     false
+    ],
+    "TinyStories-33M": [
+     "The capital of France?",
+     false
+    ]
+   },
+   "What is the capital of Australia?": {
+    "Koko (cartridge, model only)": [
+     "Canberra is the capital of Australia.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Canberra is the capital of Australia.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Australia is Canberra.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The capital of Australia is Canberra.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Australia is the Commonwealth of Australia.",
+     false
+    ],
+    "TinyStories-33M": [
+     "The capital of France?",
+     false
+    ]
+   },
+   "What is the capital of Brazil?": {
+    "Koko (cartridge, model only)": [
+     "The capital of Brazil is Port Brazil.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The capital of Brazil is Port Brazil.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Brazil is Brasilia.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The capital of Brazil is Brasilia.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Brazil is the capital of the country.",
+     false
+    ],
+    "TinyStories-33M": [
+     "The capital is a big continent of Brazil. It is a very old country, but it is very far from here.",
+     false
+    ]
+   },
+   "What is the capital of Mexico?": {
+    "Koko (cartridge, model only)": [
+     "Mexico City is the capital of Mexico.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Mexico City is the capital of Mexico.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Mexico is Mexico City.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Mexico City.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Mexico is the capital of Mexico.",
+     false
+    ],
+    "TinyStories-33M": [
+     "How can you tell me which country you are from?",
+     false
+    ]
+   },
+   "What is the capital of the United Kingdom?": {
+    "Koko (cartridge, model only)": [
+     "The capital of United Kingdom is London.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The capital of United Kingdom is London.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of the United Kingdom is London.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "London",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of the United Kingdom is the capital of the United Kingdom.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital of France?",
+     false
+    ]
+   },
+   "What is the capital of Ireland?": {
+    "Koko (cartridge, model only)": [
+     "Dublin.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Dublin.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Ireland is Dublin.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Dublin.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Ireland is Dublin.",
+     true
+    ],
+    "TinyStories-33M": [
+     "The capital is a red apple. It is very far away. You have to cross the river to get there.",
+     false
+    ]
+   },
+   "What is the capital of Portugal?": {
+    "Koko (cartridge, model only)": [
+     "Lisbon.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Lisbon.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Portugal is Lisbon.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The capital of Portugal is Lisbon.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Portugal is the capital of Portugal.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital?\"",
+     false
+    ]
+   },
+   "What is the capital of Greece?": {
+    "Koko (cartridge, model only)": [
+     "Athens is the capital of Greece.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Athens is the capital of Greece.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Greece is Athens.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Athens.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Greece is the Greek capital.",
+     false
+    ],
+    "TinyStories-33M": [
+     "The capital of England is the king of England and the people who are brave and kind.",
+     false
+    ]
+   },
+   "What is the capital of Turkey?": {
+    "Koko (cartridge, model only)": [
+     "The capital of Turkey is Rome.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The capital of Turkey is Rome.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Turkey is Ankara.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The capital of Turkey is Ankara.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Turkey is the capital of the Republic of Turkey.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Turkey: Turkey!",
+     false
+    ]
+   },
+   "What is the capital of Sweden?": {
+    "Koko (cartridge, model only)": [
+     "Sweden's capital is Stockholm.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Sweden's capital is Stockholm.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Sweden is Stockholm.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Stockholm.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Sweden is the capital of Sweden.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Try it?",
+     false
+    ]
+   },
+   "What is the capital of Norway?": {
+    "Koko (cartridge, model only)": [
+     "The capital of Norway is Oslo.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The capital of Norway is Oslo.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Norway is Oslo.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Oslo.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Norway is the Norwegian capital of Oslo.",
+     true
+    ],
+    "TinyStories-33M": [
+     "The capital is a mountain that has many animals on it. Can you find the capital capital?\"",
+     false
+    ]
+   },
+   "What is the capital of Finland?": {
+    "Koko (cartridge, model only)": [
+     "Helsinki is the capital of Finland.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Helsinki is the capital of Finland.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Finland is Helsinki.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The capital of Finland is Helsinki.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Finland is the capital of the Finnish people.",
+     false
+    ],
+    "TinyStories-33M": [
+     "The capital is a place where the sun is hot. You will see a green and sour face there. You will like",
+     false
+    ]
+   },
+   "What is the capital of Denmark?": {
+    "Koko (cartridge, model only)": [
+     "The capital of Denmark is Oslo.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The capital of Denmark is Oslo.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "Denmark is a country located in Northern Europe. The capital of Denmark is Copenhagen.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Copenhagen.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Denmark is the capital of Denmark.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the name of the color of the sky?",
+     false
+    ]
+   },
+   "What is the capital of Poland?": {
+    "Koko (cartridge, model only)": [
+     "Poland's capital is Warsaw.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Poland's capital is Warsaw.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Poland is Warsaw.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The capital of Poland is Warsaw.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Poland is the capital of Poland.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Banana? Banana? That is the name of the president of the earth.",
+     false
+    ]
+   },
+   "What is the capital of Austria?": {
+    "Koko (cartridge, model only)": [
+     "Vienna is the capital of Austria.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Vienna is the capital of Austria.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "Austria is a country located in Central Europe, bordered by Germany to the north, Italy to the east, and Czech Republic to the south. The capital of Austria is ",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Vienna.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Austria is the capital of the Republic of Austria.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital?\"",
+     false
+    ]
+   },
+   "What is the capital of the Netherlands?": {
+    "Koko (cartridge, model only)": [
+     "The capital of Netherlands is Amsterdam.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The capital of Netherlands is Amsterdam.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of the Netherlands is Amsterdam.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The capital of the Netherlands is Amsterdam.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of the Netherlands is the capital of the Netherlands.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital of France?",
+     false
+    ]
+   },
+   "What is the capital of Belgium?": {
+    "Koko (cartridge, model only)": [
+     "The capital of Belgium is Brussels.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The capital of Belgium is Brussels.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Belgium is Brussels.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Belgium is a country in Western Europe. It is bordered by France to the north, Luxembourg to the east, the Netherlands",
+     false
+    ],
+    "GPT-2 small": [
+     "The capital of Belgium is the capital of Belgium.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital of France?",
+     false
+    ]
+   },
+   "What is the capital of Switzerland?": {
+    "Koko (cartridge, model only)": [
+     "Switzerland's capital is Amsterdam.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Switzerland's capital is Amsterdam.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Switzerland is Geneva.",
+     false
+    ],
+    "SmolLM2-135M": [
+     "The capital of Switzerland is Geneva.",
+     false
+    ],
+    "GPT-2 small": [
+     "The capital of Switzerland is the Swiss franc.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital that has a lot of smoke?\"",
+     false
+    ]
+   },
+   "What is the capital of Argentina?": {
+    "Koko (cartridge, model only)": [
+     "Buenos Aires.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Buenos Aires.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Argentina is Buenos Aires.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Buenos Aires.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Argentina is Buenos Aires.",
+     true
+    ],
+    "TinyStories-33M": [
+     "The capital is a... Fearful country. It has many ups and downs and loud noises. It is a question you",
+     false
+    ]
+   },
+   "What is the capital of Peru?": {
+    "Koko (cartridge, model only)": [
+     "Lima.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Lima.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Peru is Lima.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The capital of Peru is Lima.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Peru is the capital of Peru.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital of England?",
+     false
+    ]
+   },
+   "What is the capital of Chile?": {
+    "Koko (cartridge, model only)": [
+     "It's La Crosse.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "It's La Crosse.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Chile is Santiago.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The capital of Chile is Santiago.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Chile is the capital of Chile.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital that can be when it is dark and scary?",
+     false
+    ]
+   },
+   "What is the capital of Kenya?": {
+    "Koko (cartridge, model only)": [
+     "The capital of Kenya is Nairobi.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The capital of Kenya is Nairobi.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Kenya is Nairobi.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The capital of Kenya is Nairobi.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Kenya is the capital of the United States.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital of Kenya?",
+     false
+    ]
+   },
+   "What is the capital of Thailand?": {
+    "Koko (cartridge, model only)": [
+     "That's Bangkok!",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "That's Bangkok!",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Thailand is Bangkok.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The capital of Thailand is Bangkok.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Thailand is the capital of Thailand.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital?\"",
+     false
+    ]
+   },
+   "What is the capital of Vietnam?": {
+    "Koko (cartridge, model only)": [
+     "Hanoi is the capital of Vietnam.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Hanoi is the capital of Vietnam.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Vietnam is Hanoi.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The capital of Vietnam is Hanoi.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Vietnam is the capital of the Republic of Vietnam.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital of France?",
+     false
+    ]
+   },
+   "What is the capital of South Korea?": {
+    "Koko (cartridge, model only)": [
+     "Seoul.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Seoul.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of South Korea is Seoul.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Seoul",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of South Korea is the capital of South Korea.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Wisdom: The Eignorant? What is the capital of Germany?",
+     false
+    ]
+   },
+   "What is the capital of Indonesia?": {
+    "Koko (cartridge, model only)": [
+     "Jakarta.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Jakarta.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "Indonesia is a country located in Southeast Asia. The capital of Indonesia is Jakarta.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Jakarta",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Indonesia is the capital of the Republic of Indonesia.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is France?",
+     false
+    ]
+   },
+   "What is the capital of the Philippines?": {
+    "Koko (cartridge, model only)": [
+     "It's Manila.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "It's Manila.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of the Philippines is Manila.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The capital of the Philippines is Manila.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of the Philippines is the capital of the Philippines.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital of France?",
+     false
+    ]
+   },
+   "What is the capital of Cuba?": {
+    "Koko (cartridge, model only)": [
+     "Havana.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Havana.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Cuba is Havana.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Havana.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Cuba is the capital of Cuba.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital?\"",
+     false
+    ]
+   },
+   "What is the capital of Ukraine?": {
+    "Koko (cartridge, model only)": [
+     "Kyiv.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Kyiv.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Ukraine is Kiev.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The capital of Ukraine is Kiev.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Ukraine is the Donetsk and Luhansk regions.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital of Brazil?",
+     false
+    ]
+   },
+   "What is the capital of Hungary?": {
+    "Koko (cartridge, model only)": [
+     "Budapest is the capital of Hungary.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Budapest is the capital of Hungary.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Hungary is Budapest.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Budapest.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Hungary is the capital of Hungary.",
+     false
+    ],
+    "TinyStories-33M": [
+     "The capital is a jolly man who meets the fastest deer in the forest.",
+     false
+    ]
+   },
+   "What is the capital of Iran?": {
+    "Koko (cartridge, model only)": [
+     "Tehran is the capital of Iran.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Tehran is the capital of Iran.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The capital of Iran is Tehran.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Tehran.",
+     true
+    ],
+    "GPT-2 small": [
+     "The capital of Iran is the capital of the Islamic Republic of Iran.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital?\"",
+     false
+    ]
+   }
+  },
+  "general": {
+   "What color is the sky on a clear day?": {
+    "Koko (cartridge, model only)": [
+     "The sky is usually blue, but it can also be blue or green.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The sky is usually blue, but it can also be blue or green.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The sky on a clear day is usually a deep, rich shade of blue, with a faint hint of pink or orange. However, the sky on a clear day can also be a bit more mut",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Blue.",
+     true
+    ],
+    "GPT-2 small": [
+     "The sky is blue.",
+     true
+    ],
+    "TinyStories-33M": [
+     "What color is the sky?",
+     false
+    ]
+   },
+   "How many legs does a spider have?": {
+    "Koko (cartridge, model only)": [
+     "Four legs have four legs.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Four legs have four legs.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The answer to this question is \"eight legs.\" Spiders have eight legs, which are typically referred to as legs or legs-like appendages. They have eight legs, whi",
+     true
+    ],
+    "SmolLM2-135M": [
+     "A spider has 8 legs.",
+     true
+    ],
+    "GPT-2 small": [
+     "The spider has about 1.5 legs.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Beware, Tellal, tellal. A spider has eight legs and many eyes. It can see and bite. It",
+     true
+    ]
+   },
+   "How many days are in a week?": {
+    "Koko (cartridge, model only)": [
+     "Seven.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Seven.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "A week is approximately 31 days.",
+     false
+    ],
+    "SmolLM2-135M": [
+     "720 days",
+     false
+    ],
+    "GPT-2 small": [
+     "Answer:",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the week?",
+     false
+    ]
+   },
+   "What planet do we live on?": {
+    "Koko (cartridge, model only)": [
+     "Earth.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Earth.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "I'm sorry for any confusion, but as a helpful AI, I don't have the ability to provide information about specific planets or celestial bodies. I'm designed to as",
+     false
+    ],
+    "SmolLM2-135M": [
+     "Earth",
+     true
+    ],
+    "GPT-2 small": [
+     "The planet of the Milky Way is the Milky Way Galaxy. The Milky Way is the largest galaxy in the universe. The",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is this planet called?\u201d",
+     false
+    ]
+   },
+   "What is the largest planet in the solar system?": {
+    "Koko (cartridge, model only)": [
+     "The largest planet in the solar system is Jupiter. It's the second biggest planet in our solar system.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The largest planet in the solar system is Jupiter. It's the second biggest planet in our solar system.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The largest planet in the solar system is Jupiter, which is approximately 142,984 kilometers in diameter.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Jupiter.",
+     true
+    ],
+    "GPT-2 small": [
+     "The largest planet in the solar system is the Sun.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the answer?",
+     false
+    ]
+   },
+   "What do bees make?": {
+    "Koko (cartridge, model only)": [
+     "They make honey and help flowers grow.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "They make honey and help flowers grow.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "Bees are incredibly complex and fascinating creatures. They make a variety of products, including honey, wax, and pollen. Here are some of the products they pro",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Bees make honey.",
+     true
+    ],
+    "GPT-2 small": [
+     "Bees make honey. Bees make honey. Bees make honey. Bees make honey. Bees make honey. Bees make honey.",
+     true
+    ],
+    "TinyStories-33M": [
+     "Bee, Buzz, what are you doing?",
+     false
+    ]
+   },
+   "What is frozen water called?": {
+    "Koko (cartridge, model only)": [
+     "Frozen water is called frozen water.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Frozen water is called frozen water.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "Frozen water is called ice. It is a solid form of water that has been frozen from the liquid state.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Ice.",
+     true
+    ],
+    "GPT-2 small": [
+     "It is called \"water ice\".",
+     true
+    ],
+    "TinyStories-33M": [
+     "Ah-ha-ha! It's a frozen pond. You can't get in, it's too dangerous.",
+     false
+    ]
+   },
+   "What is the opposite of hot?": {
+    "Koko (cartridge, model only)": [
+     "Hot water is the opposite of hot water. It's used to make things like hot water and hot water.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Hot water is the opposite of hot water. It's used to make things like hot water and hot water.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The opposite of hot is cold. This is because heat is a form of energy that is typically associated with warmth, comfort, and activity. When we say something is ",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Cold.",
+     true
+    ],
+    "GPT-2 small": [
+     "The opposite of hot is the opposite of hot.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the opposite of what is hot?",
+     false
+    ]
+   },
+   "How many months are in a year?": {
+    "Koko (cartridge, model only)": [
+     "Twelve.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Twelve.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The answer to this question depends on the specific calendar system used in your country. However, here are some general guidelines:\n\n1. **Western calendar**: 3",
+     false
+    ],
+    "SmolLM2-135M": [
+     "365 days",
+     false
+    ],
+    "GPT-2 small": [
+     "The average is about 1 year.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the year?",
+     false
+    ]
+   },
+   "What animal says meow?": {
+    "Koko (cartridge, model only)": [
+     "Yes, it does. It's like a bird that's not a bird.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Yes, it does. It's like a bird that's not a bird.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The animal that says \"meow\" is a small, furry creature with a distinctive, high-pitched, and raspy-sounding meow. It's a type of rodent called a",
+     false
+    ],
+    "SmolLM2-135M": [
+     "The cat.",
+     true
+    ],
+    "GPT-2 small": [
+     "I'm a little bit of a pig. I'm a little bit of a pig. I'm a little bit of",
+     false
+    ],
+    "TinyStories-33M": [
+     "What animal?",
+     false
+    ]
+   },
+   "What is the first month of the year?": {
+    "Koko (cartridge, model only)": [
+     "January.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "January.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The first month of the year is usually January, but it can vary depending on the calendar and the specific time zone. In the United States, the first month of t",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The first month of the year is January.",
+     true
+    ],
+    "GPT-2 small": [
+     "The first month of the year is the first month of the year.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the next year?",
+     false
+    ]
+   },
+   "What drink do we get from cows?": {
+    "Koko (cartridge, model only)": [
+     "Cows are usually in the morning, when it's quiet and peaceful.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Cows are usually in the morning, when it's quiet and peaceful.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The answer to this question is \"cow's milk.\" Cow's milk is a type of dairy product that is rich in protein, fat, and lactose, which is the main source of energy",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Milk.",
+     true
+    ],
+    "GPT-2 small": [
+     "We get from cows.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is milk?",
+     true
+    ]
+   },
+   "What star is at the center of our solar system?": {
+    "Koko (cartridge, model only)": [
+     "The center is the center of the solar system.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The center is the center of the solar system.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "Our solar system is primarily composed of eight planets, including the Sun. The Sun is the central star in our solar system, and it is the largest and most mass",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The Sun.",
+     true
+    ],
+    "GPT-2 small": [
+     "The star is the center of our solar system.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the name of the star?",
+     false
+    ]
+   },
+   "Which ocean is the largest?": {
+    "Koko (cartridge, model only)": [
+     "The ocean is the largest ocean, with a wide, wide, and wide, with waves and waves.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The ocean is the largest ocean, with a wide, wide, and wide, with waves and waves.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The largest ocean is the Pacific Ocean, which is the second-largest ocean in the world. It is located in the western Pacific Ocean, between the Americas and Aus",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The Atlantic Ocean.",
+     false
+    ],
+    "GPT-2 small": [
+     "The largest ocean is the Pacific Ocean.",
+     true
+    ],
+    "TinyStories-33M": [
+     "What is the biggest ocean you can find?",
+     false
+    ]
+   },
+   "How many legs does a dog have?": {
+    "Koko (cartridge, model only)": [
+     "Dogs have four legs. That's a lot of legs!",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Dogs have four legs. That's a lot of legs!",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "A dog has four legs.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "12",
+     false
+    ],
+    "GPT-2 small": [
+     "The dog has about 1.5 legs.",
+     false
+    ],
+    "TinyStories-33M": [
+     "A dog is a dog that barks when it is happy. You have to use your ears, your nose, your",
+     false
+    ]
+   },
+   "What is the tallest animal?": {
+    "Koko (cartridge, model only)": [
+     "The tallest animal is the tallest, the tallest, and the tallest one in the world.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The tallest animal is the tallest, the tallest, and the tallest one in the world.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The tallest animal is the giraffe, with a height of approximately 17 feet (5.3 meters). However, the record for the tallest animal is often disputed, as it's no",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The elephant.",
+     false
+    ],
+    "GPT-2 small": [
+     "The tallest animal is the elephant.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the tallest animal in the world?",
+     false
+    ]
+   },
+   "What is the biggest animal in the world?": {
+    "Koko (cartridge, model only)": [
+     "The biggest animal in the world is the Hippodrome, which is the biggest animal in its group.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The biggest animal in the world is the Hippodrome, which is the biggest animal in its group.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The biggest animal in the world is the blue whale, which can grow up to 100 feet (30 meters) in length and weigh up to 180 tons. However,",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The elephant.",
+     false
+    ],
+    "GPT-2 small": [
+     "The elephant.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the biggest animal in the world?",
+     false
+    ]
+   },
+   "What do caterpillars turn into?": {
+    "Koko (cartridge, model only)": [
+     "They turn into butterflies, which are like tiny, colorful wings.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "They turn into butterflies, which are like tiny, colorful wings.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "Caterpillars are a fascinating group of insects that undergo a remarkable transformation. They begin as eggs, which are tiny, egg-like structures that hatch int",
+     false
+    ],
+    "SmolLM2-135M": [
+     "Caterpillars are the larvae of moths and butterflies. They are the most common insects in the world. They are the",
+     true
+    ],
+    "GPT-2 small": [
+     "They are not the same as the caterpillars that are found in the wild. They are not the same as the",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is this flower?\u201d",
+     false
+    ]
+   },
+   "Who wrote Romeo and Juliet?": {
+    "Koko (cartridge, model only)": [
+     "Rod Taylor wrote Romeo and Juliet.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Rod Taylor wrote Romeo and Juliet.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The play \"Romeo and Juliet\" by William Shakespeare is the work of William Shakespeare. He is a renowned English playwright and poet who wrote the story of the t",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The author of Romeo and Juliet was William Shakespeare.",
+     true
+    ],
+    "GPT-2 small": [
+     "The author of Romeo and Juliet, who wrote the book, and who wrote the book's title, and who wrote the",
+     false
+    ],
+    "TinyStories-33M": [
+     "Who do you think it is?",
+     false
+    ]
+   },
+   "Who was the first president of the United States?": {
+    "Koko (cartridge, model only)": [
+     "The first president was John F. Kennedy.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The first president was John F. Kennedy.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The first president of the United States was John Adams. He was the second president of the United States, serving from 1797 to 1801.",
+     false
+    ],
+    "SmolLM2-135M": [
+     "Abraham Lincoln.",
+     false
+    ],
+    "GPT-2 small": [
+     "George W. Bush.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Who is this president?\"",
+     false
+    ]
+   },
+   "What language do people speak in Spain?": {
+    "Koko (cartridge, model only)": [
+     "People in Spain speak Spanish.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "People in Spain speak Spanish.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "In Spain, the language spoken is Spanish. It is a Romance language that is closely related to French, Italian, and Portuguese. Spanish is also known as Castilia",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Spanish.",
+     true
+    ],
+    "GPT-2 small": [
+     "Spanish is the language of the Spanish people.",
+     true
+    ],
+    "TinyStories-33M": [
+     "Mysterious speak is a language that is a language that is used to speak in Spain.",
+     false
+    ]
+   },
+   "What is H2O better known as?": {
+    "Koko (cartridge, model only)": [
+     "H2O is a special kind of computer that can do lots of things. It's like a big toy that can do many things.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "H2O is a special kind of computer that can do lots of things. It's like a big toy that can do many things.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "H2O is a versatile and widely used chemical compound, and its name is derived from the Greek words \"hydro\" meaning water and \"bios\" meaning life. It is a colorl",
+     true
+    ],
+    "SmolLM2-135M": [
+     "H2O is the most common form of water on Earth. It is a colorless, odorless, tasteless liquid",
+     true
+    ],
+    "GPT-2 small": [
+     "H2O is a new type of virus that is being developed by the National Institutes of Health (NIH). It",
+     false
+    ],
+    "TinyStories-33M": [
+     "Pr2-2?",
+     false
+    ]
+   },
+   "What gas do humans need to breathe?": {
+    "Koko (cartridge, model only)": [
+     "Humans need to breathe to stay alive.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Humans need to breathe to stay alive.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "Humans need to breathe oxygen, which is a vital component of the human body. Oxygen is essential for the production of energy, the maintenance of bodily functio",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Humans need to breathe in oxygen and breathe out carbon dioxide.",
+     true
+    ],
+    "GPT-2 small": [
+     "The human body needs oxygen to function properly. The body needs oxygen to function properly. The body needs oxygen to function properly",
+     true
+    ],
+    "TinyStories-33M": [
+     "Wash the right question: Wash the right thing, and go to the right place.",
+     false
+    ]
+   },
+   "How many continents are there?": {
+    "Koko (cartridge, model only)": [
+     "Seven.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Seven.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "I'm sorry for any confusion, but as a chatbot designed to assist with questions and inquiries related to the world, I don't have the ability to provide informat",
+     false
+    ],
+    "SmolLM2-135M": [
+     "There are 7 continents.",
+     true
+    ],
+    "GPT-2 small": [
+     "The number of continents is not known.",
+     false
+    ],
+    "TinyStories-33M": [
+     "How can you see?\"",
+     false
+    ]
+   },
+   "On which continent is Egypt?": {
+    "Koko (cartridge, model only)": [
+     "Egypt is in Africa.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Egypt is in Africa.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "Egypt is a country located in the continent of Africa.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Egypt is located in the Middle East.",
+     false
+    ],
+    "GPT-2 small": [
+     "Egypt is the only continent that is not the only continent that is not the only continent that is not the only continent that",
+     false
+    ],
+    "TinyStories-33M": [
+     "",
+     false
+    ]
+   },
+   "What is the fastest land animal?": {
+    "Koko (cartridge, model only)": [
+     "The fastest animal is the Yangtze, which is the fastest. It's the fastest animal in the world.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The fastest animal is the Yangtze, which is the fastest. It's the fastest animal in the world.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The fastest land animal is the cheetah. Cheetahs are known for their incredible speed and agility, capable of reaching speeds of up to 70 miles per hour. They a",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The cheetah.",
+     true
+    ],
+    "GPT-2 small": [
+     "The fastest land animal is the black bear.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the fastest land animal?",
+     false
+    ]
+   },
+   "What do plants need from the sun?": {
+    "Koko (cartridge, model only)": [
+     "Plants need water to drink, just like you need water to stay healthy.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Plants need water to drink, just like you need water to stay healthy.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "Plants need a variety of elements to thrive, including sunlight, water, and nutrients. Sunlight is essential for photosynthesis, the process by which plants con",
+     true
+    ],
+    "SmolLM2-135M": [
+     "They need light, water, and nutrients.",
+     true
+    ],
+    "GPT-2 small": [
+     "Plants need sunlight to grow. Plants need to be able to grow in the sun. Plants need to be able to grow",
+     true
+    ],
+    "TinyStories-33M": [
+     "Sun!",
+     false
+    ]
+   },
+   "At what temperature in Celsius does water freeze?": {
+    "Koko (cartridge, model only)": [
+     "It can freeze at 0 degrees Celsius, which is like a big ice sheet.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "It can freeze at 0 degrees Celsius, which is like a big ice sheet.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "Water freezes at a temperature of 0 degrees Celsius.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "At what temperature in Celsius does water freeze?",
+     false
+    ],
+    "GPT-2 small": [
+     "At the temperature of the water vapor in the water vapor.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Do you understand the question?",
+     false
+    ]
+   },
+   "How many hours are in a day?": {
+    "Koko (cartridge, model only)": [
+     "24.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "24.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The number of hours in a day is 24.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "24 hours",
+     true
+    ],
+    "GPT-2 small": [
+     "The average time for a person to work is about 1 hour.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the day you are looking for?",
+     false
+    ]
+   },
+   "What is a baby dog called?": {
+    "Koko (cartridge, model only)": [
+     "A baby dog is a dog. They're known for being very friendly and playful.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "A baby dog is a dog. They're known for being very friendly and playful.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "A baby dog is a type of dog that is born from a surrogate mother, typically a female dog who has been bred for a specific purpose, such as to provide a surrogat",
+     false
+    ],
+    "SmolLM2-135M": [
+     "A puppy is a baby dog.",
+     true
+    ],
+    "GPT-2 small": [
+     "A baby dog is a dog that is born with a head and a tail. It is a dog that is born with",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is a baby dog?",
+     false
+    ]
+   },
+   "What is a baby cat called?": {
+    "Koko (cartridge, model only)": [
+     "A baby cat is called a poodle.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "A baby cat is called a poodle.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "A baby cat is a type of domestic cat that is born with undeveloped eyes and cannot see. They are typically referred to as kittens or kittens. They are typically",
+     true
+    ],
+    "SmolLM2-135M": [
+     "A kitten is a baby cat.",
+     true
+    ],
+    "GPT-2 small": [
+     "A baby cat is a cat that is born with a cat's head and tail. It is a cat that is born",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is a baby cat?",
+     false
+    ]
+   },
+   "What color do you get when you mix red and white?": {
+    "Koko (cartridge, model only)": [
+     "I get when you mix red and blue.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "I get when you mix red and blue.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "I'm glad you asked that. When you mix red and white, you get a beautiful shade of pink. The combination of red and white is a harmonious blend of the two colors",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Red and white are the same color.",
+     false
+    ],
+    "GPT-2 small": [
+     "I'm not sure. I think it's a combination of red and white.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What color and what color it is?\"",
+     false
+    ]
+   },
+   "What color do you get when you mix blue and yellow?": {
+    "Koko (cartridge, model only)": [
+     "I get when you mix blue and yellow paint.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "I get when you mix blue and yellow paint.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "When you mix blue and yellow, you get a beautiful shade of blue. The resulting color is a deep, rich blue that has a subtle blue undertone. It's a lovely shade ",
+     false
+    ],
+    "SmolLM2-135M": [
+     "Blue and yellow are the same color.",
+     false
+    ],
+    "GPT-2 small": [
+     "I get blue when I mix blue and yellow.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What color do you get when you mix them?\"",
+     false
+    ]
+   },
+   "Which season comes after winter?": {
+    "Koko (cartridge, model only)": [
+     "Spring is when the leaves change color and fall off the trees.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Spring is when the leaves change color and fall off the trees.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The season after winter is usually considered to be spring.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Spring.",
+     true
+    ],
+    "GPT-2 small": [
+     "Season 1.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Winter is when the sun is too cold and the snow is too hard. Winter is when the snow is too cold and",
+     false
+    ]
+   },
+   "What day comes after Monday?": {
+    "Koko (cartridge, model only)": [
+     "After Monday it's Tuesday.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "After Monday it's Tuesday.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "I'm sorry for any confusion, but as a chatbot designed to assist with daily tasks, I don't have the ability to determine the exact day of the week. I'm designed",
+     false
+    ],
+    "SmolLM2-135M": [
+     "Tuesday.",
+     true
+    ],
+    "GPT-2 small": [
+     "Monday is the day of the week.",
+     false
+    ],
+    "TinyStories-33M": [
+     "It's a day to start the next year.",
+     false
+    ]
+   },
+   "What shape has three sides?": {
+    "Koko (cartridge, model only)": [
+     "There are three sides.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "There are three sides.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The shape with three sides is a rhombus. A rhombus is a quadrilateral with all sides of equal length, and it has three pairs of equal sides.",
+     false
+    ],
+    "SmolLM2-135M": [
+     "A square.",
+     false
+    ],
+    "GPT-2 small": [
+     "The shape of the three sides is the shape of the three sides.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What color is the sky?",
+     false
+    ]
+   },
+   "How many sides does a square have?": {
+    "Koko (cartridge, model only)": [
+     "A square has four sides.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "A square has four sides.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "A square has four sides.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "4",
+     true
+    ],
+    "GPT-2 small": [
+     "The square is divided into two parts: the square and the square side.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the square?\"",
+     false
+    ]
+   },
+   "What is the closest planet to the Sun?": {
+    "Koko (cartridge, model only)": [
+     "That's Mercury.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "That's Mercury.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The closest planet to the Sun is Neptune, which is approximately 30 astronomical units (AU) from the Sun. This means it is about 14.5 billion kilometers (9.3",
+     false
+    ],
+    "SmolLM2-135M": [
+     "Mercury",
+     true
+    ],
+    "GPT-2 small": [
+     "The closest planet is the Sun.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Sun!",
+     false
+    ]
+   },
+   "Which planet is known as the red planet?": {
+    "Koko (cartridge, model only)": [
+     "Mars.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Mars.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The planet known as the red planet is Mars. It is the second-largest planet in our solar system, and it is located in the constellation of Cancer. Mars is often",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Mars",
+     true
+    ],
+    "GPT-2 small": [
+     "The red planet is the planet known as the red planet.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the name of the red planet?",
+     false
+    ]
+   },
+   "What is the largest country in the world?": {
+    "Koko (cartridge, model only)": [
+     "The largest country in the world is the United States.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The largest country in the world is the United States.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The largest country in the world is not a country in the classical sense, but rather a region or a territory that is considered the largest in terms of land are",
+     false
+    ],
+    "SmolLM2-135M": [
+     "The largest country in the world is the United States.",
+     false
+    ],
+    "GPT-2 small": [
+     "The United States.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the most important thing in life?",
+     false
+    ]
+   },
+   "Who painted the Mona Lisa?": {
+    "Koko (cartridge, model only)": [
+     "The artist painted the Mona Lisa.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The artist painted the Mona Lisa.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The Mona Lisa is attributed to Leonardo da Vinci, a renowned Italian artist and inventor. He is often referred to as the \"father of the modern painting\" due to ",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Leonardo da Vinci.",
+     true
+    ],
+    "GPT-2 small": [
+     "The Mona Lisa was painted by the artist, and the Mona Lisa was painted by the artist.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Banana?",
+     false
+    ]
+   },
+   "What is the hardest natural substance?": {
+    "Koko (cartridge, model only)": [
+     "The hardest part is the hardest part, but it's not always easy.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The hardest part is the hardest part, but it's not always easy.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The hardest natural substance is not a single substance, but rather a combination of substances that are difficult to break down or separate. However, some subs",
+     false
+    ],
+    "SmolLM2-135M": [
+     "Water.",
+     false
+    ],
+    "GPT-2 small": [
+     "The hardest natural substance is the water.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the hardest of questions?",
+     false
+    ]
+   },
+   "What do you call a scientist who studies stars?": {
+    "Koko (cartridge, model only)": [
+     "A scientist who studies stars and planets can make them.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "A scientist who studies stars and planets can make them.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "A scientist who studies stars is called a astrophysicist.",
+     false
+    ],
+    "SmolLM2-135M": [
+     "A star-hunting astronomer.",
+     true
+    ],
+    "GPT-2 small": [
+     "A scientist who studies stars.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What do you call a scientist who studies stars?",
+     false
+    ]
+   },
+   "What bird cannot fly and lives in Antarctica?": {
+    "Koko (cartridge, model only)": [
+     "The bird can't fly because its wings are too small and weak.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The bird can't fly because its wings are too small and weak.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The answer to this question is not provided.",
+     false
+    ],
+    "SmolLM2-135M": [
+     "The penguin.",
+     true
+    ],
+    "GPT-2 small": [
+     "The Antarctic is a very small continent, but it is very large. It is about the size of the United States.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Bear: Wisdom.",
+     false
+    ]
+   },
+   "What instrument has black and white keys?": {
+    "Koko (cartridge, model only)": [
+     "Black and white keys are for different instruments.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Black and white keys are for different instruments.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The instrument that has black and white keys is the piano. It is a keyboard instrument that uses a combination of keys, typically in the shape of a piano, to pr",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The piano.",
+     true
+    ],
+    "GPT-2 small": [
+     "The black and white keys are the keys that are used to play the game. The keys are used to play the game",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is this key for?",
+     false
+    ]
+   },
+   "What is the main language of France?": {
+    "Koko (cartridge, model only)": [
+     "The main language is French.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The main language is French.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The main language of France is French, which is a Romance language closely related to Spanish, Italian, and Portuguese. French is an official language of the Eu",
+     true
+    ],
+    "SmolLM2-135M": [
+     "French.",
+     true
+    ],
+    "GPT-2 small": [
+     "French is the main language of France.",
+     true
+    ],
+    "TinyStories-33M": [
+     "What is France?\"",
+     false
+    ]
+   },
+   "What country do kangaroos come from?": {
+    "Koko (cartridge, model only)": [
+     "Bears come from the North Pole.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Bears come from the North Pole.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "Kangaroos are native to Australia. They are marsupials, which means they have a tough, hollow-in-the-chest membrane called a marsupium that provides a protectiv",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Australia.",
+     true
+    ],
+    "GPT-2 small": [
+     "The Philippines.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is this country?",
+     false
+    ]
+   },
+   "What is the name of the galaxy we live in?": {
+    "Koko (cartridge, model only)": [
+     "The galaxy is called the Milky Way.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The galaxy is called the Milky Way.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The galaxy we live in is called the Milky Way. It's a barred spiral galaxy, which means it has a central bulge and a disk-shaped halo of stars and gas. The Milk",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The Milky Way.",
+     true
+    ],
+    "GPT-2 small": [
+     "The Milky Way is a galaxy in the constellation of Sagittarius. It is the largest galaxy in the Milky Way.",
+     true
+    ],
+    "TinyStories-33M": [
+     "What is the name of the star in the sky?",
+     false
+    ]
+   },
+   "How many minutes are in an hour?": {
+    "Koko (cartridge, model only)": [
+     "60.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "60.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The answer to this question is 30 minutes.",
+     false
+    ],
+    "SmolLM2-135M": [
+     "60 minutes",
+     true
+    ],
+    "GPT-2 small": [
+     "The answer is 1 hour.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the capital of the alphabet?\"",
+     false
+    ]
+   },
+   "What metal is attracted to magnets?": {
+    "Koko (cartridge, model only)": [
+     "Metals are attracted to magnets.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Metals are attracted to magnets.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The metal that is attracted to magnets is called a ferromagnetic metal. Ferromagnetic metals are found in the Earth's crust and are often found in the form of s",
+     false
+    ],
+    "SmolLM2-135M": [
+     "Iron",
+     true
+    ],
+    "GPT-2 small": [
+     "Metal is attracted to the magnetic field of a magnet. The magnetic field of a magnet is the area of the magnet that",
+     false
+    ],
+    "TinyStories-33M": [
+     "magnets are very strong and can make things move.",
+     false
+    ]
+   },
+   "At what temperature in Celsius does water boil?": {
+    "Koko (cartridge, model only)": [
+     "Water boilers can boil water, add salt, and cook for a few minutes.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Water boilers can boil water, add salt, and cook for a few minutes.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "Water boils at a temperature of approximately 100 degrees Celsius (212 degrees Fahrenheit).",
+     true
+    ],
+    "SmolLM2-135M": [
+     "At what temperature in Celsius does water boil?",
+     false
+    ],
+    "GPT-2 small": [
+     "At the temperature of the water in the water.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Ahna, rose up and trust yourself. You can be anything you want.",
+     false
+    ]
+   },
+   "What organ pumps blood around the body?": {
+    "Koko (cartridge, model only)": [
+     "The organ is like a special room in the body that helps you breathe and stay healthy.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The organ is like a special room in the body that helps you breathe and stay healthy.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The heart is the primary organ pump of the human body. It is a muscular organ that beats continuously to circulate blood throughout the body. The heart is divid",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The heart.",
+     true
+    ],
+    "GPT-2 small": [
+     "The kidneys are the main source of blood for the body. The kidneys are the main source of blood for the body.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is this?\"",
+     false
+    ]
+   },
+   "What part of the body do we use to see?": {
+    "Koko (cartridge, model only)": [
+     "We use a special tool called a mantra. It helps us see things clearly.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "We use a special tool called a mantra. It helps us see things clearly.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The part of the body that we use to see is the eye. The eye is a complex organ that plays a crucial role in our visual experience. It's a delicate structure tha",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The eye.",
+     true
+    ],
+    "GPT-2 small": [
+     "The body is the part of the body that is visible to the eye. The eye is the part of the body that",
+     true
+    ],
+    "TinyStories-33M": [
+     "What do you think it is?",
+     false
+    ]
+   },
+   "What is the opposite of up?": {
+    "Koko (cartridge, model only)": [
+     "The opposite is just a number. It's like when you count to three, and you can't count them all.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The opposite is just a number. It's like when you count to three, and you can't count them all.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The opposite of up is down.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "Down",
+     true
+    ],
+    "GPT-2 small": [
+     "Up is a term used to describe the state of the body. It is a term that is used to describe the state",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the opposite of what is the other way?",
+     false
+    ]
+   },
+   "Which animal is known as the king of the jungle?": {
+    "Koko (cartridge, model only)": [
+     "The king of the jungle is the king of the forest. He's the king of all the animals.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The king of the jungle is the king of the forest. He's the king of all the animals.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The king of the jungle is the jaguar. They are apex predators found in the dense rainforests of Central and South America, particularly in the rainforests of Me",
+     false
+    ],
+    "SmolLM2-135M": [
+     "The elephant.",
+     false
+    ],
+    "GPT-2 small": [
+     "The king of the jungle is the king of the jungle.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the name of the king of the jungle?",
+     false
+    ]
+   },
+   "What sport uses an orange ball and a hoop?": {
+    "Koko (cartridge, model only)": [
+     "A ball is a type of ball that you can throw and catch. It's fun and good exercise!",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "A ball is a type of ball that you can throw and catch. It's fun and good exercise!",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The sport that uses an orange ball and a hoop is a classic and popular one. It's called \"Orange Ball Golf\" or \"Orange Ball Golf.\" The game is played on a round",
+     false
+    ],
+    "SmolLM2-135M": [
+     "The ball is a basketball. The hoop is a basketball hoop.",
+     true
+    ],
+    "GPT-2 small": [
+     "The orange ball is used to create a ball that is more than a yard long. The hoop is used to create a",
+     false
+    ],
+    "TinyStories-33M": [
+     "What sport is this sport?\u201d",
+     false
+    ]
+   },
+   "What is a group of wolves called?": {
+    "Koko (cartridge, model only)": [
+     "A group of wolves are called wolves. They are called witches because they are called wizards.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "A group of wolves are called wolves. They are called witches because they are called wizards.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "A group of wolves is called a pack. This term is derived from the Latin word \"packus,\" which means \"a gathering\" or \"a gathering together.\" In many cultures, wo",
+     true
+    ],
+    "SmolLM2-135M": [
+     "A pack of wolves is a group of wolves.",
+     true
+    ],
+    "GPT-2 small": [
+     "A group of wolves called the \"wolf pack\" is a group of wolves that live in the wild. They are not",
+     true
+    ],
+    "TinyStories-33M": [
+     "What are wolves?",
+     false
+    ]
+   },
+   "How many wheels does a bicycle have?": {
+    "Koko (cartridge, model only)": [
+     "A bicycle has four wheels.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "A bicycle has four wheels.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "A bicycle has 8 wheels, which are connected to a central hub and connected to a chain that turns the pedals.",
+     false
+    ],
+    "SmolLM2-135M": [
+     "2 wheels.",
+     true
+    ],
+    "GPT-2 small": [
+     "The bicycle has a total of 6 wheels.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the wheels?",
+     false
+    ]
+   },
+   "What fruit is yellow and curved?": {
+    "Koko (cartridge, model only)": [
+     "Orange is a color, like the sky or the ocean.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "Orange is a color, like the sky or the ocean.",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The fruit that is yellow and curved is a type of fruit called a pear. It is a member of the rose family and is native to the Mediterranean region. The fruit is ",
+     false
+    ],
+    "SmolLM2-135M": [
+     "The fruit is a pear.",
+     false
+    ],
+    "GPT-2 small": [
+     "Yellow fruit is a type of fruit that is very hard to find in the United States. It is a very hard fruit",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is yellow?\"",
+     false
+    ]
+   },
+   "What is the largest hot desert in the world?": {
+    "Koko (cartridge, model only)": [
+     "The largest hot desert in the world is the Yukon, with an average height of about .",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "The largest hot desert in the world is the Yukon, with an average height of about .",
+     false
+    ],
+    "SmolLM2-135M-Instruct": [
+     "The largest hot desert in the world is the Sahara Desert, which spans across North Africa. It is the largest desert in the world and covers an area of approxima",
+     true
+    ],
+    "SmolLM2-135M": [
+     "The largest hot desert in the world is the Sahara Desert. It covers an area of 3.5 million square kilometers",
+     true
+    ],
+    "GPT-2 small": [
+     "The largest hot desert in the world is the Sahara Desert. The Sahara Desert is the largest desert in the world.",
+     true
+    ],
+    "TinyStories-33M": [
+     "What is the heat of the sun?",
+     false
+    ]
+   }
+  },
+  "arithmetic": {
+   "What is 30 plus 37?": {
+    "Koko (cartridge, model only)": [
+     "30 plus 37 is 66.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "30 plus 37 is 67.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "30 plus 37 is 101.",
+     false
+    ],
+    "SmolLM2-135M": [
+     "30 + 37 = 87",
+     false
+    ],
+    "GPT-2 small": [
+     "The 30 plus 37 is the number of years that a person has been in the military.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is 30?\"",
+     false
+    ]
+   },
+   "What is 56 minus 51?": {
+    "Koko (cartridge, model only)": [
+     "56 - 51 = 9.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "56 minus 51 is 5.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 56 minus 51, we need to subtract 51 from 56. \n\n56 - 51 = 1\n\nSo, 56 minus",
+     false
+    ],
+    "SmolLM2-135M": [
+     "56 minus 51 is 1.",
+     false
+    ],
+    "GPT-2 small": [
+     "The number of votes cast in the election is 56 minus 51.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is Noon?",
+     false
+    ]
+   },
+   "What is 9 times 9?": {
+    "Koko (cartridge, model only)": [
+     "9 x 9 = 81.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "9 times 9 is 81.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 9 times 9, we can use the distributive property of multiplication over addition. This means we multiply the numbers together and then add the results.\n\n",
+     false
+    ],
+    "SmolLM2-135M": [
+     "9 x 9 = 81",
+     true
+    ],
+    "GPT-2 small": [
+     "9 times 9 is the number of times you can be in a room with a person who is not a 9 times 9",
+     false
+    ],
+    "TinyStories-33M": [
+     "2?\"",
+     false
+    ]
+   },
+   "What is 34 plus 39?": {
+    "Koko (cartridge, model only)": [
+     "34 plus 39 is 73.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "34 plus 39 is 73.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To add 34 and 39, we need to follow the order of operations, which is:\n\nAdd 34 and 39:\n\n34 + 39",
+     false
+    ],
+    "SmolLM2-135M": [
+     "34 + 39 = 83",
+     false
+    ],
+    "GPT-2 small": [
+     "34 plus 39 is the number of times you have to answer the question.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Teresa?",
+     false
+    ]
+   },
+   "What is 14 minus 13?": {
+    "Koko (cartridge, model only)": [
+     "14 - 13 = 4.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "14 minus 13 is 1.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 14 minus 13, we need to subtract 13 from 14. \n\n14 - 13 = 1\n\nSo, 14 minus",
+     false
+    ],
+    "SmolLM2-135M": [
+     "14 minus 13 is 14 divided by 13.",
+     false
+    ],
+    "GPT-2 small": [
+     "The number of days in the year is 14 minus 13.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Do you know 14?",
+     false
+    ]
+   },
+   "What is 10 times 9?": {
+    "Koko (cartridge, model only)": [
+     "10 times 9 is 90.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "10 times 9 is 90.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 10 times 9, we need to follow these steps:\n\n1. Multiply 9 by itself: 9 * 9 = 81.\n2. Add",
+     false
+    ],
+    "SmolLM2-135M": [
+     "90",
+     true
+    ],
+    "GPT-2 small": [
+     "10 times 9 is the number of times 9 is the number of times 9 is the number of times 9 is the number",
+     false
+    ],
+    "TinyStories-33M": [
+     "Ten.",
+     false
+    ]
+   },
+   "What is 42 plus 41?": {
+    "Koko (cartridge, model only)": [
+     "42 + 41 = 83.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "42 plus 41 is 83.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To add 42 and 41, we need to follow these steps:\n\n1. Add 42 to 41: 42 + 41 = 53",
+     false
+    ],
+    "SmolLM2-135M": [
+     "42 + 41 = 83",
+     true
+    ],
+    "GPT-2 small": [
+     "42 plus 41 is the number of days that the number of days in the year is equal to the number of days in",
+     false
+    ],
+    "TinyStories-33M": [
+     "Ten is one, two coins, both know a lot of numbers. You are very smart, Lily. You are a",
+     false
+    ]
+   },
+   "What is 52 minus 13?": {
+    "Koko (cartridge, model only)": [
+     "That's 32.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "52 minus 13 is 39.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 52 minus 13, we need to subtract 13 from 52. \n\n52 - 13 = 41\n\nSo, 52",
+     false
+    ],
+    "SmolLM2-135M": [
+     "52 minus 13 is 10.",
+     false
+    ],
+    "GPT-2 small": [
+     "52 minus 13 is the number of days that the number of days in the year is zero.",
+     false
+    ],
+    "TinyStories-33M": [
+     "This is the name of the year: Sun 13: The Amem. And this is the name of the year.",
+     false
+    ]
+   },
+   "What is 3 times 9?": {
+    "Koko (cartridge, model only)": [
+     "3 times 9 is 27.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "3 times 9 is 27.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 3 times 9, we can use the distributive property of multiplication over addition. This means we multiply the numbers together and then add the results.\n\n",
+     false
+    ],
+    "SmolLM2-135M": [
+     "3 x 9 = 27",
+     true
+    ],
+    "GPT-2 small": [
+     "3 times 9 is the number of times you can use the word \"3 times 9\" in a sentence.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is 3?\"",
+     false
+    ]
+   },
+   "What is 21 plus 11?": {
+    "Koko (cartridge, model only)": [
+     "21 + 11 = 33.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "21 plus 11 is 32.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "21 plus 11 is 32.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "21 + 11 = 32",
+     true
+    ],
+    "GPT-2 small": [
+     "21 plus 11 is the number of days that a person can be in the United States.",
+     false
+    ],
+    "TinyStories-33M": [
+     "2.\u201d",
+     false
+    ]
+   },
+   "What is 36 minus 7?": {
+    "Koko (cartridge, model only)": [
+     "36 - 7 = 31.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "36 minus 7 is 29.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 36 minus 7, we need to follow these steps:\n\n1. Subtract 7 from 36: 36 - 7 = 33\n2",
+     false
+    ],
+    "SmolLM2-135M": [
+     "36 minus 7 is 10.",
+     false
+    ],
+    "GPT-2 small": [
+     "36 minus 7 is the number of days that the number of days in the year is minus 7.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Try again and see, Isla. Try again and see, but it is too hard. Try again and again,",
+     false
+    ]
+   },
+   "What is 12 times 2?": {
+    "Koko (cartridge, model only)": [
+     "12 x 2 = 24.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "12 times 2 is 24.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "12 times 2 is 24.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "12 times 2 is 24.",
+     true
+    ],
+    "GPT-2 small": [
+     "12 times 2 is the number of times you can use the word \"12 times\" in your sentence.",
+     false
+    ],
+    "TinyStories-33M": [
+     "For 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 7, 8",
+     false
+    ]
+   },
+   "What is 40 plus 27?": {
+    "Koko (cartridge, model only)": [
+     "40 + 27 = 71.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "40 plus 27 is 67.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "40 plus 27 is 83.",
+     false
+    ],
+    "SmolLM2-135M": [
+     "40 + 27 = 77",
+     false
+    ],
+    "GPT-2 small": [
+     "The number of years that you have been in the military.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is this word?",
+     false
+    ]
+   },
+   "What is 43 minus 30?": {
+    "Koko (cartridge, model only)": [
+     "43 - 30 = 13.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "43 minus 30 is 13.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 43 minus 30, we need to subtract 30 from 43. \n\n43 - 30 = 17\n\nSo, 43",
+     false
+    ],
+    "SmolLM2-135M": [
+     "43 minus 30 is 1.",
+     false
+    ],
+    "GPT-2 small": [
+     "43 minus 30 is the number of days that a person is in the United States.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Tara plus one is 1. She is happy. She showed her mom the olive and her mom smiled.",
+     false
+    ]
+   },
+   "What is 11 times 12?": {
+    "Koko (cartridge, model only)": [
+     "11 times 12 is 132.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "11 times 12 is 132.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "11 times 12 is 132.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "11 x 12 = 132",
+     true
+    ],
+    "GPT-2 small": [
+     "The number of times 12 is used in the calculation of the number of times 12 is used in the calculation of the number",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the most important thing in life: Helping the world, to help the people and animals.",
+     false
+    ]
+   },
+   "What is 12 plus 41?": {
+    "Koko (cartridge, model only)": [
+     "12 plus 41 is 51.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "12 plus 41 is 53.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "12 + 41 = 53.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "12 + 41 = 163",
+     false
+    ],
+    "GPT-2 small": [
+     "12 plus 41 is the number of days that a person can be in the hospital.",
+     false
+    ],
+    "TinyStories-33M": [
+     "There is 100, sir.",
+     false
+    ]
+   },
+   "What is 55 minus 2?": {
+    "Koko (cartridge, model only)": [
+     "That's 51.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "55 minus 2 is 53.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 55 minus 2, we need to follow these steps:\n\n1. Subtract 2 from both sides of the equation: 55 - 2 = 54",
+     false
+    ],
+    "SmolLM2-135M": [
+     "55 minus 2 is 49.",
+     false
+    ],
+    "GPT-2 small": [
+     "The answer is 55 minus 2.",
+     false
+    ],
+    "TinyStories-33M": [
+     "2 + 3 = 5 1 1, which is 1/ 1, which is 3/2, which is 3/",
+     false
+    ]
+   },
+   "What is 10 times 3?": {
+    "Koko (cartridge, model only)": [
+     "10 times 3 is 30.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "10 times 3 is 30.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 10 times 3, we can use the concept of multiplication tables. The multiplication table for 3 is 3 \u00d7 3 = 9. This means that 3 times",
+     false
+    ],
+    "SmolLM2-135M": [
+     "30",
+     true
+    ],
+    "GPT-2 small": [
+     "10 times 3 is the number of times you can use the word \"10 times\" in your sentence.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is 10?\"",
+     false
+    ]
+   },
+   "What is 5 plus 4?": {
+    "Koko (cartridge, model only)": [
+     "5 + 4 = 10.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "5 plus 4 is 9.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 5 plus 4, we need to follow these steps:\n\n1. Add 5 to 4: 5 + 4 = 9\n2. Add 9 to",
+     true
+    ],
+    "SmolLM2-135M": [
+     "10",
+     false
+    ],
+    "GPT-2 small": [
+     "5 plus 4 is a number that is used to indicate the number of days that a person is allowed to have sex with",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is 10?\"",
+     false
+    ]
+   },
+   "What is 58 minus 14?": {
+    "Koko (cartridge, model only)": [
+     "58 - 14 = 43.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "58 minus 14 is 44.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 58 minus 14, we need to subtract 14 from 58. \n\n58 - 14 = 42\n\nSo, 58",
+     false
+    ],
+    "SmolLM2-135M": [
+     "58 minus 14 is 11.",
+     false
+    ],
+    "GPT-2 small": [
+     "The number of days in the year is 58 minus 14.",
+     false
+    ],
+    "TinyStories-33M": [
+     "The banana is not the right number. Try to find two in the tree. Try to find two in the tree.",
+     false
+    ]
+   },
+   "What is 5 times 11?": {
+    "Koko (cartridge, model only)": [
+     "That's 55.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "5 times 11 is 55.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 5 times 11, we can use the concept of multiplication tables. The multiplication table for 11 is 11 \u00d7 11 = 121. This",
+     false
+    ],
+    "SmolLM2-135M": [
+     "5 x 11 = 55",
+     true
+    ],
+    "GPT-2 small": [
+     "5 times 11 is the number of times you will be able to use the keyboard.",
+     false
+    ],
+    "TinyStories-33M": [
+     "\"Zero is a number of things in the sky. It is a circle of stars. If you see them",
+     false
+    ]
+   },
+   "What is 3 plus 31?": {
+    "Koko (cartridge, model only)": [
+     "3 plus 31 is 33.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "3 plus 31 is 34.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "3 + 31 = 31.",
+     false
+    ],
+    "SmolLM2-135M": [
+     "3 + 31 = 31 + 31 = 62",
+     false
+    ],
+    "GPT-2 small": [
+     "3 plus 31 is the number of days that you can have a baby.",
+     false
+    ],
+    "TinyStories-33M": [
+     "2 plus 3 is 8. What is 3?\"",
+     false
+    ]
+   },
+   "What is 30 minus 22?": {
+    "Koko (cartridge, model only)": [
+     "30 - 22 = 6.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "30 minus 22 is 8.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 30 minus 22, we need to subtract 22 from 30. \n\n30 - 22 = 1\n\nSo, 30 minus",
+     false
+    ],
+    "SmolLM2-135M": [
+     "30 minus 22 is 1.",
+     false
+    ],
+    "GPT-2 small": [
+     "30 minus 22 is the number of days that a person is allowed to be in the United States.",
+     false
+    ],
+    "TinyStories-33M": [
+     "There is no one in the world. You have to find the answer.",
+     false
+    ]
+   },
+   "What is 11 times 5?": {
+    "Koko (cartridge, model only)": [
+     "11 times 5 is 55.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "11 times 5 is 55.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 11 times 5, we need to follow these steps:\n\n1. Multiply 5 by itself 5 times: 5 * 5 = 25\n2",
+     false
+    ],
+    "SmolLM2-135M": [
+     "11 x 5 = 55",
+     true
+    ],
+    "GPT-2 small": [
+     "The number of times you can use the word \"11\" in a sentence.",
+     false
+    ],
+    "TinyStories-33M": [
+     "In the exam, the little girl was very smart and answered all the questions correctly.",
+     false
+    ]
+   },
+   "What is 35 plus 16?": {
+    "Koko (cartridge, model only)": [
+     "35 + 16 = 53.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "35 plus 16 is 51.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To add 35 and 16, we need to follow the order of operations, which is:\n\nAdd 35 and 16:\n\n35 + 16",
+     false
+    ],
+    "SmolLM2-135M": [
+     "35 + 16 = 51",
+     true
+    ],
+    "GPT-2 small": [
+     "35 plus 16 is the number of years that a person has been in the military.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Isla plus banana, but no one else answered. Isla was confused. She looked around and saw a little mouse",
+     false
+    ]
+   },
+   "What is 42 minus 20?": {
+    "Koko (cartridge, model only)": [
+     "42 minus 20 is 24.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "42 minus 20 is 22.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 42 minus 20, we need to follow these steps:\n\n1. Subtract 20 from 42: 42 - 20 = 2",
+     false
+    ],
+    "SmolLM2-135M": [
+     "42 minus 20 is 42 minus 20.",
+     false
+    ],
+    "GPT-2 small": [
+     "42 minus 20 is the number of days that a person is allowed to be in the United States.",
+     false
+    ],
+    "TinyStories-33M": [
+     "Cleace means thirty and still has no number left. I counted them all. I counted them all. Six is a",
+     false
+    ]
+   },
+   "What is 9 times 2?": {
+    "Koko (cartridge, model only)": [
+     "9 times 2 is 18.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "9 times 2 is 18.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 9 times 2, we can use the concept of multiplication tables. The multiplication table for 2 is 2 \u00d7 2 = 4, 2 \u00d7 3 = ",
+     false
+    ],
+    "SmolLM2-135M": [
+     "9 x 2 = 18",
+     true
+    ],
+    "GPT-2 small": [
+     "9 times 2 is the number of times you can use the word \"9 times\" in your sentence.",
+     false
+    ],
+    "TinyStories-33M": [
+     "2?\"",
+     false
+    ]
+   },
+   "What is 44 plus 7?": {
+    "Koko (cartridge, model only)": [
+     "44 + 7 = 51.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "44 plus 7 is 51.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "44 + 7 = 51.",
+     true
+    ],
+    "SmolLM2-135M": [
+     "44 + 7 = 51",
+     true
+    ],
+    "GPT-2 small": [
+     "44 plus 7 is the number of days that a person is allowed to be in the United States.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is wrong?",
+     false
+    ]
+   },
+   "What is 43 minus 31?": {
+    "Koko (cartridge, model only)": [
+     "That's 9.",
+     false
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "43 minus 31 is 12.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 43 minus 31, we need to follow these steps:\n\n1. Subtract 31 from 43: 43 - 31 = 1",
+     false
+    ],
+    "SmolLM2-135M": [
+     "43 minus 31 is 1.",
+     false
+    ],
+    "GPT-2 small": [
+     "43 minus 31 is the number of days that the player has played in the game.",
+     false
+    ],
+    "TinyStories-33M": [
+     "plus plus plus plus 5 is 1 is 2. I am good at this game. I am good at this game.",
+     false
+    ]
+   },
+   "What is 6 times 8?": {
+    "Koko (cartridge, model only)": [
+     "That's 48.",
+     true
+    ],
+    "Koko (cartridge, with fact table and calculator)": [
+     "6 times 8 is 48.",
+     true
+    ],
+    "SmolLM2-135M-Instruct": [
+     "To find 6 times 8, we can use the multiplication table of 8. The multiplication table for 8 states that 8 \u00d7 1 = 8, 8 \u00d7 2",
+     false
+    ],
+    "SmolLM2-135M": [
+     "6 x 8 = 48",
+     true
+    ],
+    "GPT-2 small": [
+     "The number of times a person has been called a \"number\" is 6 times 8.",
+     false
+    ],
+    "TinyStories-33M": [
+     "What is the name of the number 8?",
+     false
+    ]
+   }
+  }
+ }
+}

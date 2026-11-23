@@ -1,0 +1,5 @@
+{
+ "base": "base.json",
+ "topk": 8,
+ "att_bias": true
+}

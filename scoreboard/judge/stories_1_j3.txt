@@ -1,0 +1,203 @@
+You are a careful, impartial judge in a blind comparison of two anonymous writers. Each item gives a subject and two short stories (A and B) written for a young child. Some are cut off at a sentence end because of a length limit; do not penalise that. Pick the better story: it should make sense from sentence to sentence, be about the subject, and be pleasant and imaginative. Do not reward length for its own sake.
+
+There are 40 items. For every item answer "A", "B", or "tie" (use tie only when they are truly equal). Judge each item on its own; A and B are assigned at random per item, so do not look for a pattern. Do not use any tools; just read and decide. Return one pick per item, in order.
+
+### Item 1
+Subject: a penguin who cannot swim
+A: Once upon a time, there was a penguin named Ollie. Ollie loved to swim, but he was too shy to swim with his friends in the cold. One day, Ollie met a friendly seal named Sam. Ollie swam closer to Ollie, and Ollie swam closer. Ollie swam back to Ollie and said, "Hi, Ollie! Do you want to play with me?" Ollie smiled and said, 'Let's play together!" Ollie smiled and they played together, having lots of fun in the warm sun.
+B: Once upon a time, there was a little girl named Lily. She loved to play with her toys and sing songs. One day, she found a shiny necklace in her attic. It was very pretty and she put it around her neck. As she was jumping around, she saw a boy named Timmy. Timmy seemed to be lost and scared. Lily asked Timmy if he needed help. Timmy said he forgot to get his mom's necklace. Lily thought for a moment and then had an idea.
+
+### Item 2
+Subject: a boy who finds a map
+A: Once upon a time, there was a young boy named Tim who loved exploring the old oak tree. One sunny day, while exploring the old, abandoned house at the end of the old oak, Tim found a map leading to a hidden treasure. With a big smile, he followed the map's clues. The map led to a hidden cave hidden cave behind a bush. Tim followed the map, and when he finally found it, he found a chest full of shiny coins.
+B: Once upon a time, there was a boy who wanted to find a treasure. He was so excited he had to go on a long journey. On his journey, he met a very brave knight. The knight said to the boy, "You can be my friend! I will protect you and keep you safe." The boy was so happy that he agreed to meet the knight. The knight and the boy went on a long journey. They looked for treasure, but they were no.
+
+### Item 3
+Subject: a brave mouse
+A: Once upon a time, there was a little girl named Lucy. She was very brave and liked to explore. One day, Lucy went to the park to play. She saw a big tree and wanted to climb it. Lucy was a bit scared, but she was brave. She started to climb the tree. As Lucy climbed higher and higher, she heard a loud noise. It was a big bird in the sky. The bird said, "Do you need help?" Lucy said, "Yes, please.
+B: Once upon a time, in a cozy little house, there was a tiny mouse named Milo. Milo lived in a cozy hole under the big, dark forest. One night, a big storm came, and Milo was scared. But then, the storm roared and the wind was strong. The wind blew and the rain fell. Milo's brave mouse was brave. He followed the storm to a big tree, where the wind was calm. The wind howled like a dog, and Milo chased the wind.
+
+### Item 4
+Subject: a girl and her kite
+A: Once upon a sunny day, Lily found a beautiful kite in the park. She ran to the kite and started flying it high. They soared through the sky, watching the kite soar together. The kite soared high into the sky, and Lily laughed with joy. She had a great time flying the kite high, and the kite soared high in the sky. The kite danced high in the clouds, and Lily's kite soared high, and her kite soared high.
+B: Once upon a time, there was a little girl named Lily. She wanted to go on a big adventure with her mommy. They packed a bag and went on their way. After a while, they arrived at a big, green forest. Lily's mommy told her to be careful and not wander too far away. So, they went in and saw many animals. Lily's favorite animal was the bear. She had to use her toy to talk to the bear.
+
+### Item 5
+Subject: a rabbit and a turtle
+A: Once upon a time, in a green meadow, there lived a curious little rabbit named Rosie. Rosie loved to hop through the meadow, her paws making soft crunch under her paws. One day, a friendly rabbit came hopping by and saw Rosie. "Hello, Rosie," said the rabbit. "I want to be your friend." Rosie was surprised but happy to have a new friend. From then on, Rosie and the rabbit became the best of friends, exploring the meadow together. The end.
+B: Once upon a time, there was a little girl. She was only three years old. One day, she wanted to go outside and play, but her mom said she had to stay in the garden. The little girl got very sad. She wanted to go outside and play with the animals. She asked her mom if she could go outside, but her mom said no. She said it was too dangerous. But the little girl was determined to go outside.
+
+### Item 6
+Subject: a lighthouse
+A: Once upon a time, there was a little girl who wanted to join the fun activities in the festival. She was so excited! The little girl asked her mom, "Can I join the festival?" Her mom replied, "Yes, but it will be a long festival. You'll have to wait until the weekend." The little girl was so excited! She couldn't wait to go to the festival! At the festival, the little girl saw so many fun things. She saw a big wheel that could spin really fast!
+B: Once upon a night, the lighthouse stood tall by the sea. Its light shone brightly, and the lighthouse was a symbol of their power. The lighthouse stood proud, its light shining bright. The light shone through the light, a lighthouse light. Why did the lighthouse keeper? Because it brought light to the darkness, a symbol of love and comfort.
+
+### Item 7
+Subject: a lost sock
+A: Once upon a time, there was a sock named Socks. Socks loved to play in the laundry basket, but one day, a big storm came. Socks and Socks were worried. But Socks kept her warm and safe, and she knew she had to help her friends. Socks stayed with Socks for a long time, and they all lived happily ever after.
+B: Once upon a time, there was a little boy named Tim. Tim had a red sock that he loved to wear. One day, he found a big pile of toys in his room. Tim was very happy and wanted to play with the toys. Tim picked up a toy car with a button on it. He pushed the button and the car made a loud beep. Tim laughed and pushed the button again and again. The car made more beep sounds.
+
+### Item 8
+Subject: a small dragon
+A: Once upon a time, there was a little girl named Lucy. She was only three years old but she liked to play all the time. One day, Lucy was playing in the garden. She saw a big, shiny bird and she wanted to touch it. She was about to throw a toy, when she remembered her mommy telling her not to throw things. Lucy ran inside to tell her mommy. When she told her mommy, her mommy was very polite. She said to Lucy, "That is a very special bird.
+B: Once upon a time, in a land far away, there lived a little dragon named Finn. Finn loved to explore the forest, but he was always curious about the world. One sunny day, Finn met a wise old owl who taught him about the importance of keeping secrets safe. Finn learned that every adventure was about the importance and the importance of sharing. From then on, Finn was known as the brave little dragon who loved to explore. The end.
+
+### Item 9
+Subject: a birthday cake
+A: Once upon a time, there was a little girl named Lily who loved birthdays. She would put on her best dress and run to the kitchen where her mom made hot chocolate. One day, Lily's mom gave her a big, warm hug. She told Lily that her birthday was coming soon. Lily was so excited, she ran to her room to play with her friends. They all had a great time, and Lily learned that sometimes, unexpected things can bring new friends and fun.
+B: Once upon a time, there was a little girl named Lucy. She had a big smile and a big heart. Lucy always wore a pretty dress. One day, her mommy said, "Let's go to the park today!" At the park, Lucy saw her friend, Tim. Tim was holding a toy car. "What's that?" asked Lucy. "It's a car," said Tim. "It's a real car, but it's not real." "Oh, I see," said Lucy. "Can I play with it?" Tim nodded and said, "Sure!"
+
+### Item 10
+Subject: a snowman who wants to see summer
+A: Once upon a time, there was a big, friendly snowman named Frosty. Frosty loved the sun and the warm sun. One day, a little girl named Lily came to the snowman's face. Frosty smiled and said, "Hello, Frosty! I'm Koko, the warm and friendly husky. Why do you like snow so much?
+B: Once upon a time, there was a boy named Tom. Tom wanted to be a good friend. He thought to himself, "If I can make snowballs and play in the snow, I will be a good friend." So he went outside and found some sticks. Tom worked hard to make a snowman. He put the sticks together until it was big enough for his snowman. He was very happy and he said, "You are a good friend, Mr. Cloud!"
+
+### Item 11
+Subject: a lost sock
+A: Once upon a time, there was a little boy named Tim. Tim had a red sock and he loved to play with it. One day, his mom said, "Tim, it's time to bathe!" Tim did not want to bathe. He said, "No, Mom! I don't want to bathe." His mom insisted, "Please, Tim, it's good for you. It will protect you and make you clean." But Tim still said no. One day, Tim's mom took him to a special party. The party was very competitive.
+B: Once upon a time, there was a sock named Socks. Socks loved to play in the laundry basket, but one day, a big storm came. Socks and Socks were worried. But Socks kept her warm and safe, and she knew she had to help her friends. Socks stayed with Socks for a long time, and they all lived happily ever after.
+
+### Item 12
+Subject: a birthday cake
+A: Once upon a time, there was a little girl named Lily who loved birthdays. She would put on her best dress and run to the kitchen where her mom made hot chocolate. One day, Lily's mom gave her a big, warm hug. She told Lily that her birthday was coming soon. Lily was so excited, she ran to her room to play with her friends. They all had a great time, and Lily learned that sometimes, unexpected things can bring new friends and fun.
+B: Once upon a time, there was a little girl named Lucy. She had a small room with a messy closet. In the closet, there was a big toy box. Lucy liked to play with the toys in her messy closet. One day, Lucy's friend Ben came to play. They played with the toys in the closet. They had so much fun! Then, Lily said, "I will shut the closet door, so no one can take my toys." Ben did not like that. He wanted to play with the toys too.
+
+### Item 13
+Subject: a magic pencil
+A: Once upon a time, there was a little girl named Lily who loved to draw. She would draw pictures of her family, her friends, and her dreams. One day, she drew a cozy cabin with a big tree. The tree was full of colorful flowers and tall trees. Lily drew a big, fluffy dog, and the dog was happy. Her drawing showed her a world where everyone felt loved and loved. The end.
+B: Once upon a time, there was a little girl named Amy. She was very curious about the world and wanted to learn more. One day, she asked her mom, "Will the world be a mystery?" Her mom smiled and said, "Yes, Amy, the world will be a surprise." Amy was very excited and asked, "What kind of mystery?" Her mom replied, "It's a surprise! You can't wait to find out what it is, but you have to be very careful and make sure you know the answers."
+
+### Item 14
+Subject: a train that is late
+A: Once upon a time, there was a brave knight. He liked to protect the animals from the war. He always saved them from danger. One day, the knight was out on a mission. He had to find someone who was very wealthy. He searched high and low, but he couldn't find anyone. Suddenly, he saw a giant dragon. The dragon was very scary and he wanted to fight. The knight was too late. The dragon was hungry and he wanted to eat the brave knight.
+B: Once upon a time, there was a slow-moving train. It had a red steam engine and a loud bang. The train's engine whoosh, and the engine buzzed from one train to another. The people in the town were amazed. Why did the train stop at the station? To learn how to stop and rest.
+
+### Item 15
+Subject: a train that is late
+A: Once upon a time, there was a green train. It liked to go really fast. It went so fast that it made a loud "crack" sound. The train was so happy that it started to jump up and down. The green train went on a fun ride. It went through fields, over bridges and through tunnels. It saw lots of things like trees and houses. The train was so happy that it wanted to say thank you. So it put its driver's hat on the train, and they both smiled.
+B: Once upon a time, there was a slow-moving train. It had a red steam engine and a loud bang. The train's engine whoosh, and the engine buzzed from one train to another. The people in the town were amazed. Why did the train stop at the station? To learn how to stop and rest.
+
+### Item 16
+Subject: two best friends who argue
+A: Once upon a time, there was a little girl named Lucy. She lived in the east with her family. Every day, she would go out and play in the sun. One day, Lucy was playing in the sun. She was having so much fun. Suddenly, she heard a noise. It was a loud sound! Lucy was scared. She looked around and saw a big, red balloon. It was floating in the sky. Lucy was brave. She jumped out of the way and ran towards the balloon.
+B: Once upon a time, there were two best friends named Max and Bella. They loved to play together and share their favorite things. One day, they found a big, shiny ball in the park. They decided to play with it. Max took the ball and threw it far away. Bella ran after the ball, and they ran after it. They laughed and played until the sun went down. They knew they would always be best friends.
+
+### Item 17
+Subject: a fox who finds a key
+A: Once upon a time, there was a little girl named Jane. She was very curious about the world around her. One day, Jane asked her mom, "What does the world know about the big world?" Her mom smiled and said, "The world is a big nation of people, who are very wealthy." Jane thought that was really a great opinion. She couldn't wait to explore the world. The next day, Jane went outside to explore. She found the big nation of people. They were all very wealthy.
+B: Once there was a fox named Finn who loved exploring the forest. One day, Finn found a shiny key under a big oak tree. Curious, Finn followed the key's clues and found a hidden garden. Finn searched and searched, and found a shiny stone. Finn was so happy, and his heart was full of joy. From that day on, Finn was known as the most lucky fox in the forest.
+
+### Item 18
+Subject: a girl and her kite
+A: Once upon a sunny day, Lily found a beautiful kite in the park. She ran to the kite and started flying it high. They soared through the sky, watching the kite soar together. The kite soared high into the sky, and Lily laughed with joy. She had a great time flying the kite high, and the kite soared high in the sky. The kite danced high in the clouds, and Lily's kite soared high, and her kite soared high.
+B: Once upon a time, there was a little girl named Lily. She loved to play outside and collect pretty flowers. One day, she found a beautiful lily. She picked it up and showed it to her mommy. "Look, mommy! I found a pretty lily," Lily said. "That's very nice, sweetie," her mommy replied. Lily decided to keep the lily in her pocket and take it home to show her daddy. When she got home, she showed her daddy the lily and he said it was very special.
+
+### Item 19
+Subject: an old clock
+A: Once upon a time, there was a clock named Tock. Tock was a kind, old-fashioned little boy. Every morning, Tock would wake up, stretch, and get ready for his next adventure. One chilly morning, Tick woke up to a bright, bright, white night's gentle light. "Time for bed," Tock said, "but I'll wake up feeling refreshed and ready for more adventures." Tock's eyes lit up, and he knew he had a great adventure.
+B: Once upon a time, there was a little girl named Lucy. She was very happy and loved to explore the world. One day, she decided to go on an adventure. Lucy looked around and saw a big tree. She wanted to climb it and see what was on the other side. She stretched her little arms out and started to climb. Up and up she went, higher and higher. Finally, Lucy reached the top. She looked around and saw a beautiful view. It was so much fun!
+
+### Item 20
+Subject: a rainy day
+A: Once upon a time, there was a little girl named Lily. She had a big red ball that she loved to play with. One day, she went outside to play with her ball. Lily saw a little bird sitting on a tree. She thought the bird was sad because it lost its way home. Lily wanted to help the bird. She said, "Bird, are you lost? Can I help you find its home?" The bird said, "Yes, please. I need to find my way back to my nest."
+B: Once upon a time, a little girl named Lily loved to play in the rain. She'd run through puddles, and her favorite puddle would jump in. Her favorite thing to do was hide and seek, and she would run to the house with a big smile on her face. Her favorite part was when the sun shone brightly on her skin. It was a perfect day for a run and a nap in the sun. Why did she love it so much? Because it made her feel happy and warm.
+
+### Item 21
+Subject: a sleepy bear
+A: Once upon a time, in a cozy cave, lived a sleepy bear named Benny. Benny loved to sleep in the soft, white forest, but one day, a gentle bear named Benny woke up to find the forest full of wild animals. Benny was scared, but Benny said, "Don't worry, Benny. I'm here to keep you safe and warm." Benny smiled and said, "Thank you, Benny. You are a good friend." Benny smiled, feeling happy and safe in the forest. Benny's cave became his favorite place to be.
+B: Once upon a time, there was a little girl named Lily. She loved to play with her toys and sing songs. One day, she found a magic book that could make her dreams come true. She closed her eyes and imagined herself on a big white sheet of pillows. But something strange happened. The sheet started to shrink! Lily was so surprised she jumped up and down. She didn't know what to do. But then she remembered her magic book and imagined herself flying through the clouds.
+
+### Item 22
+Subject: a cat and a ghost
+A: Once upon a time, there was a boy named Tim. Tim wanted to go on a journey. He wanted to find a hidden treasure. He asked his mom if he could go. His mom said, "Yes, but be careful." Tim took his small boat and went on his journey. He went up and down the river. He saw fish and birds. He found a big tree with a hidden hole. Inside the hole, he found a box. Tim opened the box and saw the treasure. It was a magic box.
+B: Once upon a time, in a cozy little house, there lived a friendly cat named Whiskers. Whiskers loved to play and jump around, but one day, a big, scary cat came to the house. Whiskers was scared of the dark and wanted to hide. But Whiskers remembered the cat's big, scary monster. Whiskers was brave and did not want to play with Whiskers. So, Whiskers hid under the bed and waited for Whiskers to find her. Whiskers was very quiet and still, and Whiskers followed Whiskers.
+
+### Item 23
+Subject: a fox who finds a key
+A: Once there was a fox named Finn who loved exploring the forest. One day, Finn found a shiny key under a big oak tree. Curious, Finn followed the key's clues and found a hidden garden. Finn searched and searched, and found a shiny stone. Finn was so happy, and his heart was full of joy. From that day on, Finn was known as the most lucky fox in the forest.
+B: Once upon a time, there was a jolly fox who lived in the woods. He had the biggest heart and the smallest bell in the forest. But he was lonely so he decided to go for a walk and he saw a small rabbit. The fox asked the rabbit, "Do you know where I can find a key?" The rabbit replied, "Yes, I know a place. It's very far away and it's very quiet and peaceful." The fox thanked the rabbit and he set off.
+
+### Item 24
+Subject: a boy who finds a map
+A: Once upon a time, there was a young boy named Tim who loved exploring the old oak tree. One sunny day, while exploring the old, abandoned house at the end of the old oak, Tim found a map leading to a hidden treasure. With a big smile, he followed the map's clues. The map led to a hidden cave hidden cave behind a bush. Tim followed the map, and when he finally found it, he found a chest full of shiny coins.
+B: Once upon a time, there was a boy who wanted to find a treasure. He was very excited and had lots of ideas in his head. One day, he found a big box and he thought it must be the treasure. He opened it and inside he found a lot of toys! He was so happy! The boy loved his toys so much that he decided to take them everywhere he went. But one day the boy had a problem.
+
+### Item 25
+Subject: a robot that is afraid of rain
+A: In a small village, a friendly husky named Koko, with a smile, Koko, with eyes wide with wonder and light. Koko sniffed the air, and the air felt warm. The villagers noticed, and Koko's eyes sparkled with joy. They joined in, and Koko joined in, making the world a cozy place. The villains, with a big, friendly smile, shared tales of the cold and the joy of the day.
+B: Once upon a time, there was a boy who was very brave. He wanted to explore the big wet world around him. One day, he decided to dare himself to go into the wet world. He was very scared but he was brave too. He walked and walked as far as he could. He saw all sorts of things he had never seen before. But then, he found a big puddle. He hesitated but he wanted to take a closer look.
+
+### Item 26
+Subject: a rabbit and a turtle
+A: Once upon a time, in a green meadow, there lived a curious little rabbit named Rosie. Rosie loved to hop through the meadow, her paws making soft crunch under her paws. One day, a friendly rabbit came hopping by and saw Rosie. "Hello, Rosie," said the rabbit. "I want to be your friend." Rosie was surprised but happy to have a new friend. From then on, Rosie and the rabbit became the best of friends, exploring the meadow together. The end.
+B: Once upon a time, there was a little girl. She had a big, fluffy teddy bear. The little girl was very happy. She loved her teddy bear and hugged it tight. One day, the little girl found a special present. It was a big box with a lock. She tried to unlock it, but she couldn't. The little girl was very sad. She didn't know how to unlock the box. But then, the little girl had an idea. She took the key and unlocked the box!
+
+### Item 27
+Subject: a brave mouse
+A: Once upon a time, there was a little girl named Lucy. She was very brave and she liked to explore. One day, Lucy decided to go to a faraway land. She had never been to a faraway land before and she was very excited. As she was walking, Lucy saw a big tree with a big leaf on it. She wanted to climb it, but the leaf was too big for her to climb. So, she decided to take a step and see what was at the top.
+B: Once upon a time, in a cozy little house, there was a tiny mouse named Milo. Milo lived in a cozy hole under the big, dark forest. One night, a big storm came, and Milo was scared. But then, the storm roared and the wind was strong. The wind blew and the rain fell. Milo's brave mouse was brave. He followed the storm to a big tree, where the wind was calm. The wind howled like a dog, and Milo chased the wind.
+
+### Item 28
+Subject: a small dragon
+A: Once upon a time, there was a little girl named Lucy. She was only three years old but she liked to play all the time. She had a little red ball that she liked to throw and catch. One day, Lucy was playing with her ball in the park when she heard a loud noise. She looked up and saw a big truck coming down the street. It was so loud that it made Lucy's ears hurt. She was scared and ran away from the park.
+B: Once upon a time, in a land far away, there lived a little dragon named Finn. Finn loved to explore the forest, but he was always curious about the world. One sunny day, Finn met a wise old owl who taught him about the importance of keeping secrets safe. Finn learned that every adventure was about the importance and the importance of sharing. From then on, Finn was known as the brave little dragon who loved to explore. The end.
+
+### Item 29
+Subject: a cat and a ghost
+A: Once upon a time, there was a boy named Tim. Tim wanted to go on a journey to find a treasure. He asked his mom if he could go, but she said no. Tim was sad. He decided to go alone. He walked and walked until he saw a lake. He was so excited! He walked in the lake and he saw a big treasure chest. He opened it and found lots of gold coins and jewels. He was so happy! But then he heard a noise.
+B: Once upon a time, in a cozy little house, there lived a friendly cat named Whiskers. Whiskers loved to play and jump around, but one day, a big, scary cat came to the house. Whiskers was scared of the dark and wanted to hide. But Whiskers remembered the cat's big, scary monster. Whiskers was brave and did not want to play with Whiskers. So, Whiskers hid under the bed and waited for Whiskers to find her. Whiskers was very quiet and still, and Whiskers followed Whiskers.
+
+### Item 30
+Subject: a boat on a river
+A: Once upon a time, there was a little girl named Lily. She was very curious and loved to explore the world around her. One day, she went on a walk with her mommy and saw a big, shiny automobile. Lily was so excited and asked her mommy, "What is that?" Her mommy replied, "That is an automobile. It's a car that goes really fast." Lily was very curious and wanted to know more about the automobile. She asked her mommy, "Can we go inside and see it?"
+B: Once upon a time, there was a little boat named Bob. Bob loved to sail on the big blue sea, but he was scared of the big waves. One sunny day, Bob met a wise old boat named Mr. Fish. Mr. Fish swam up to Bob and said, "I am scared of the water, but I am brave and fast." Bob smiled and said, 'You can do it! I am brave, and you can do it!" Bob smiled and swam away.
+
+### Item 31
+Subject: a lighthouse
+A: Once upon a time, there was a little girl who wanted to join the sea. She asked her dad for help. "Dad, can I join the sea?" Her dad said, "Yes, of course you can join me. You can join the sea and explore the water." The little girl was so excited. She grabbed her bucket and started with her dad. Together, they went to the sea and explored the waves. It was so much fun! The little girl was so happy.
+B: Once upon a night, the lighthouse stood tall by the sea. Its light shone brightly, and the lighthouse was a symbol of their power. The lighthouse stood proud, its light shining bright. The light shone through the light, a lighthouse light. Why did the lighthouse keeper? Because it brought light to the darkness, a symbol of love and comfort.
+
+### Item 32
+Subject: a magic pencil
+A: Once upon a time, there was a little girl named Lily who loved to draw. She would draw pictures of her family, her friends, and her dreams. One day, she drew a cozy cabin with a big tree. The tree was full of colorful flowers and tall trees. Lily drew a big, fluffy dog, and the dog was happy. Her drawing showed her a world where everyone felt loved and loved. The end.
+B: Once upon a time, there was a little girl named Amy. She loved to play outside with her friends. One day, while they were playing, Amy fell down and hurt her knee. She started to cry. Amy's friend, Tom, came to help her. He said, "Don't cry, Amy. Let's go to your mom. She can put a band-aid on your knee." Amy nodded and they went to her mom. Her mom put a band-aid on her knee, and Amy felt better.
+
+### Item 33
+Subject: a snowman who wants to see summer
+A: Once upon a time, there was a big, friendly snowman named Frosty. Frosty loved the sun and the warm sun. One day, a little girl named Lily came to the snowman's face. Frosty smiled and said, "Hello, Frosty! I'm Koko, the warm and friendly husky. Why do you like snow so much?
+B: Once upon a time, there was a boy named Tom. Tom wanted to be like the snow. He put on his coat and hat. He went outside to play, but he felt uncomfortable. The snow was very cold and it made him feel uncomfortable. Tom walked home, feeling sad. He wanted to go back to the snow. But then, he saw the sun shine bright in the sky. The snow was not melting, but it was still fun. Tom went back outside and played in the snow all day long.
+
+### Item 34
+Subject: a rainy day
+A: Once upon a time, a little girl named Lily loved to play in the rain. She'd run through puddles, and her favorite puddle would jump in. Her favorite thing to do was hide and seek, and she would run to the house with a big smile on her face. Her favorite part was when the sun shone brightly on her skin. It was a perfect day for a run and a nap in the sun. Why did she love it so much? Because it made her feel happy and warm.
+B: Once upon a time, there was a little girl named Lily. She had a big, dark face, and her hair was very long. Lily loved to play outside in the rain and run in the puddles. One day, Lily went to the park with her mommy. At the park, Lily saw a big, scary dog. The dog barked very loud and scared Lily. She was scared and wanted to run away. But then, she remembered something her mommy always said. "Lily, don't worry. The dog won't hurt you.
+
+### Item 35
+Subject: a penguin who cannot swim
+A: Once upon a time, there was a little penguin named Pippin. Pippin lived in a cold place with lots of ice and snow. One day, Pippin was playing with his friends near a big ice pond. They were having so much fun! Suddenly, Pippin saw a big, scary polar bear coming towards them. He was very rude and said, "Get out of my way, you big polar bear!" Pippin and his friends were scared, so they ran away as fast as they could.
+B: Once upon a time, there was a penguin named Ollie. Ollie loved to swim, but he was too shy to swim with his friends in the cold. One day, Ollie met a friendly seal named Sam. Ollie swam closer to Ollie, and Ollie swam closer. Ollie swam back to Ollie and said, "Hi, Ollie! Do you want to play with me?" Ollie smiled and said, 'Let's play together!" Ollie smiled and they played together, having lots of fun in the warm sun.
+
+### Item 36
+Subject: a robot that is afraid of rain
+A: In a small village, a friendly husky named Koko, with a smile, Koko, with eyes wide with wonder and light. Koko sniffed the air, and the air felt warm. The villagers noticed, and Koko's eyes sparkled with joy. They joined in, and Koko joined in, making the world a cozy place. The villains, with a big, friendly smile, shared tales of the cold and the joy of the day.
+B: Once upon a time, there was a boy named Ben. Ben loved to play outside, but one day it started to rain. The rain was coming down hard, and Ben was sad. Ben's mom said, "It's okay, Ben. We can still play outside in the rain. Let's go outside and see the mud from the window." Ben and his mom went outside and saw the mud. Ben was happy again. Ben's mom said, "See, the rain can be useful. Just like a worm and a worm friend."
+
+### Item 37
+Subject: a sleepy bear
+A: Once upon a time, in a cozy cave, lived a sleepy bear named Benny. Benny loved to sleep in the soft, white forest, but one day, a gentle bear named Benny woke up to find the forest full of wild animals. Benny was scared, but Benny said, "Don't worry, Benny. I'm here to keep you safe and warm." Benny smiled and said, "Thank you, Benny. You are a good friend." Benny smiled, feeling happy and safe in the forest. Benny's cave became his favorite place to be.
+B: Once upon a time, there was a little bear named Teddy. Teddy loved to play with his friends in the forest. One day, he found a magic book and started to read it. The book said, "If you want to be a hero, you must save the world and be kind to others." Teddy was very excited and started to save his friends from the sleepy animals. He helped a squirrel build a little nest for a new friend. They were all very happy and thanked Teddy for saving them.
+
+### Item 38
+Subject: a boat on a river
+A: Once upon a time, there was a little boat named Bob. Bob loved to sail on the big blue sea, but he was scared of the big waves. One sunny day, Bob met a wise old boat named Mr. Fish. Mr. Fish swam up to Bob and said, "I am scared of the water, but I am brave and fast." Bob smiled and said, 'You can do it! I am brave, and you can do it!" Bob smiled and swam away.
+B: Once upon a time, there was a little girl named Lily. She was so excited to go on a boat ride in the lake. She asked her mom, "Can we sail to the lake?" Her mom said, "Sure, we can sail to the lake." When they got to the lake, Lily saw a man waving at them. She said, "Hi, mister! Can we sail to the lake?" The man smiled and said, "Sure, let's go!" They sailed to the lake and Lily felt so happy.
+
+### Item 39
+Subject: two best friends who argue
+A: Once upon a time, there were two best friends named Max and Bella. They loved to play together and share their favorite things. One day, they found a big, shiny ball in the park. They decided to play with it. Max took the ball and threw it far away. Bella ran after the ball, and they ran after it. They laughed and played until the sun went down. They knew they would always be best friends.
+B: Once upon a time, there was a little girl named Lucy. She lived in the east with her family. Every day, she would go to the west to play with her friends. They loved to play hide and seek. But sometimes, Lucy was careless and often lost her way. One day, Lucy and her friends were playing in the park. They were having a great time, but they did not see the big, mean dog. The dog would chase them and Lucy got scared.
+
+### Item 40
+Subject: an old clock
+A: Once upon a time, there was a clock named Tock. Tock was a kind, old-fashioned little boy. Every morning, Tock would wake up, stretch, and get ready for his next adventure. One chilly morning, Tick woke up to a bright, bright, white night's gentle light. "Time for bed," Tock said, "but I'll wake up feeling refreshed and ready for more adventures." Tock's eyes lit up, and he knew he had a great adventure.
+B: Once upon a time, there was a little girl named Lucy. She was very happy and loved to explore the world. One day, she found a big clock in her garden. It was old and rusty, but she thought it was very special. Lucy started to play with the clock. She moved it around and made it ring. She liked how it sounded. She also liked how it made funny noises when it was time to sleep. But then, something happened. The clock started to crack!

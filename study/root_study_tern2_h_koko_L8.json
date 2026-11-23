@@ -1,0 +1,198 @@
+[
+ {
+  "cfg": "S256 K0 no router",
+  "rows": 301,
+  "true_in_set": 0.7032,
+  "top1_in_set": 0.7879,
+  "top64_mass": 0.7354,
+  "sample_mass": 0.756,
+  "top1_facts": 0.67
+ },
+ {
+  "cfg": "S256 K0 behaviour C256 m8",
+  "rows": 950,
+  "true_in_set": 0.9175,
+  "top1_in_set": 0.9654,
+  "top64_mass": 0.95,
+  "sample_mass": 0.9563,
+  "top1_facts": 0.9277,
+  "max_group": 368
+ },
+ {
+  "cfg": "S256 K0 behaviour C256 m12",
+  "rows": 1169,
+  "true_in_set": 0.9345,
+  "top1_in_set": 0.9758,
+  "top64_mass": 0.9637,
+  "sample_mass": 0.9686,
+  "top1_facts": 0.9497,
+  "max_group": 368
+ },
+ {
+  "cfg": "S256 K0 behaviour C256 m16",
+  "rows": 1397,
+  "true_in_set": 0.9466,
+  "top1_in_set": 0.9821,
+  "top64_mass": 0.972,
+  "sample_mass": 0.9762,
+  "top1_facts": 0.9627,
+  "max_group": 368
+ },
+ {
+  "cfg": "S256 K0 behaviour C256 m24",
+  "rows": 1869,
+  "true_in_set": 0.9608,
+  "top1_in_set": 0.9882,
+  "top64_mass": 0.9814,
+  "sample_mass": 0.9845,
+  "top1_facts": 0.9777,
+  "max_group": 368
+ },
+ {
+  "cfg": "S256 K32 no router",
+  "rows": 312,
+  "true_in_set": 0.8078,
+  "top1_in_set": 0.8937,
+  "top64_mass": 0.8409,
+  "sample_mass": 0.8631,
+  "top1_facts": 0.8293
+ },
+ {
+  "cfg": "S256 K32 behaviour C256 m8",
+  "rows": 954,
+  "true_in_set": 0.9349,
+  "top1_in_set": 0.9817,
+  "top64_mass": 0.9651,
+  "sample_mass": 0.9727,
+  "top1_facts": 0.9667,
+  "max_group": 368
+ },
+ {
+  "cfg": "S256 K32 behaviour C256 m12",
+  "rows": 1170,
+  "true_in_set": 0.9472,
+  "top1_in_set": 0.9869,
+  "top64_mass": 0.9738,
+  "sample_mass": 0.9797,
+  "top1_facts": 0.9763,
+  "max_group": 368
+ },
+ {
+  "cfg": "S256 K32 behaviour C256 m16",
+  "rows": 1393,
+  "true_in_set": 0.9567,
+  "top1_in_set": 0.9894,
+  "top64_mass": 0.9793,
+  "sample_mass": 0.9839,
+  "top1_facts": 0.9803,
+  "max_group": 368
+ },
+ {
+  "cfg": "S256 K32 behaviour C256 m24",
+  "rows": 1857,
+  "true_in_set": 0.967,
+  "top1_in_set": 0.9933,
+  "top64_mass": 0.986,
+  "sample_mass": 0.9895,
+  "top1_facts": 0.988,
+  "max_group": 368
+ },
+ {
+  "cfg": "S256 K64 no router",
+  "rows": 332,
+  "true_in_set": 0.8469,
+  "top1_in_set": 0.9217,
+  "top64_mass": 0.8789,
+  "sample_mass": 0.8976,
+  "top1_facts": 0.8667
+ },
+ {
+  "cfg": "S256 K64 behaviour C256 m8",
+  "rows": 961,
+  "true_in_set": 0.9428,
+  "top1_in_set": 0.9852,
+  "top64_mass": 0.97,
+  "sample_mass": 0.9772,
+  "top1_facts": 0.9717,
+  "max_group": 368
+ },
+ {
+  "cfg": "S256 K64 behaviour C256 m12",
+  "rows": 1173,
+  "true_in_set": 0.9528,
+  "top1_in_set": 0.9898,
+  "top64_mass": 0.9777,
+  "sample_mass": 0.9832,
+  "top1_facts": 0.979,
+  "max_group": 368
+ },
+ {
+  "cfg": "S256 K64 behaviour C256 m16",
+  "rows": 1396,
+  "true_in_set": 0.9607,
+  "top1_in_set": 0.9922,
+  "top64_mass": 0.9825,
+  "sample_mass": 0.9871,
+  "top1_facts": 0.983,
+  "max_group": 368
+ },
+ {
+  "cfg": "S256 K64 behaviour C256 m24",
+  "rows": 1858,
+  "true_in_set": 0.9712,
+  "top1_in_set": 0.9952,
+  "top64_mass": 0.9882,
+  "sample_mass": 0.9916,
+  "top1_facts": 0.9913,
+  "max_group": 368
+ },
+ {
+  "cfg": "S512 K64 no router",
+  "rows": 569,
+  "true_in_set": 0.8613,
+  "top1_in_set": 0.9317,
+  "top64_mass": 0.8934,
+  "sample_mass": 0.909,
+  "top1_facts": 0.874
+ },
+ {
+  "cfg": "S512 K64 behaviour C256 m8",
+  "rows": 1227,
+  "true_in_set": 0.9466,
+  "top1_in_set": 0.9866,
+  "top64_mass": 0.9737,
+  "sample_mass": 0.9797,
+  "top1_facts": 0.9737,
+  "max_group": 318
+ },
+ {
+  "cfg": "S512 K64 behaviour C256 m12",
+  "rows": 1447,
+  "true_in_set": 0.9564,
+  "top1_in_set": 0.9904,
+  "top64_mass": 0.9803,
+  "sample_mass": 0.985,
+  "top1_facts": 0.9793,
+  "max_group": 318
+ },
+ {
+  "cfg": "S512 K64 behaviour C256 m16",
+  "rows": 1675,
+  "true_in_set": 0.9624,
+  "top1_in_set": 0.9923,
+  "top64_mass": 0.9843,
+  "sample_mass": 0.9882,
+  "top1_facts": 0.983,
+  "max_group": 318
+ },
+ {
+  "cfg": "S512 K64 behaviour C256 m24",
+  "rows": 2148,
+  "true_in_set": 0.9729,
+  "top1_in_set": 0.9944,
+  "top64_mass": 0.9891,
+  "sample_mass": 0.9918,
+  "top1_facts": 0.9897,
+  "max_group": 318
+ }
+]

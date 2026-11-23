@@ -1,0 +1,6 @@
+{
+ "base": "base.json",
+ "wq": "tern",
+ "opt": "muon",
+ "wq_lr_mult": 10
+}

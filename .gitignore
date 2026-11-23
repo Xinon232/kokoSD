@@ -1,0 +1,6 @@
+# Build output and the released ROM the data block is taken from (not kept in git)
+build/
+out/
+*.gba
+koko.bin
+__pycache__/

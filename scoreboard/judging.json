@@ -1,0 +1,62 @@
+{
+ "chat: Koko vs GPT-2 small": {
+  "items": 20,
+  "judges_per_item": 3,
+  "koko_votes": 60,
+  "other_votes": 0,
+  "ties": 0,
+  "koko_wins_by_majority": 20,
+  "other_wins_by_majority": 0,
+  "unanimous": 20
+ },
+ "chat: Koko vs SmolLM2-135M-Instruct": {
+  "items": 20,
+  "judges_per_item": 3,
+  "koko_votes": 56,
+  "other_votes": 4,
+  "ties": 0,
+  "koko_wins_by_majority": 18,
+  "other_wins_by_majority": 2,
+  "unanimous": 18
+ },
+ "stories: Koko vs GPT-2 small": {
+  "items": 20,
+  "judges_per_item": 3,
+  "koko_votes": 58,
+  "other_votes": 2,
+  "ties": 0,
+  "koko_wins_by_majority": 19,
+  "other_wins_by_majority": 1,
+  "unanimous": 19
+ },
+ "stories: Koko vs SmolLM2-135M-Instruct": {
+  "items": 20,
+  "judges_per_item": 3,
+  "koko_votes": 28,
+  "other_votes": 32,
+  "ties": 0,
+  "koko_wins_by_majority": 9,
+  "other_wins_by_majority": 11,
+  "unanimous": 15
+ },
+ "stories: Koko vs TinyStories-33M": {
+  "items": 20,
+  "judges_per_item": 3,
+  "koko_votes": 44,
+  "other_votes": 16,
+  "ties": 0,
+  "koko_wins_by_majority": 15,
+  "other_wins_by_majority": 5,
+  "unanimous": 17
+ },
+ "stories: Koko vs TinyStories-8M": {
+  "items": 20,
+  "judges_per_item": 3,
+  "koko_votes": 51,
+  "other_votes": 9,
+  "ties": 0,
+  "koko_wins_by_majority": 16,
+  "other_wins_by_majority": 4,
+  "unanimous": 17
+ }
+}

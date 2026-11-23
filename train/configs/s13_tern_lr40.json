@@ -1,0 +1,5 @@
+{
+ "base": "base.json",
+ "wq": "tern",
+ "wq_lr_mult": 40
+}

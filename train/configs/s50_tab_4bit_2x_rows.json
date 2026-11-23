@@ -1,0 +1,25 @@
+{
+ "base": "base.json",
+ "inject": [
+  {
+   "kind": "bigram",
+   "rows": 32768,
+   "layers": [
+    0,
+    2
+   ],
+   "gate": false,
+   "bits": 4
+  },
+  {
+   "kind": "trigram",
+   "rows": 32768,
+   "layers": [
+    0,
+    2
+   ],
+   "gate": false,
+   "bits": 4
+  }
+ ]
+}

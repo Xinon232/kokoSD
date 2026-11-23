@@ -1,0 +1,5 @@
+{
+ "base": "base.json",
+ "wq": "tern",
+ "opt": "muon"
+}

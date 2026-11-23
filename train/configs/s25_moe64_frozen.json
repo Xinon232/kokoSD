@@ -1,0 +1,6 @@
+{
+ "base": "base.json",
+ "mlp": "moe",
+ "E": 64,
+ "router": "frozen"
+}

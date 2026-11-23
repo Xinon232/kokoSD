@@ -1,0 +1,40 @@
+{
+ "base": "base.json",
+ "topk": 8,
+ "keyq": "sign",
+ "inject": [
+  {
+   "kind": "tok",
+   "rows": 4096,
+   "layers": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "gate": true
+  },
+  {
+   "kind": "bigram",
+   "rows": 65536,
+   "layers": [
+    0,
+    2
+   ],
+   "gate": true
+  },
+  {
+   "kind": "trigram",
+   "rows": 65536,
+   "layers": [
+    0,
+    2
+   ],
+   "gate": true
+  }
+ ],
+ "wq": "sherry",
+ "arenas": true,
+ "wq_lr_mult": 3,
+ "aq": 8
+}

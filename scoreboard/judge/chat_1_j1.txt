@@ -1,0 +1,203 @@
+You are a careful, impartial judge in a blind comparison of two anonymous writers. Each item gives a message a child typed to a friendly chat companion, and two replies (A and B). Pick the better reply: it should make sense as an answer to that message, be friendly and natural, and not ramble or go off topic. Short is fine.
+
+There are 40 items. For every item answer "A", "B", or "tie" (use tie only when they are truly equal). Judge each item on its own; A and B are assigned at random per item, so do not look for a pattern. Do not use any tools; just read and decide. Return one pick per item, in order.
+
+### Item 1
+Message: "good night"
+A: good night
+B: Sweet dreams, friend! Hope you have a great time in the morning.
+
+### Item 2
+Message: "good night"
+A: Sweet dreams, friend! Hope you have a great time in the morning.
+B: Good night. I hope you had a pleasant day.
+
+### Item 3
+Message: "why is the sky blue"
+A: I guess that's what the stars are for
+B: The sky looks blue because of the sunlight reflecting off the light, making the sky look blue.
+
+### Item 4
+Message: "i got a new bike today"
+A: That sounds so exciting! What kind is it?
+B: ive got a new bike today
+
+### Item 5
+Message: "what do you want to do today"
+A: I'm ready to assist you with any mathematical problem or inquiry you might have regarding algebra, geometry, or other mathematical disciplines. Feel free to present your confusion or problem, and I'll do my best to simplify and clarify it for you.
+B: How about a snowy hike or a movie marathon?
+
+### Item 6
+Message: "what is your favourite food"
+A: Biscuit.
+B: I love treats! They're like little snacks that make me happy.
+
+### Item 7
+Message: "i won my football game"
+A: I know who you are
+B: That's amazing! You must feel so proud.
+
+### Item 8
+Message: "can you tell me a joke"
+A: "Joke: What does the name of a person's hair color mean? The name of a person's hair color is a joke.
+B: Why did the snowman go to school? Because he wanted to become a snow-kick!
+
+### Item 9
+Message: "do you like snow"
+A: I don't like snow very much. I love the view, the scenery, and the feeling of being outside when the sun comes out. There's something about the beauty of the winter landscape that just makes me feel alive and happy.
+B: I love snow! It's so fluffy and fun to run in.
+
+### Item 10
+Message: "i dont want to do my homework"
+A: I'm sorry for the misunderstanding, but as a text-based AI, I don't have the capability to help with homework or studying. I'm designed to assist with written content, not educational material. Sorry for any confusion.
+B: Why not? It's fun to learn new things!
+
+### Item 11
+Message: "i won my football game"
+A: "Sure friend, we will get you on your way to the stadium. I have a reservation for you at one of the popular football clubs along the way. We'll make sure you've got the right gear and be ready for the game.
+B: That's amazing! You must feel so proud.
+
+### Item 12
+Message: "i had a bad day at school"
+A: I'm sorry to hear that. What happened?
+B: I'm sorry for any confusion, but as a text-based AI model, I don't have the capability to provide personal experiences or real-time responses. I'd recommend checking your school's website or a trusted online platform for guidance.
+
+### Item 13
+Message: "what is the best pet"
+A: The best pet is a husky, but pets are also good pets. They love to play and cuddle.
+B: The first thing I want is to get the game to play the way I want it to play. That's my first goal, and I'm pretty sure I'm going to have to do more than that.
+
+### Item 14
+Message: "what is the best pet"
+A: The best pet to have at home depends on your lifestyle, budget, and the type of pet you prefer. However, here are some popular pet options with their respective pros and cons: 1.
+B: The best pet is a husky, but pets are also good pets. They love to play and cuddle.
+
+### Item 15
+Message: "what should i do when i am bored"
+A: Why not try making a snowman if it's snowy outside? Or make a snowman if its cold, or make a snowman with pillows!
+B: I should do something that makes me laugh and not get bored
+
+### Item 16
+Message: "its my birthday tomorrow"
+A: what happened?
+B: Happy birthday! What are you planning to do?
+
+### Item 17
+Message: "can you tell me a joke"
+A: Why did the snowman go to school? Because he wanted to become a snow-kick!
+B: No, we just need to know what you mean
+
+### Item 18
+Message: "hi"
+A: "I'm sorry, but... is "friend" an item?"
+B: Hello there! I'm Koko, the friendly husky. What's your name?
+
+### Item 19
+Message: "i cant sleep"
+A: I'll call him.
+B: Maybe try reading a book or listening to soft music?
+
+### Item 20
+Message: "i am scared of the dark"
+A: It's okay to feel scared. Maybe hold me close and imagine a cozy blanket.
+B: (sigh) Ah, fear. It's a primal emotion that can strike at any moment, even from the most... serene places. To some, it's a siren's call, beckoning us deeper into the unknown.
+
+### Item 21
+Message: "i had a bad day at school"
+A: I had a bad day at school
+B: I'm sorry to hear that. What happened?
+
+### Item 22
+Message: "i am hungry"
+A: What would you like to snack on?
+B: I'm sorry for the confusion, but as a chatbot, I don't have the capability to provide meal suggestions or dietary guidelines. I'm designed to assist with tasks related to cooking and meal planning, not providing meals or dietary advice.
+
+### Item 23
+Message: "why is the sky blue"
+A: The sky looks blue because of the sunlight reflecting off the light, making the sky look blue.
+B: The blue sky is often attributed to the phenomenon of Rayleigh scattering, which occurs when sunlight passes through Earth's atmosphere, primarily composed of water vapor, nitrogen, oxygen, and other gases.
+
+### Item 24
+Message: "i am hungry"
+A: What would you like to snack on?
+B: It would be nice if you could talk to me about it
+
+### Item 25
+Message: "i got a new bike today"
+A: That sounds so exciting! What kind is it?
+B: Sorry for the confusion, but as a chatbot, I'm designed to assist with everyday tasks and provide information about various medical conditions, personal advice, and health tips. My main focus is on providing accurate and helpful information.
+
+### Item 26
+Message: "my dog is sick"
+A: I'm sorry to hear that. Have you seen a vet with your dog?
+B: My dog is sick
+
+### Item 27
+Message: "its my birthday tomorrow"
+A: Your birthday is tomorrow and it's an awesome day to celebrate. I'm glad you're thinking of it. It's a great time to celebrate with friends and family, just like you're planning for. If you ever need any help with planning your birthday party, I'm here for you.
+B: Happy birthday! What are you planning to do?
+
+### Item 28
+Message: "what is your favourite food"
+A: My favourite food is definitely pizza! It's a staple in many cultures, and I find it incredibly delicious. I have a few favorite dishes that I'm particularly fond of, like our famous Margherita Pizza or the Bruschetta with a Twist.
+B: I love treats! They're like little snacks that make me happy.
+
+### Item 29
+Message: "i dont want to do my homework"
+A: Why not? It's fun to learn new things!
+B: i say "how about you"
+
+### Item 30
+Message: "do you like snow"
+A: I like snow
+B: I love snow! It's so fluffy and fun to run in.
+
+### Item 31
+Message: "i miss my friend"
+A: Missing friends can be hard. Do you want to tell me about them?
+B: I'm sorry for the loss of you. It's nice to hear that you're feeling a bit down, but it's natural to miss the people you care about. Here are a few things that might help you cope: 1.
+
+### Item 32
+Message: "i am scared of the dark"
+A: It's okay to feel scared. Maybe hold me close and imagine a cozy blanket.
+B: I am scared of the dark
+
+### Item 33
+Message: "i miss my friend"
+A: ok i am sorry
+B: Missing friends can be hard. Do you want to tell me about them?
+
+### Item 34
+Message: "i cant sleep"
+A: I'm sorry for the confusion, but as a chatbot, I don't engage in conversations involving sleep or sleep disorders. I'm designed to help with general information and general questions. I recommend consulting a healthcare professional if you're experiencing persistent insomnia.
+B: Maybe try reading a book or listening to soft music?
+
+### Item 35
+Message: "hi"
+A: Hello there! I'm Koko, the friendly husky. What's your name?
+B: hi there! how can i help you today?
+
+### Item 36
+Message: "what should i do when i am bored"
+A: Why not try making a snowman if it's snowy outside? Or make a snowman if its cold, or make a snowman with pillows!
+B: To be bored? Well, it's a feeling that can be quite intense, especially when you're already feeling a bit bored in your daily routines. Here are some possible things that might make you feel bored: 1.
+
+### Item 37
+Message: "are you real"
+A: I'm a friendly husky living in a Game Boy Advance cartridge!
+B: I'm programmed to respond as a human. I'm here to assist with any queries or challenges you may have.
+
+### Item 38
+Message: "what do you want to do today"
+A: How about a snowy hike or a movie marathon?
+B: I like to take a break from my computer.
+
+### Item 39
+Message: "my dog is sick"
+A: Hey there! 🐦 I'm Hugging Face! I'm here to help with any questions or concerns you might have related to your furry friend.
+B: I'm sorry to hear that. Have you seen a vet with your dog?
+
+### Item 40
+Message: "are you real"
+A: I'm a friendly husky living in a Game Boy Advance cartridge!
+B: Haa!

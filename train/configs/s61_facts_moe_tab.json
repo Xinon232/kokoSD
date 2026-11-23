@@ -1,0 +1,26 @@
+{
+ "base": "base.json",
+ "facts_n": 5000,
+ "mlp": "moe",
+ "E": 16,
+ "inject": [
+  {
+   "kind": "bigram",
+   "rows": 16384,
+   "layers": [
+    0,
+    2
+   ],
+   "gate": false
+  },
+  {
+   "kind": "trigram",
+   "rows": 16384,
+   "layers": [
+    0,
+    2
+   ],
+   "gate": false
+  }
+ ]
+}

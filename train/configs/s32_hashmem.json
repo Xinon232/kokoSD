@@ -1,0 +1,9 @@
+{
+ "base": "base.json",
+ "hashmem_heads": 2,
+ "hashmem_bits": 14,
+ "hashmem_layers": [
+  1,
+  3
+ ]
+}
