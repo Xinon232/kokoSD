@@ -12,6 +12,12 @@ Koko's code, model, drawing of Koko and screen design were made for this project
   (https://simple.wikipedia.org), by its contributors, licensed CC BY-SA (https://creativecommons.org/licenses/by-sa/4.0/).
   Sentences were shortened and cleaned (pronunciation guides and non-English script removed). Replies marked
   with a small book come from this table. The fact table stays under CC BY-SA.
+- **kokoSD fact file** (`koko/facts.dat`, on the SD card): the opening sentences and the text of the
+  articles of **Simple English Wikipedia** (https://simple.wikipedia.org; dump of 2 November 2026 from
+  https://dumps.wikimedia.org/simplewiki/), by its contributors, licensed CC BY-SA 4.0
+  (https://creativecommons.org/licenses/by-sa/4.0/). Converted to plain text (tables, references, templates and
+  non-English script removed; articles shortened to about 6,000 characters) by tools/facts_sd.py. It stays under
+  CC BY-SA 4.0.
 - **Font:** Inter by The Inter Project Authors (https://github.com/rsms/inter), SIL Open Font License 1.1,
   drawn here as small bitmaps.
 
@@ -24,6 +30,14 @@ Koko's code, model, drawing of Koko and screen design were made for this project
 - **Country facts** from mledoze/countries (https://github.com/mledoze/countries), Open Database License; used to write question-and-answer drills.
 - **Koko's own conversations:** about 1.3 million short chats written by the Qwen2.5-7B-Instruct model
   (Alibaba Cloud, Apache 2.0) from prompts written for this project, then filtered. They are machine-written.
+
+## kokoSD
+- **gbaSD** (SD card drivers for SuperCard SD, EZ-Flash Omega, EverDrive GBA) and **FatFs** (ChaN, BSD-style
+  licence) from https://github.com/Xinon232/gbaSD, GPL-3.0-or-later.
+- **gbawriter's input engine** (typing) by Halim Jarrar, from https://github.com/Xinon232/gbawriter,
+  GPL-3.0-or-later.
+- kokoSD's own additions: GPL-3.0-or-later (LICENSE-GPL). The cartridge as a whole is distributed under
+  GPL-3.0-or-later; Koko's own files keep the MIT License, the weights, fact table and drawing CC BY-SA 4.0.
 
 ## Tools
 - Tested in the mGBA emulator (https://mgba.io). No emulator is included.

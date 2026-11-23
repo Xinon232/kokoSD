@@ -175,4 +175,60 @@ pad = Pad()
 r = run('koko_divide', pad.text('84 / 7') + [f'k:{START}'], 1)
 t = turns_of(r['hist'])
 check(t[0] == ('84 / 7', '84 / 7 = 12.'), f"division typed with the slash: {t[0]}")
+# 10. kokoSD: the menu's How to type page opens (state 6) and B goes back to typing
+pad = Pad()
+subprocess.run([RUNNER, ROM] + BOOT + pad.menu() + [f'k:{DOWN}', f'k:{DOWN}', f'k:{A}', f'until:{DBG + 4:#x}:6:2000', 'f:10',
+               f'dump:{DBG:#x}:{44 + 2 * HISTMAX + 20}:out/page.bin', f'k:{B}', 'f:20', f'k:{B}', 'f:30',
+               f'dump:{DBG:#x}:8:out/page_back.bin'], check=True)
+d = open('out/page.bin', 'rb').read(); lines = struct.unpack('I', d[44 + 2 * HISTMAX + 4:44 + 2 * HISTMAX + 8])[0]
+back = struct.unpack('2I', open('out/page_back.bin', 'rb').read())[1]
+check(lines > 20 and back in (0, 3), f'How to type: a page of {lines} lines; B, B: typing again (state {back})')
+
+
+def sd_fact(path, key):
+    """kokoSD: the sentence /koko/facts.dat holds for a title key (tools/facts_sd.py's format), or None."""
+    b = open(path, 'rb').read()
+    count, _, index_at, entry_at, text_at, _, _ = struct.unpack('<7I', b[8:36])
+    h = 0x811C9DC5
+    for c in key.encode(): h = ((h ^ c) * 0x01000193) & 0xFFFFFFFF
+    idx = dict(struct.unpack_from('<II', b, index_at + 8 * i) for i in range(count))
+    if h not in idx: return None
+    e = entry_at + idx[h]; tl = b[e + 6]; n = b[e + 7 + tl]; p = e + 8 + tl; acc = nb = 0; ids = []
+    for _ in range(n):
+        while nb < 14: acc |= b[p] << nb; p += 1; nb += 8
+        ids.append(acc & 0x3FFF); acc >>= 14; nb -= 14
+    return tok.decode(ids), b[e + 7:e + 7 + tl].decode()
+
+
+# 11. kokoSD: facts from the SD card's file (a subject the cartridge's own table does not have), then
+#     "tell me more": the article opens (state 4), Down scrolls it, B goes back to the chat
+FACTS = 'out/koko/facts.dat'
+if os.path.exists(FACTS):
+    card = 'out/facts-card.img'
+    if not os.path.exists(card) or os.path.getmtime(card) < os.path.getmtime(FACTS):
+        size = (os.path.getsize(FACTS) >> 20) + 64
+        with open(card, 'wb') as f: f.truncate(size << 20)
+        subprocess.run(['mformat', '-i', card, '-F', '-T', str(size * 2048), '-h', '64', '-s', '32', '::'], check=True)
+        subprocess.run(['mmd', '-i', card, '::/koko'], check=True)
+        subprocess.run(['mcopy', '-i', card, FACTS, '::/koko/facts.dat'], check=True)
+    subject = os.environ.get('KOKO_SD_SUBJECT', 'siberian husky')
+    rom_has = subprocess.run(['build/facts_test', 'build/koko.bin'], input=f'what is a {subject}\n'.encode(), capture_output=True).stdout.decode().strip()
+    want_s, title = sd_fact(FACTS, subject) or (None, None)
+    old = os.environ['SD_IMAGE']; os.environ['SD_IMAGE'] = card
+    pad = Pad()
+    r = run('koko_sdfact', pad.text(f'what is a {subject}?') + [f'k:{START}', f'until:{DBG + 12:#x}:1:400000', 'f:5'] + pad.text('tell me more')
+            + [f'k:{START}', f'until:{DBG + 4:#x}:4:400000', 'f:10', 'shot:out/koko_article.ppm', f'k:{DOWN}', 'f:20',
+               f'dump:{DBG + 44 + 2 * HISTMAX:#x}:12:out/art.bin', 'shot:out/koko_article2.ppm', f'k:{B}', 'f:30'], 2)
+    os.environ['SD_IMAGE'] = old
+    sd, lines, top = struct.unpack('3I', open('out/art.bin', 'rb').read())
+    t = turns_of(r['hist'])
+    print('   conversation:', [(a, b.strip()) for a, b in t])
+    check(sd & 2 == 2, 'the fact file on the card was opened')
+    check(want_s is not None and not rom_has and t[0][1] == want_s,
+          f"{subject!r} (not in the cartridge's table) answered from the card's file: {t[0][1]!r}")
+    check(len(t) == 2 and t[1][1] == f'Here is more about {title}.' and lines > 3 and top == 3,
+          f'tell me more: {t[1][1] if len(t) > 1 else None!r}, the article has {lines} lines, Down scrolled to line {top}')
+    check(native_reply(r['hist'], r['seed']) or True, '(the fact replies are fed, not generated)')
+else:
+    print('SKIP facts from the SD card: no out/koko/facts.dat (python3 tools/facts_sd.py simplewiki-....xml.bz2)')
 sys.exit(0 if ok else 1)

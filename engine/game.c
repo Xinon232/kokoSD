@@ -172,7 +172,7 @@ static const char HOW_TO_TYPE[] =
     "B while Koko writes: stop him.\n\n"
     "The same typing as gbawriter, gbamp3 and the other apps.";
 static const char ABOUT[] =
-    "kokoSD: Koko the Chatbot with an SD card.\n\n"
+    "kokoSD 1.0: Koko the Chatbot with an SD card.\n\n"
     "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
     "Game Boy Advance itself.\n"
     "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "

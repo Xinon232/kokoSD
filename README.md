@@ -1,10 +1,27 @@
 # kokoSD: Koko the Chatbot with an SD card
 
-kokoSD is Koko (below) on SD-card flash carts: SuperCard SD, EZ-Flash Omega (and
+kokoSD 1.0 is Koko (below) on SD-card flash carts: SuperCard SD, EZ-Flash Omega (and
 Definitive Edition, started from the SD card) and EverDrive GBA, through
-[gbaSD](https://github.com/Xinon232/gbaSD). Planned: the fact table on the SD card
-with all of Simple English Wikipedia and "Tell me more", and gbawriter typing
-instead of the on-screen keyboard. GBA only (no browser version).
+[gbaSD](https://github.com/Xinon232/gbaSD). GBA only (no browser version).
+
+## What is new
+- **Facts from the SD card.** Copy `koko/facts.dat` to the folder `/koko` on the SD
+  card. "who is X", "what is X", "tell me about X" are then answered from every
+  usable Simple English Wikipedia article (the cartridge's own table had 34,127
+  opening sentences; without the file it is used as before). Lookups take a few card
+  reads.
+- **Tell me more.** After such an answer, "tell me more" (or "more", "go on") opens the
+  article to read: Up / Down scroll, Left / Right / L / R turn a page, B goes back.
+  "tell me more about X" opens X's article directly. Koko does not read the article
+  (that would take minutes); the chat carries on after it.
+- **gbawriter typing** instead of the on-screen keyboard: hold a direction and press
+  B / A / R for a letter (L as well for the second layer), A space, B delete, R
+  capitals, SELECT dot / digits / signs, as in gbawriter, gbamp3 and the other apps.
+  START sends (on an empty line: a ready-made message), START+L / START+R take a
+  suggested word, START+Left / Right move the cursor, **START+SELECT opens the menu**:
+  New chat, Facts and sums On / Off, How to type (all the buttons), About kokoSD.
+- Buttons are debounced (a bouncing contact is not a second press), and presses made
+  while Koko works are kept in order.
 
 ## Building kokoSD
 The weights are not in git. Take Koko's data block out of a released `koko.gba`,
@@ -15,7 +32,10 @@ then build (devkitARM in /opt/devkitpro, Python 3 with numpy):
     python3 tools/build.py                      # -> build/koko.gba
     python3 tools/build.py --cardtest           # -> build/koko-cardtest.gba
     python3 tools/build_runner.py               # emulator runners (libmgba), with gbaSD's card models
+    python3 tools/facts_sd.py simplewiki-latest-pages-articles.xml.bz2   # -> out/koko/facts.dat
     python3 engine/test_game.py                 # KOKO_RUNNER=build/runner-sc | -ezfo | -edgba
+
+The dump is at dumps.wikimedia.org/simplewiki/latest/ (needs `pip install mwparserfromhell`).
 
 **Card test** (`koko-cardtest.gba`): reads the SD card for about 15 seconds (0.5,
 4 and 8 KB pieces from random places, and 8 KB pieces in a row), shows the time
