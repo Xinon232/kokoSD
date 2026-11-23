@@ -2,12 +2,19 @@
  * of X's Simple English Wikipedia article when the cartridge has one (engine/facts_build.py). Otherwise the
  * model answers as usual. */
 #include "koko.h"
+#ifdef __arm__
+#include "facts_sd.h"
+#endif
 #define BU8(o) ((const uint8_t *)(koko_blob + (o)))
 #define BU32(o) ((const uint32_t *)(koko_blob + (o)))
 
 static int lookup(const char *s, int n, uint16_t *ids, int max) {
     uint32_t h = 0x811C9DC5u;
     for (int i = 0; i < n; i++) h = (h ^ (uint8_t)s[i]) * 0x01000193u;
+#ifdef __arm__
+    int r = sdf_lookup(h, ids, max);                         /* kokoSD: the SD card's file first (every article) */
+    if (r) return r;
+#endif
     const uint32_t *hs = BU32(O_FACT_HASH);
     int lo = 0, hi = K_NFACT - 1;
     while (lo <= hi) {

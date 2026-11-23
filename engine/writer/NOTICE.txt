@@ -1,0 +1,8 @@
+GBAWriter input engine, Copyright (C) 2026 Halim Jarrar, GPL-3.0-or-later
+(see LICENSE-GPL in the repository root).
+
+Source: gbamp3's copy (player/vendor/gbawriter) of GBAWriter v1.2.0 by Halim
+Jarrar, commit 577ff2a88b80cd8673672fd16e8629649678fca5. GBAWriter's source is
+published at github.com/Xinon232/gbawriter. writer_core.cpp is unchanged.
+writer_core.h: gbamp3's one-line text model; TEXT_CAPACITY 56 (a Koko message).
+writer_glue.cpp / .h: gbamp3's C bridge, changed for kokoSD (see their headers).

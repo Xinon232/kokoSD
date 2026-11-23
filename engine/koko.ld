@@ -2,7 +2,7 @@
  * (the Omega maps its kernel over the ROM during card access) and its
  * variables go to slow RAM (EWRAM) after Koko's own buffers, because fast RAM
  * (IWRAM) is nearly full. Objects named sd-*.o (gbaSD, FatFs, kokoSD's SD
- * glue) keep their data and bss there. GPL-3.0-or-later. */
+ * glue) and ew-*.o (gbawriter's typing engine) keep their data and bss there. GPL-3.0-or-later. */
 ENTRY(_start)
 MEMORY {
     rom   (rx)  : ORIGIN = 0x08000000, LENGTH = 32M
@@ -20,7 +20,7 @@ SECTIONS {
     .iwram : {
         __iwram_start = .;
         *(.iwram.text .iwram.text.*)
-        EXCLUDE_FILE(*sd-*.o) *(.data .data.*)
+        EXCLUDE_FILE(*sd-*.o *ew-*.o) *(.data .data.*)
         . = ALIGN(4);
         __iwram_end = .;
     } > iwram AT> rom
@@ -34,6 +34,7 @@ SECTIONS {
         __ewram_sd_start = .;
         *(.ewram .ewram.*)
         *sd-*.o(.data .data.*)
+        *ew-*.o(.data .data.*)
         . = ALIGN(4);
         __ewram_sd_end = .;
     } > ewram AT> rom
@@ -42,6 +43,7 @@ SECTIONS {
         __ewram_sd_bss_start = .;
         *(.bss.sd .bss.sd.*)
         *sd-*.o(.bss .bss.* COMMON)
+        *ew-*.o(.bss .bss.* COMMON)              /* gbawriter's typing engine (ew-*.o) */
         . = ALIGN(4);
         __ewram_sd_bss_end = .;
     } > ewram

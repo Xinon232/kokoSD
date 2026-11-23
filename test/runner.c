@@ -65,6 +65,12 @@ int main(int argc, char **argv) {
             for (int n = 0; n < 3; n++, frames++) core->runFrame(core);
             core->setKeys(core, 0);
             for (int n = 0; n < 3; n++, frames++) core->runFrame(core);
+        } else if (!strncmp(s, "h:", 2)) {           /* kokoSD: h:MASK:FRAMES holds exactly these buttons (gbawriter chords) */
+            char *e;
+            uint32_t mask = (uint32_t)strtoul(s + 2, &e, 0);
+            long n = atol(e + 1);
+            core->setKeys(core, mask);
+            for (; n > 0; n--, frames++) core->runFrame(core);
         } else if (!strncmp(s, "until:", 6)) {
             char *e;
             uint32_t addr = (uint32_t)strtoul(s + 6, &e, 0), val = (uint32_t)strtoul(e + 1, &e, 0);

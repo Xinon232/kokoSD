@@ -17,41 +17,41 @@ from ctok import tokenizer   # kokoSD: the cartridge's tokenizer tables (no trai
 tok = tokenizer()
 ROM, DBG, HISTMAX = 'build/koko.gba', 0x02000000, 1024
 A, B, SELECT, START, RIGHT, LEFT, UP, DOWN, R, L = (1 << i for i in range(10))
-ROWS = ["abcdefghijklm", "nopqrstuvwxyz", "0123456789+-\x02", ".,!?'___/()\x01<"]   # \x01: new chat, \x02: helpers on/off
 IDLE = f'until:{DBG + 4:#x}:3:4000'
 BOOT = ['f:20', 'shot:out/koko_title.ppm', f'k:{START}', 'f:10']      # the title screen, then START
 
 
 class Pad:
-    """Turns text into button presses, tracking the keyboard cursor the way the game moves it."""
-    def __init__(self): self.x = self.y = 0
+    """kokoSD: text -> button presses in gbawriter's typing (the game's editor): hold a direction (and L for the
+    second layer), press B / A / R for the first / second / third letter; g and v are j and w with a second R;
+    A alone is a space; a short R press capitalises the next letter; SELECT types '.' and, held, cycles it with
+    Up (digits), R (, ' " : ! ?) or Right (( ) / ; @ # % & _ + = -)."""
+    GROUPS = ((UP, 'abc', 'def'), (RIGHT, 'hij', 'klm'), (DOWN, 'nop', 'qrs'), (LEFT, 'tuw', 'xyz'))
+    RCYCLE, RIGHTCYCLE = ".,'\":!?", '.()/;@#%&_+=-'
     @staticmethod
-    def bar(y, x): return y == 3 and 5 <= x <= 7
-    def move(self, dx, dy):
-        x, y = self.x, self.y
-        if dy: y = (y + dy) % 4
-        if dx:
-            x = (x + dx) % 13
-            if self.bar(y, x) and self.bar(self.y, self.x): x = 8 if dx > 0 else 4
-        if self.bar(y, x): x = 6
-        self.x, self.y = x, y
+    def h(mask, n): return [f'h:{mask}:{n}']
+    def chord(self, base, presses):
+        out = self.h(base, 4)
+        for b in presses: out += self.h(base | b, 4) + self.h(base, 3)
+        return out + self.h(0, 4)
     def key(self, ch):
-        ch = '_' if ch == ' ' else ch
-        r = next(i for i, row in enumerate(ROWS) if ch in row); c = 6 if ch == '_' else ROWS[r].index(ch)
-        out = []
-        dy = (r - self.y) % 4
-        for _ in range(dy if dy <= 2 else 4 - dy):
-            out.append(DOWN if dy <= 2 else UP); self.move(0, 1 if dy <= 2 else -1)
-        best = None
-        for d, btn in ((1, RIGHT), (-1, LEFT)):                # try each direction, keep the shorter
-            save = (self.x, self.y); n = 0
-            while self.x != c and n < 14: self.move(d, 0); n += 1
-            self.x, self.y = save
-            if best is None or n < best[0]: best = (n, d, btn)
-        for _ in range(best[0]): out.append(best[2]); self.move(best[1], 0)
-        assert (self.x, self.y) == (c, r), (ch, self.x, self.y)
-        return [f'k:{k}' for k in out + [A]]
+        if ch == ' ': return self.h(A, 4) + self.h(0, 4)
+        if ch == '\b': return self.h(B, 4) + self.h(0, 4)
+        if ch.isupper(): return self.h(R, 4) + self.h(0, 4) + self.key(ch.lower())
+        if ch in 'gv': return self.chord(RIGHT if ch == 'g' else LEFT, [R, R])
+        for d, first, second in self.GROUPS:
+            for layer, letters in ((0, first), (L, second)):
+                if ch in letters: return self.chord(d | layer, [(B, A, R)[letters.index(ch)]])
+        if ch == '.': return self.h(SELECT, 4) + self.h(0, 4)
+        if ch.isdigit(): cyc, n = UP, (int(ch) or 10)
+        elif ch in self.RCYCLE: cyc, n = R, self.RCYCLE.index(ch)
+        else: cyc, n = RIGHT, self.RIGHTCYCLE.index(ch)
+        return self.h(SELECT, 4) + (self.h(SELECT | cyc, 4) + self.h(SELECT, 3)) * n + self.h(0, 4)
     def text(self, s): return [st for ch in s for st in self.key(ch)]
+    def start_with(self, b): return self.h(START, 4) + self.h(START | b, 4) + self.h(START, 3) + self.h(0, 4)
+    def menu(self): return self.start_with(SELECT) + [f'until:{DBG + 4:#x}:5:2000', 'f:4']   # START + SELECT: the menu (state 5)
+    def new_chat(self): return self.menu() + [f'k:{A}']                  # its first row
+    def helpers_toggle(self): return self.menu() + [f'k:{DOWN}', f'k:{A}', f'k:{B}', 'f:10']
 
 
 def run(name, steps, nturn):
@@ -111,7 +111,7 @@ t = turns_of(r['hist'])
 check(t[0][0] == 'hi', f"ready-made message arrived as typed; reply: {t[0][1].strip()!r} at {r['rate']:.2f} tokens/s")
 check(native_reply(r['hist'], r['seed']), 'reply identical to the native engine')
 
-# 2. typed on the keyboard; suggestions checked against the native engine; one accepted with L
+# 2. typed with gbawriter's buttons; suggestions checked against the native engine; one accepted with START+L
 pad = Pad()
 typed = pad.text('what is the ')
 subprocess.run([RUNNER, ROM] + BOOT + typed + [IDLE, 'f:5', 'shot:out/koko_suggest.ppm', f'dump:{DBG:#x}:{44 + 2 * HISTMAX}:out/s.bin'], check=True)
@@ -122,14 +122,14 @@ got = [tok.decode([i]).strip() for i in s['sug']]
 want = native_suggest(s['hist'], False, '')
 check(got == want and len(got) == 2, f"suggestions after 'what is the ': {got} (native engine: {want})")
 check(tok.decode(s['hist'], skip_special_tokens=False) == '<|user|>what is the', 'the model had already read the finished words while typing')
-r = run('koko_typed', typed + [IDLE, f'k:{L}'] + pad.text('of') + pad.text(' ') + pad.text('france?') + [f'k:{START}'], 1)
+r = run('koko_typed', typed + [IDLE] + pad.start_with(L) + pad.text('of') + pad.text(' ') + pad.text('france?') + [f'k:{START}'], 1)
 t = turns_of(r['hist'])
 check(t[0][0] == f'what is the {got[0]} of france?', f"typed message with an accepted suggestion: {t[0][0]!r} -> {t[0][1].strip()!r}")
 check(native_reply(r['hist'], r['seed']), 'reply identical to the native engine')
 
 # 3. delete back into a finished word, retype, send
 pad = Pad()
-steps = pad.text('i like cats ') + [IDLE] + [f'k:{B}'] * 5 + pad.text('dogs') + [f'k:{START}']
+steps = pad.text('i like cats ') + [IDLE] + pad.text('\b' * 5) + pad.text('dogs') + [f'k:{START}']
 r = run('koko_rewind', steps, 1)
 t = turns_of(r['hist'])
 check(t[0][0] == 'i like dogs' and r['rewinds'] >= 1, f"after deleting a word: {t[0][0]!r}, rewinds {r['rewinds']} -> {t[0][1].strip()!r}")
@@ -152,7 +152,7 @@ check(len(t) == 2 and t[1][0] == 'thanks', 'typing straight after a reply loses 
 check(native_reply(r['hist'], r['seed']), 'the reply after it is identical to the native engine')
 # 6. new chat: a turn, then the new-chat key, then another turn; the model must have forgotten the first
 pad = Pad()
-r = run('koko_newchat', pad.text('my name is sam') + [f'k:{START}', f'until:{DBG + 12:#x}:1:400000', 'f:5'] + pad.key('\x01') + ['f:10', 'shot:out/koko_newchat_fresh.ppm']
+r = run('koko_newchat', pad.text('my name is sam') + [f'k:{START}', f'until:{DBG + 12:#x}:1:400000', 'f:5'] + pad.new_chat() + ['f:10', 'shot:out/koko_newchat_fresh.ppm']
         + pad.text('hi') + [f'k:{START}'], 2)
 t = turns_of(r['hist'])
 check(r['newchats'] == 1 and len(t) == 1 and t[0][0] == 'hi', f"after new chat the model's history is only the new message: {t}")
@@ -166,13 +166,13 @@ check(t[0][1] == 'George Washington (February 22, 1732 - December 14, 1799) was 
 check(len(t) == 2 and t[1][0] == 'was he nice?' and native_reply(r['hist'], r['seed']), 'the follow-up reply is identical to the native engine')
 # 8. helpers off: the same question is answered by the model alone
 pad = Pad()
-r = run('koko_pure', pad.key('\x02') + pad.text('who was george washington?') + [f'k:{START}'], 1)
+r = run('koko_pure', pad.helpers_toggle() + pad.text('who was george washington?') + [f'k:{START}'], 1)
 t = turns_of(r['hist'])
 print('   model only:', t[0][1].strip())
 check(native_reply(r['hist'], r['seed']) and not t[0][1].startswith('George Washington (February'), 'with helpers off the reply is the model\'s own, identical to the native engine')
-# 9. the slash key: a division typed with it is calculated
+# 9. a division typed with SELECT's slash is calculated
 pad = Pad()
 r = run('koko_divide', pad.text('84 / 7') + [f'k:{START}'], 1)
 t = turns_of(r['hist'])
-check(t[0] == ('84 / 7', '84 / 7 = 12.'), f"division typed with the slash key: {t[0]}")
+check(t[0] == ('84 / 7', '84 / 7 = 12.'), f"division typed with the slash: {t[0]}")
 sys.exit(0 if ok else 1)

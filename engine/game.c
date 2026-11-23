@@ -5,6 +5,8 @@
 #include "ui.h"
 #include "sd.h"
 #include "cart_io.h"
+#include "facts_sd.h"
+#include "writer/writer_glue.h"
 int sum_reply(const char *s, int n, char *out);   /* engine/sums.c */
 int fact_reply(const char *msg, int n, uint16_t *ids, int max);   /* engine/facts.c */
 
@@ -35,9 +37,11 @@ struct Dbg {
     uint32_t magic, state, seed, turns, ntok, ticks, made, nsug, rewinds;
     uint16_t sug[2], newchats, pure;
     uint16_t hist[HISTMAX];             /* every token the model has taken in (and not taken back), in order */
-    uint32_t sd;                        /* kokoSD: bit 0 card mounted, bits 8-15 gbaSD's cart_kind */
+    uint32_t sd;                        /* kokoSD: bit 0 card mounted, bit 1 fact file open, bits 8-15 gbaSD's cart_kind */
+    uint32_t article, article_top;      /* kokoSD: lines of the article (or page) being read, first line shown */
+    uint32_t menu, caret;               /* kokoSD: menu row; cursor in the message */
 };
-enum { ST_EDIT = 0, ST_RUNNING = 1, ST_DONE = 2, ST_IDLE = 3 };   /* IDLE: editing, model caught up, suggestions shown */
+enum { ST_EDIT = 0, ST_RUNNING = 1, ST_DONE = 2, ST_IDLE = 3, ST_ARTICLE = 4, ST_MENU = 5, ST_PAGE = 6 };   /* kokoSD: an article, the menu, How to type / About */   /* IDLE: editing, model caught up, suggestions shown */
 volatile struct Dbg dbg __attribute__((section(".bss.dbg")));
 
 
@@ -48,10 +52,30 @@ static void video_init(void) {
     REG_DISPCNT = 0x0404;                           /* mode 4, BG2 on, page 0 */
 }
 /* Button presses are queued, so two quick presses of the same button during a long piece of work both count. */
-static uint16_t keys_prev, kq[16];
+static uint16_t keys_prev, kq[16], hq[32];
+static uint8_t hq_n;                              /* kokoSD: the button states in order since the editor last looked */
 static uint8_t kq_head, kq_n;
+static uint32_t ticks(void);
+/* kokoSD: contact bounce (as gbamp3 13.3). A button's state follows the contact at once when the contact had been
+ * quiet for 8 ms before the change; a change within 8 ms of another waits until the contact has been quiet for
+ * 8 ms. Polling as often as this does, a bounce on release was otherwise a second press. */
+#define DEBOUNCE 131u                             /* 8 ms in 1/16384 s */
+static uint16_t raw_prev;
+static uint32_t moved_at[10];
 static void poll(void) {                          /* called often, also from inside the model's work and long redraws */
-    uint16_t k = (uint16_t)(~REG_KEYINPUT & 0x03FF), d = (uint16_t)(k & ~keys_prev);
+    uint16_t raw = (uint16_t)(~REG_KEYINPUT & 0x03FF), k = keys_prev;
+    if (raw != keys_prev || raw != raw_prev) {
+        uint32_t now = ticks();
+        for (int i = 0; i < 10; i++) {
+            uint16_t b = (uint16_t)(1u << i);
+            int quiet = now - moved_at[i] >= DEBOUNCE;
+            if ((raw ^ raw_prev) & b) moved_at[i] = now;
+            if (((raw ^ k) & b) && quiet) k ^= b;
+        }
+        raw_prev = raw;
+    }
+    uint16_t d = (uint16_t)(k & ~keys_prev);
+    if (k != keys_prev && hq_n < 32) hq[hq_n++] = k;
     keys_prev = k;
     if (d && kq_n < 16) { kq[(kq_head + kq_n) & 15] = d; kq_n++; }
 }
@@ -132,61 +156,177 @@ static void accept(int k) {                       /* replace the word being type
     if (mlen < MSG_MAX) msg[mlen++] = ' ';
     msg[mlen] = 0;
 }
-/* Returns 1 to send the message, 0 to start a new chat (the new-chat key). */
+/* ---------------- kokoSD: menu and pages ---------------- */
+static const char HOW_TO_TYPE[] =
+    "Letters: hold a direction, then press B, A or R for its first, second or third letter.\n"
+    "Up: a b c    Right: h i j\nDown: n o p    Left: t u w\n\n"
+    "Hold L as well for the second layer:\nUp: d e f    Right: k l m\nDown: q r s    Left: x y z\n\n"
+    "g and v: keep Right or Left held and press R twice (j becomes g, w becomes v).\n\n"
+    "A alone: space. B alone: delete (hold to repeat).\n\n"
+    "R alone: a capital for the next letter. Hold R: capitals on; R again: off.\n\n"
+    "SELECT alone types a dot. Keep SELECT held and press Up / Down for digits, R / L for , ' \" : ! ? "
+    "and Right / Left for ( ) / ; @ # % & _ + = -.\n\n"
+    "START: send. START on an empty line: a ready-made message (START again sends it).\n\n"
+    "Hold START and press L or R: the first or second suggested word. Hold START and press Left / Right: "
+    "move the cursor. START + SELECT: this menu.\n\n"
+    "B while Koko writes: stop him.\n\n"
+    "The same typing as gbawriter, gbamp3 and the other apps.";
+static const char ABOUT[] =
+    "kokoSD: Koko the Chatbot with an SD card.\n\n"
+    "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
+    "Game Boy Advance itself.\n"
+    "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "
+    "(CC BY-SA 4.0): the file koko/facts.dat on the SD card, or the cartridge's own smaller table. "
+    "After such an answer, \"tell me more\" shows the article. Sums are worked out by the game. "
+    "Replies with a book or an equals sign are these helpers; the menu turns them off.\n"
+    "\nCode: Koko (MIT), gbaSD and gbawriter typing by Halim Jarrar (GPL-3.0-or-later); the cartridge "
+    "as a whole is GPL-3.0-or-later. Weights, fact table and artwork: CC BY-SA 4.0. "
+    "Font: Inter by Rasmus Andersson (SIL Open Font License 1.1).";
+/* A page of text to read (an article, How to type, About): Up / Down scroll, Left / Right / L / R turn a page,
+ * B (or A, START) goes back. */
+static void read_pages(const char *title, const char *text, int n, int state) {
+    int lines = ui_article_wrap(text, n), rows = ui_article_rows(), top = 0, last = lines > rows ? lines - rows : 0;
+    dbg.state = (uint32_t)state; dbg.article = (uint32_t)lines; dbg.article_top = 0;
+    ui_article(title, text, 0);
+    kq_n = 0;
+    for (;;) {
+        vsync();
+        uint16_t d = keys_down();
+        int was = top;
+        if (d & (BTN_DOWN | BTN_RIGHT | BTN_R)) top += (d & BTN_DOWN) ? 3 : rows;
+        if (d & (BTN_UP | BTN_LEFT | BTN_L)) top -= (d & BTN_UP) ? 3 : rows;
+        if (top > last) top = last;
+        if (top < 0) top = 0;
+        if (top != was) { ui_article(title, text, top); dbg.article_top = (uint32_t)top; }
+        if (d & (BTN_B | BTN_START | BTN_A)) break;
+    }
+}
+/* START + SELECT while typing. Returns 1 for a new chat. */
+static int menu(void) {
+    static int sel;
+    const char *items[4] = { "New chat", 0, "How to type", "About kokoSD" };
+    kq_n = 0;                                     /* presses made while typing are not menu choices */
+    for (;;) {
+        items[1] = helpers ? "Facts and sums: On" : "Facts and sums: Off";
+        dbg.state = ST_MENU; dbg.menu = (uint32_t)sel;
+        ui_menu("Menu", items, 4, sel);
+        for (;;) {
+            vsync();
+            uint16_t d = keys_down();
+            if (!d) continue;
+            if (d & BTN_UP) { sel = (sel + 3) % 4; break; }
+            if (d & BTN_DOWN) { sel = (sel + 1) % 4; break; }
+            if (d & (BTN_B | BTN_START)) return 0;
+            if (d & BTN_A) {
+                if (sel == 0) return 1;
+                if (sel == 1) { helpers = !helpers; ui_helpers(helpers); dbg.pure = (uint16_t)!helpers; }
+                if (sel == 2) read_pages("How to type", HOW_TO_TYPE, (int)sizeof HOW_TO_TYPE - 1, ST_PAGE);
+                if (sel == 3) read_pages("About kokoSD", ABOUT, (int)sizeof ABOUT - 1, ST_PAGE);
+                kq_n = 0;
+                break;
+            }
+        }
+    }
+}
+
+/* Returns 1 to send the message, 0 to start a new chat (the menu's New chat).
+ * kokoSD: typed with gbawriter's buttons (engine/writer): one update of its engine per video frame (274
+ * ticks of 1/16384 s), several when the model's work took longer, so holding B repeats at its usual speed. */
+static void msg_from_writer(void) {
+    const char *t = writer_text();
+    for (mlen = 0; t[mlen] && mlen < MSG_MAX; mlen++) msg[mlen] = t[mlen];
+    msg[mlen] = 0;
+}
+static void typing_hint(void) {
+    static char h[24];
+    const char *g = writer_group();
+    int n = 0;
+    if (g && *g) { for (; g[n] && n < 10; n++) h[n] = g[n]; }
+    else { const char *s = mlen ? "START send" : "START ideas"; for (; s[n]; n++) h[n] = s[n]; }
+    const char *c = writer_caps() ? "  Caps" : writer_shift() ? "  Shift" : "";
+    for (; *c && n < 23; c++) h[n++] = *c;
+    h[n] = 0;
+    ui_header(h);
+}
 static int edit(void) {
-    static int kx, ky, upper, q = -1;
-    int rep = 0, shown_sug = -1, shown_empty = -1, note = 0;
-    ui_typing(msg, mlen, kx, ky, upper);
+    static int q = -1;
+    int shown_sug = -1, shown_hint = -1;
+    writer_begin(msg);
+    ui_typing(msg, mlen, mlen);
     koko_mark(); mark_ntok = (int)dbg.ntok;
     nfed = nwant = user_fed = stepping = dirty = nsug = 0; sug_stale = 1;
     dbg.state = ST_EDIT; dbg.nsug = 0;
+    kq_n = 0;
+    uint32_t last = ticks();
     for (;;) {
         int busy = work();
         dbg.state = busy ? ST_EDIT : ST_IDLE;
         int sig = nsug ? sug[0] * 3 + sug[nsug - 1] * 7 + nsug : 0;
         if (sig != shown_sug) { chips(); shown_sug = sig; }
-        if (!note && (mlen == 0) != shown_empty) { shown_empty = mlen == 0; ui_header(mlen ? "START send" : "START ideas"); }
         if (!busy) vsync();
-        uint16_t d = keys_down();
-        uint16_t held = keys_prev & (BTN_LEFT | BTN_RIGHT | BTN_UP | BTN_DOWN | BTN_B);
-        if (held && !d) { if (++rep > (busy ? 6 : 14) && !(rep & 3)) d = held; } else rep = 0;
-        if (!d) continue;
-        seed = seed * 1664525u + REG_TM0CNT_L + 1013904223u;
-        if (note) { note = 0; shown_empty = -1; }
-        int old = mlen, changed = 0, okx = kx, oky = ky;
-        if (d & BTN_LEFT) ui_key_move(&kx, &ky, -1, 0);
-        if (d & BTN_RIGHT) ui_key_move(&kx, &ky, 1, 0);
-        if (d & BTN_UP) ui_key_move(&kx, &ky, 0, -1);
-        if (d & BTN_DOWN) ui_key_move(&kx, &ky, 0, 1);
-        if (d & BTN_SELECT) { upper = !upper; ui_keyboard(kx, ky, upper); }
-        else if (okx != kx || oky != ky) { ui_keycap(oky, okx, 0, upper); ui_keycap(ky, kx, 1, upper); }
-        int del = (d & BTN_B) != 0;
-        if (d & BTN_A) {
-            int ch = ui_key(ky, kx);
-            if (ch == UI_KEY_NEW) return 0;
-            if (ch == UI_KEY_HELP) {
-                helpers = !helpers; ui_helpers(helpers); dbg.pure = (uint16_t)!helpers;
-                ui_header(helpers ? "helpers on" : "model only"); note = 1;           /* the usual hint returns with the next press */
-                continue;
-            }
-            else if (ch == '<') del = 1;
-            else {
-                if (ch == '_') ch = ' ';
-                else if (upper && ky < 2) ch -= 32;
-                if (mlen < MSG_MAX && !(ch == ' ' && (mlen == 0 || msg[mlen - 1] == ' '))) { msg[mlen++] = (char)ch; msg[mlen] = 0; changed = 1; }
-            }
-        }
-        if (del && mlen) { msg[--mlen] = 0; changed = 1; }
-        if ((d & BTN_L) && nsug > 0) { accept(0); changed = 1; }
-        if ((d & BTN_R) && nsug > 1) { accept(1); changed = 1; }
-        if (d & BTN_START) {
+        poll();
+        uint32_t now = ticks();
+        if (now < last) last = now;                    /* the timers were started again */
+        if (now - last < 274) continue;
+        unsigned frames = (now - last) / 274;
+        if (frames > 4) frames = 4;
+        last = now;
+        unsigned fl = 0, f = 0;
+        for (unsigned i = 0; i < hq_n; i++, f++) fl |= writer_frame(hq[i]);   /* every change, in order (also while busy) */
+        hq_n = 0;
+        for (; f < frames; f++) fl |= writer_frame(keys_prev);
+        int changed = 0;
+        if (fl & WRITER_TEXT) { msg_from_writer(); changed = 1; }
+        if (fl & WRITER_PAGE_PREV) { if (nsug > 0) { accept(0); writer_set(msg); changed = 1; } }
+        if (fl & WRITER_PAGE_NEXT) { if (nsug > 1) { accept(1); writer_set(msg); changed = 1; } }
+        if (fl & WRITER_START_ALONE) {
             if (mlen) return 1;
-            q = (q + 1) % 5;                      /* START on an empty line: ready-made messages */
-            for (mlen = 0; quick[q][mlen]; mlen++) msg[mlen] = quick[q][mlen];
-            msg[mlen] = 0; changed = 1;
+            q = (q + 1) % 5;                          /* START on an empty line: ready-made messages */
+            writer_set(quick[q]); msg_from_writer(); changed = 1;
         }
-        if (changed || mlen != old) { retarget(); ui_pill(1, msg, mlen); }
+        if (fl & WRITER_START_SELECT) {
+            while (stepping) work();
+            if (menu()) return 0;
+            writer_set(msg);
+            ui_typing(msg, mlen, (int)writer_caret());
+            shown_sug = -1; shown_hint = -1;
+            continue;
+        }
+        if (fl) seed = seed * 1664525u + REG_TM0CNT_L + 1013904223u;
+        const char *g = writer_group();
+        int hint = (g && *g ? (int)g[0] * 4 : 0) + (mlen ? 1 : 0) + writer_caps() * 2 + writer_shift() * 512;
+        if (hint != shown_hint) { typing_hint(); shown_hint = hint; }
+        if (changed) { retarget(); ui_input(msg, mlen, (int)writer_caret()); dbg.caret = writer_caret(); }
+        else if (fl & WRITER_TEXT) ui_input(msg, mlen, (int)writer_caret());
     }
+}
+
+/* ---------------- kokoSD: Tell me more ---------------- */
+/* "tell me more" (also "more", "go on", with "please") right after a fact from the SD card's file, or
+ * "tell me more about X": Koko says "Here is more about <title>." and the article opens to read. */
+static int lower_eq(const char *s, int n, const char *w) {
+    int i = 0;
+    for (; w[i]; i++) { if (i >= n) return 0; int c = (unsigned char)s[i]; if (c >= 'A' && c <= 'Z') c += 32; if (c != w[i]) return 0; }
+    return i == n;
+}
+static int more_request(const char *s, int n) {
+    while (n && (s[n - 1] == '.' || s[n - 1] == '!' || s[n - 1] == '?' || s[n - 1] == ' ')) n--;
+    static const char *const W[] = { "tell me more", "tell me more please", "more", "more please", "go on",
+                                     "tell me more about it", "tell me more about that", 0 };
+    for (int k = 0; W[k]; k++) if (lower_eq(s, n, W[k])) return 1;
+    return 0;
+}
+static int more_about(const char *s, int n) {      /* "tell me more about X": length of "tell me more about " or 0 */
+    const char *w = "tell me more about ";
+    int i = 0;
+    for (; w[i]; i++) { if (i >= n) return 0; int c = (unsigned char)s[i]; if (c >= 'A' && c <= 'Z') c += 32; if (c != w[i]) return 0; }
+    return n > i + 1 ? i : 0;
+}
+static void read_article(void) {
+    const char *title, *text;
+    int n = sdf_article(&title, &text);
+    if (n) read_pages(title, text, n, ST_ARTICLE);
+    ui_chat_again();
 }
 
 /* ---------------- one exchange ---------------- */
@@ -197,6 +337,7 @@ static uint32_t ticks(void) {                     /* 1/16384 s */
 }
 static void exchange(void) {
     dbg.state = ST_RUNNING;
+    kq_n = 0;                                     /* kokoSD: presses made while typing (B in letters) are not "stop" */
     while (mlen && msg[mlen - 1] == ' ') msg[--mlen] = 0;    /* a trailing space is not part of the message */
     ui_reply_layout(msg, mlen);
     ui_reply_button(1);
@@ -218,8 +359,28 @@ static void exchange(void) {
     int made = 0;
     ui_header("B stop");
     static char ans[96] EW;
-    int al = 0, an = 0, mark = 0;
-    if (helpers) {
+    int al = 0, an = 0, mark = 0, article = 0;
+    if (helpers && sd_ready) {                           /* kokoSD: Tell me more */
+        int ab = more_about(msg, mlen);
+        if (ab) {
+            static char q[80] EW;                        /* "tell me about X": the fact table's own wording */
+            const char *pre = "tell me about "; int ql = 0;
+            while (pre[ql]) { q[ql] = pre[ql]; ql++; }
+            for (int i = ab; i < mlen && ql < 79; i++) q[ql++] = msg[i];
+            sdf_forget();
+            article = fact_reply(q, ql, want, MSG_TOK) > 0;
+        } else article = more_request(msg, mlen);
+        const char *title, *text;
+        if (article && sdf_article(&title, &text)) {
+            const char *a = "Here is more about "; al = 0;
+            while (*a && al < 80) ans[al++] = *a++;
+            for (const char *t = title; *t && al < 94; t++) ans[al++] = *t;
+            ans[al++] = '.';
+            an = koko_encode(ans, al, want, MSG_TOK); mark = 1;
+        } else article = 0;
+    }
+    if (helpers && !article) {
+        sdf_forget();
         al = sum_reply(msg, mlen, ans);                  /* a sum: the game works it out and Koko says it */
         if (al) { an = koko_encode(ans, al, want, MSG_TOK); mark = 2; }
         else { an = fact_reply(msg, mlen, want, MSG_TOK); al = an; mark = an ? 1 : 0; }   /* a fact the cartridge has on file */
@@ -243,6 +404,7 @@ static void exchange(void) {
     koko_reply_end();
     ui_reply_button(0);
     ui_rate(made, ticks() - t0);
+    if (article) read_article();
     dbg.turns++;
     dbg.state = ST_DONE;
     mlen = 0; msg[0] = 0;
@@ -251,12 +413,15 @@ static void exchange(void) {
 int main(void) {
     REG_WAITCNT = 0x4317;                         /* fastest cartridge timing + prefetch */
     REG_TM0CNT_L = 0; REG_TM0CNT_H = 0x0080;      /* free-running, feeds the random seed */
+    REG_TM2CNT_H = 0; REG_TM3CNT_H = 0; REG_TM2CNT_L = 0; REG_TM3CNT_L = 0;
+    REG_TM3CNT_H = 0x0084; REG_TM2CNT_H = 0x0083;  /* kokoSD: 1/16384 s from the start (debounce, editor frames) */
     video_init();
     koko_yield = poll; ui_yield = poll;
     dbg.magic = 0x4B4F4B4F; dbg.turns = 0; dbg.ntok = 0; dbg.made = 0; dbg.rewinds = 0; dbg.newchats = 0; dbg.pure = 0;
     koko_reset();
-    sd_mount();                                   /* kokoSD: the SD card (nothing uses it yet; 0 without a card) */
-    dbg.sd = (uint32_t)sd_ready | (uint32_t)cart_kind << 8;
+    sd_mount();                                   /* kokoSD: the SD card (0 without a card) */
+    sdf_open();                                   /* and its fact file /koko/facts.dat (0 without one) */
+    dbg.sd = (uint32_t)sd_ready | (uint32_t)sdf_ready << 1 | (uint32_t)cart_kind << 8;
     ui_title();                                   /* Koko's portrait until START (or A) is pressed */
     for (int f = 0;; f++) {
         vsync();
@@ -268,15 +433,20 @@ int main(void) {
     }
     ui_init();
     ui_say(L_KOKO, "Woof! I'm Koko. Say something!", 30);
+    while (keys_prev) { vsync(); poll(); }        /* kokoSD: the START that left the title types nothing */
+    hq_n = 0;
     for (;;) {
         if (!edit()) {                            /* new chat: the model and the screen forget everything */
             while (stepping) work();
             koko_reset();
             ui_clear(); ui_say(L_KOKO, "Woof! I'm Koko. Say something!", 30);
             mlen = 0; msg[0] = 0; dbg.ntok = 0; dbg.newchats++;
+            while (keys_prev) { vsync(); poll(); }    /* the A that chose New chat types nothing */
+            hq_n = 0;
             continue;
         }
         exchange();
+        hq_n = 0;                                 /* kokoSD: presses during the reply (B: stop) are not typed */
         while (!kq_n) { vsync(); poll(); }        /* the reply stays up until a button is pressed; edit() gets that press */
     }
 }

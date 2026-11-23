@@ -394,12 +394,39 @@ void ui_keyboard(int kx, int ky, int upper) {
     rect(0, UI_KEY_Y - 3, 240, 160 - UI_KEY_Y + 3, C(PANEL));
     for (int r = 0; r < 4; r++) { YIELD(); for (int c = 0; c < 13; c++) ui_keycap(r, c, r == ky && c == kx, upper); }
 }
-void ui_typing(const char *msg, int mlen, int kx, int ky, int upper) {
-    chat_bot = UI_PILL_Y - 4;
+/* kokoSD: typing with gbawriter's buttons, so no keyboard: the chat reaches down to the suggestion chips. */
+void ui_input(const char *msg, int mlen, int caret) {
+    int y = UI_PILL_Y;
+    rrect(6, y, 228, 16, 8, C(PILL));
+    button(y, 0);
+    if (!mlen) { text(16, y + 1, "Type a message", PILL_DIM); rect(14, y + 3, 1, 10, INK(PILL)); return; }
+    if (caret < 0 || caret > mlen) caret = mlen;
+    int from = 0;
+    while (from < caret && width_n(msg + from, caret - from) > 186) from++;   /* the cursor stays in view */
+    int to = from;
+    while (to < mlen && width_n(msg + from, to + 1 - from) <= 186) to++;
+    text_n(16, y + 1, msg + from, to - from, PILL);
+    rect(16 + width_n(msg + from, caret - from) + (caret > from ? 1 : -2), y + 3, 1, 10, INK(PILL));   /* cursor */
+}
+void ui_typing(const char *msg, int mlen, int caret) {
+    chat_bot = UI_CHIP_Y - 3;
     chat_draw();
     rect(0, chat_bot, 240, 160 - chat_bot, C(BG));
     YIELD();
-    ui_pill(1, msg, mlen); ui_chips(0, 0, 0, 0, 0); ui_keyboard(kx, ky, upper);
+    ui_input(msg, mlen, caret); ui_chips(0, 0, 0, 0, 0);
+}
+void ui_menu(const char *title, const char *const *items, int n, int sel) {
+    frame_start();
+    for (int y = 0; y < 160; y += 20) { rect(0, y, 240, 20, C(BG)); YIELD(); }   /* buttons are read while it draws */
+    int x = 10;
+    for (const char *s = title; *s; s++) x += glyph(x, 2, *s, BG, 1);
+    for (int i = 0; i < n; i++) {
+        int y = CHAT_TOP + 6 + i * 18;
+        if (i == sel) rrect(6, y - 2, 228, 17, 6, C(SEL));
+        text(14, y, items[i], i == sel ? SEL : BG);
+        YIELD();
+    }
+    text(232 - width("A choose  B back"), 147, "A choose  B back", BG_DIM);
 }
 
 /* ---------------- reply layout ---------------- */
@@ -421,4 +448,58 @@ void ui_reply_text(const char *p, int n) {
         text_n(10 + (lines[nline - 1].mark ? MARK_W : 0) + width_n(lines[nline - 1].t, before), cur_y, lines[nline - 1].t + before, lines[nline - 1].n - before, BG);
         lines[nline - 1].dn = lines[nline - 1].n;
     }
+}
+
+/* ---------------- kokoSD: an article to read ("Tell me more") ---------------- */
+/* The text is wrapped once into lines (starts kept here); a page shows ART_ROWS of them. */
+#define ART_LINES 640
+#define ART_ROWS 9
+#define ART_W 220
+static uint16_t art_start[ART_LINES + 1] EW;
+static uint8_t art_len[ART_LINES] EW;
+static int art_n;
+int ui_article_wrap(const char *t, int n) {
+    art_n = 0;
+    int i = 0;
+    while (i < n && art_n < ART_LINES) {
+        if (t[i] == '\n') {                          /* a line break; an empty line (two breaks) is a blank line */
+            if (i + 1 < n && t[i + 1] == '\n') { art_start[art_n] = (uint16_t)i; art_len[art_n++] = 0; i++; }
+            i++; continue;
+        }
+        int j = i, w = 0, cut = -1;
+        while (j < n && t[j] != '\n') {
+            w += width_n(t + j, 1);
+            if (w > ART_W) break;
+            if (t[j] == ' ') cut = j;
+            j++;
+        }
+        int end = (j < n && t[j] != '\n' && cut > i) ? cut : j;
+        art_start[art_n] = (uint16_t)i; art_len[art_n++] = (uint8_t)(end - i);
+        i = end;
+        while (i < n && t[i] == ' ') i++;
+    }
+    return art_n;
+}
+int ui_article_rows(void) { return ART_ROWS; }
+void ui_article(const char *title, const char *t, int first) {
+    frame_start();
+    for (int y = 0; y < 160; y += 20) { rect(0, y, 240, 20, C(BG)); YIELD(); }
+    int x = 10;
+    for (const char *s = title; *s && x < 200; s++) x += glyph(x, 2, *s, BG, 1);   /* the article's title */
+    for (int r = 0; r < ART_ROWS && first + r < art_n; r++) {
+        YIELD();
+        text_n(10, CHAT_TOP + 3 + r * LH, t + art_start[first + r], art_len[first + r], BG);
+    }
+    char hint[40]; int h = 0;
+    const char *a = first + ART_ROWS < art_n ? "Down more  B back" : "B back";
+    while (*a) hint[h++] = *a++;
+    hint[h] = 0;
+    text(232 - width(hint), 147, hint, BG_DIM);
+}
+void ui_chat_again(void) {                           /* back from an article: the chat as it was (reply layout) */
+    rect(0, 0, 240, 160, C(BG));
+    ui_header(0);
+    chat_bot = 138;
+    chat_draw();
+    ui_pill(0, 0, 0);
 }

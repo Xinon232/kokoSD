@@ -42,13 +42,19 @@ def build(cardtest=False):
             ['game.c', 'koko.c', 'koko_tok.c', 'sums.c', 'facts.c', 'kernels.s', 'blob.s'])
     for n in koko: obj(R/'engine'/n, KOKO)
     if not cardtest: obj(R/'bench'/'tern.s', KOKO)
-    for n in ('sd.c', 'diskio.c'): obj(R/'engine'/n, SD + ['-marm'], f'sd-{Path(n).stem}')
+    for n in ('sd.c', 'diskio.c') + (() if cardtest else ('facts_sd.c',)): obj(R/'engine'/n, SD + ['-marm', f'-I{R/"gen"}'], f'sd-{Path(n).stem}')
     for s in [G/'fatfs'/'ff.c', G/'fatfs'/'ffunicode.c'] + [G/'src'/n for n in (
             'cart_io.c', 'crc.c', 'supercard_driver.c', 'supercard_env.c', 'supercard_io.s',
             'supercard_write.s', 'ezfo_driver.c', 'edgba_driver.c')]:
         isa = '-marm' if s.stem in SD_ARM or s.suffix == '.s' else '-mthumb'
         extra = GBASD if s.parent == G/'src' else ['-Wno-sign-compare', '-Wno-implicit-fallthrough']
         obj(s, SD + [isa] + extra, f'sd-{s.stem}')
+    if not cardtest:                           # gbawriter's typing engine (C++; its memory in slow RAM: ew-*.o)
+        for n in ('writer_core.cpp', 'writer_glue.cpp'):
+            o = B/f'ew-{Path(n).stem}.o'
+            sh(P + 'g++', '-mcpu=arm7tdmi', '-mthumb', '-mthumb-interwork', '-O2', '-std=gnu++17', '-fno-exceptions', '-fno-rtti',
+               '-fno-threadsafe-statics', '-fno-use-cxa-atexit', '-ffreestanding', '-Wall', '-c', R/'engine/writer'/n, '-o', o)
+            objs.append(o)
     elf, rom = B/f'{out}.elf', B/f'{out}.gba'
     sh(P + 'gcc', '-nostdlib', '-mcpu=arm7tdmi', '-Wl,-T,' + str(R/'engine/koko.ld'), '-Wl,--gc-sections',
        '-Wl,--no-warn-rwx-segments', f'-Wl,-Map,{B/(out + ".map")}', '-o', elf, *objs, '-lgcc')

@@ -11,8 +11,8 @@ extern uint16_t ui_pal[UI_PAL_N];                /* 15-bit colours for palette i
 extern uint8_t ui_fb[240 * 160];                 /* the screen, when it is not the GBA's video memory */
 #endif
 #define UI_MSG_MAX 56                            /* characters in a message */
-#define UI_PILL_Y 62                             /* typing layout: input bar, suggestion chips, keyboard */
-#define UI_CHIP_Y 81
+#define UI_PILL_Y 141                            /* kokoSD typing layout (no keyboard): input bar at the bottom, chips above */
+#define UI_CHIP_Y 123
 #define UI_KEY_Y 99
 #define UI_KEY_H 15
 #define UI_KEY_W 18
@@ -33,7 +33,9 @@ void ui_clear(void);                             /* forget the chat lines (new c
 void ui_say(int kind, const char *s, int n);     /* add a chat line (word-wrapped) without drawing */
 void ui_header(const char *right);               /* title on the left, a dim hint on the right (or 0) */
 void ui_rate(int made, uint32_t ticks);          /* header hint: tokens per second (ticks of 1/16384 s) */
-void ui_typing(const char *msg, int mlen, int kx, int ky, int upper);   /* the whole typing layout */
+void ui_typing(const char *msg, int mlen, int caret);   /* kokoSD: the whole typing layout (gbawriter typing, no keyboard) */
+void ui_input(const char *msg, int mlen, int caret);    /* kokoSD: the input bar with the cursor at byte `caret` */
+void ui_menu(const char *title, const char *const *items, int n, int sel);   /* kokoSD: START+SELECT menu */
 void ui_pill(int typing, const char *msg, int mlen);                    /* input bar only */
 void ui_chips(int n, const char *a, int alen, const char *b, int blen); /* suggestion chips (L, R) */
 int ui_chip_at(int x, int n, const char *a, int alen, const char *b, int blen);   /* which chip is at x, or -1 */
@@ -43,4 +45,9 @@ void ui_reply_layout(const char *msg, int mlen); /* the user's message in a bubb
 void ui_reply_button(int stop);                 /* reply layout: stop square (1) or send arrow (0) in the input bar */
 void ui_reply_start(int mark);                   /* a new empty line for Koko; mark 1 = looked up, 2 = computed, 0 = the model */
 void ui_reply_text(const char *p, int n);        /* add text to Koko's line and draw it */
+/* kokoSD: an article to read ("Tell me more"). Wrap the text once, then draw from line `first`. */
+int ui_article_wrap(const char *t, int n);       /* lines in the text */
+int ui_article_rows(void);                       /* lines on one page */
+void ui_article(const char *title, const char *t, int first);
+void ui_chat_again(void);                        /* back to the chat (reply layout) */
 #endif
