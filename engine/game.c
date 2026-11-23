@@ -40,8 +40,9 @@ struct Dbg {
     uint32_t sd;                        /* kokoSD: bit 0 card mounted, bit 1 fact file open, bits 8-15 gbaSD's cart_kind */
     uint32_t article, article_top;      /* kokoSD: lines of the article (or page) being read, first line shown */
     uint32_t menu, caret;               /* kokoSD: menu row; cursor in the message */
+    uint32_t boot_ticks;                /* kokoSD: 1/16384 s from power-on to the title (card mounted, fact file opened) */
 };
-enum { ST_EDIT = 0, ST_RUNNING = 1, ST_DONE = 2, ST_IDLE = 3, ST_ARTICLE = 4, ST_MENU = 5, ST_PAGE = 6 };   /* kokoSD: an article, the menu, How to type / About */   /* IDLE: editing, model caught up, suggestions shown */
+enum { ST_EDIT = 0, ST_RUNNING = 1, ST_DONE = 2, ST_IDLE = 3, ST_ARTICLE = 4, ST_MENU = 5, ST_PAGE = 6, ST_TITLE = 7 };   /* kokoSD: an article, the menu, How to type / About */   /* IDLE: editing, model caught up, suggestions shown */
 volatile struct Dbg dbg __attribute__((section(".bss.dbg")));
 
 
@@ -423,6 +424,7 @@ int main(void) {
     sdf_open();                                   /* and its fact file /koko/facts.dat (0 without one) */
     dbg.sd = (uint32_t)sd_ready | (uint32_t)sdf_ready << 1 | (uint32_t)cart_kind << 8;
     ui_title();                                   /* Koko's portrait until START (or A) is pressed */
+    dbg.state = ST_TITLE; dbg.boot_ticks = ticks();   /* kokoSD: the title is up (tests wait for it); start-up time */
     for (int f = 0;; f++) {
         vsync();
         uint16_t d = keys_down();

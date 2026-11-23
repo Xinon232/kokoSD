@@ -63,6 +63,8 @@ def plain(wikitext):
     t = ''.join(c if 32 <= ord(c) < 127 or c == '\n' else '' for c in t)
     t = re.sub(r'\(\s*[,;]?\s*\)', '', t)
     t = re.sub(r'[ \t]+', ' ', t)
+    t = re.sub(r' +([,.;:!?)])', r'\1', t)                     # a space left before a comma by a removed template
+    t = re.sub(r'\( +', '(', t)
     t = re.sub(r'\n{3,}', '\n\n', t).strip()
     if len(t) > TEXT_MAX:
         cut = t.rfind('. ', 0, TEXT_MAX)
@@ -104,6 +106,17 @@ def tokcheck():
 
 
 def build(src, dst):
+    import pickle
+    cache = Path(str(dst) + '.pages.pkl')            # the parsed dump (40 minutes): later runs reuse it
+    if cache.exists() and cache.stat().st_mtime > Path(src).stat().st_mtime:
+        arts, redirects = pickle.load(open(cache, 'rb'))
+    else:
+        arts, redirects = parse(src)
+        pickle.dump((arts, redirects), open(cache, 'wb'))
+    return write(arts, redirects, dst)
+
+
+def parse(src):
     arts, redirects = {}, []
     for n, (title, target, wt) in enumerate(pages(src)):
         if n % 20000 == 0: print(f'  {n} pages, {len(arts)} articles', flush=True)
@@ -121,6 +134,10 @@ def build(src, dst):
         if key not in arts or len(text) > len(arts[key][2]):
             arts[key] = (t, s, text)
     print(f'{len(arts)} articles with an opening sentence, {len(redirects)} redirects', flush=True)
+    return arts, redirects
+
+
+def write(arts, redirects, dst):
     keys = sorted(arts)
     toks = tokenize([arts[k][1] for k in keys])
     entries, rows, text_parts, text_at, ent = bytearray(), [], [], 0, {}

@@ -18,7 +18,7 @@ tok = tokenizer()
 ROM, DBG, HISTMAX = 'build/koko.gba', 0x02000000, 1024
 A, B, SELECT, START, RIGHT, LEFT, UP, DOWN, R, L = (1 << i for i in range(10))
 IDLE = f'until:{DBG + 4:#x}:3:4000'
-BOOT = ['f:20', 'shot:out/koko_title.ppm', f'k:{START}', 'f:10']      # the title screen, then START
+BOOT = [f'until:{DBG + 4:#x}:7:6000', 'f:20', 'shot:out/koko_title.ppm', f'k:{START}', 'f:10']   # the title screen (state 7), then START
 
 
 class Pad:
