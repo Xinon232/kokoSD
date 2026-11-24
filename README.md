@@ -7,8 +7,9 @@ Definitive Edition, started from the SD card) and EverDrive GBA, through
 ## What is new
 - **Facts from the SD card.** Copy `koko/facts.dat` to the folder `/koko` on the SD
   card. "who is X", "what is X", "tell me about X" are then answered from every
-  usable Simple English Wikipedia article (the cartridge's own table had 34,127
-  opening sentences; without the file it is used as before). Lookups take a few card
+  usable Simple English Wikipedia article: 244,024 articles and 68,551 redirects
+  (dump of 2 November 2026, 225 MB; the cartridge's own table had 34,127 opening
+  sentences; without the file it is used as before). Lookups take a few card
   reads.
 - **Tell me more.** After such an answer, "tell me more" (or "more", "go on") opens the
   article to read: Up / Down scroll, Left / Right / L / R turn a page, B goes back.
