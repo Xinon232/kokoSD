@@ -108,6 +108,7 @@ def tokcheck():
 def build(src, dst):
     import pickle
     cache = Path(str(dst) + '.pages.pkl')            # the parsed dump (40 minutes): later runs reuse it
+    dst.parent.mkdir(parents=True, exist_ok=True)
     if cache.exists() and cache.stat().st_mtime > Path(src).stat().st_mtime:
         arts, redirects = pickle.load(open(cache, 'rb'))
     else:
