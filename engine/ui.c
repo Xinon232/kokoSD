@@ -88,6 +88,7 @@ static const char *small_fit(const char *s, int w) {
     return "";
 }
 
+static void put_num(char *b, int *k, int v);
 /* ---------------- header (as gbamp3's: the name in the small font, centred) ---------------- */
 #define HDR_H 16
 static int helpers = 1;
@@ -137,7 +138,7 @@ void ui_title(void) {
 /* kokoSD 1.1: what the start is doing (finding the SD card and the fact file take a moment). */
 void ui_boot(const char *what, const char *detail) {
     fill(0, 0, 240, 160, C_WHITE);
-    small_centre(5, "kokoSD 1.1.3", C_BLACK);
+    small_centre(5, "kokoSD 1.2", C_BLACK);
     centre(64, what, C_BLACK);
     if (detail && *detail) small_centre(88, small_fit(detail, 228), C_GREY);
 }
@@ -147,7 +148,7 @@ void ui_init(void) {
 }
 
 /* ---------------- chat log: wrapped lines; Koko on the left in black, the user on the right in grey ---------------- */
-#define NLINE 16
+#define NLINE 64                                    /* kokoSD 1.2: kept for scrolling back and saved with a chat */
 #define LINE_MAX 64
 #define KOKO_W 228
 #define USER_W 180
@@ -162,20 +163,21 @@ static int drawn_bot;                              /* first row below the drawn 
 #define CHAT_BOT_TYPING (HINT_Y - 2)
 #define CHAT_BOT_REPLY (FIELD_Y - 1)
 static int nline, chat_bot = CHAT_BOT_REPLY, cur_y;   /* cur_y: where the last line was drawn (-1: not visible) */
+static int scroll_back;                            /* kokoSD 1.2: lines hidden below the view (START+Up / Down) */
 
 static void line_push(int kind) {
     if (nline == NLINE) { for (int i = 1; i < NLINE; i++) lines[i - 1] = lines[i]; nline--; }
     lines[nline].n = 0; lines[nline].kind = (uint8_t)kind; lines[nline].mark = 0; lines[nline].y = 0; lines[nline].dn = 0; nline++;
 }
 static int layout(uint8_t *ys) {                   /* as many of the newest lines as fit; returns the first shown, fills ys */
-    int first = nline, h = 0;
+    int last = nline - scroll_back, first = last, h = 0;
     while (first > 0) {
-        int add = LH + ((first < nline && lines[first - 1].kind != lines[first].kind) ? GAP : 0);
+        int add = LH + ((first < last && lines[first - 1].kind != lines[first].kind) ? GAP : 0);
         if (h + add > chat_bot - CHAT_TOP - 1) break;
         h += add; first--;
     }
     int y = CHAT_TOP + 1;
-    for (int i = first; i < nline; i++) {
+    for (int i = first; i < last; i++) {
         if (i > first && lines[i].kind != lines[i - 1].kind) y += GAP;
         ys[i] = (uint8_t)y; y += LH;
     }
@@ -196,7 +198,9 @@ static void chat_draw(void) {
     fill(0, CHAT_TOP - 1, 240, chat_bot - CHAT_TOP + 1, C_WHITE);
     cur_y = -1; drawn_bot = CHAT_TOP + 1;
     for (int i = 0; i < first; i++) lines[i].y = 0;
-    for (int i = first; i < nline; i++) {
+    int last = nline - scroll_back;
+    for (int i = last; i < nline; i++) lines[i].y = 0;
+    for (int i = first; i < last; i++) {
         YIELD();
         draw_line(i, ys[i]);
         if (i == nline - 1) cur_y = ys[i];
@@ -207,6 +211,7 @@ static void chat_draw(void) {
  * drawing it again (a visible flash on a real screen), slide the existing rows up and draw only what changed. */
 static void chat_update(int from) {
     uint8_t ys[NLINE];
+    if (scroll_back) { scroll_back = 0; chat_draw(); return; }   /* new text: back to the newest lines */
     int first = layout(ys), shift = -1;
     for (int i = from; i < nline; i++) if (lines[i].kind == L_USER) { chat_draw(); return; }
     for (int i = first; i < from; i++) {
@@ -262,7 +267,27 @@ static int line_add(const char *s, int n, int maxw) {
     }
     return wrapped;
 }
-void ui_clear(void) { nline = 0; }
+void ui_clear(void) { nline = 0; scroll_back = 0; }
+/* kokoSD 1.2: START+Up (d > 0) / START+Down (d < 0) move the view one line; 0 if it could not move. */
+int ui_scroll(int d) {
+    uint8_t ys[NLINE];
+    int was = scroll_back;
+    if (d > 0 && layout(ys) > 0) scroll_back++;
+    if (d < 0 && scroll_back > 0) scroll_back--;
+    if (scroll_back == was) return 0;
+    chat_draw();
+    return 1;
+}
+int ui_scrolled(void) { return scroll_back; }
+void ui_scroll_home(void) { if (scroll_back) { scroll_back = 0; chat_draw(); } }
+/* kokoSD 1.2: the chat's lines, saved with a chat and read back. */
+int ui_log_io(int (*io)(void *p, unsigned n, void *ctx), void *ctx, int writing) {
+    uint32_t n = (uint32_t)nline;
+    if (!io(&n, 4, ctx) || n > NLINE) return 0;
+    if (!io(lines, n * sizeof lines[0], ctx)) return 0;
+    if (!writing) { nline = (int)n; scroll_back = 0; for (int i = 0; i < nline; i++) { lines[i].y = 0; lines[i].dn = 0; if (lines[i].n > LINE_MAX) lines[i].n = LINE_MAX; } }
+    return 1;
+}
 void ui_say(int kind, const char *s, int n) { line_push(kind); line_add(s, n, kind == L_USER ? USER_W : KOKO_W); }
 
 /* ---------------- the input field (gbamp3's Search field) and the hint line ---------------- */
@@ -290,14 +315,14 @@ void ui_input(const char *msg, int mlen, int caret) {
     text_draw_bg(6, FIELD_Y + 1, 6, 234, t, (unsigned)skip, C_BLACK, C_LIGHT);
     fill(6 + cx - skip, FIELD_Y + 1, 1, 15, C_BLACK);
 }
-static const char *idle_hint = "START: ideas    START+SELECT: menu";
+static const char *idle_hint = "START+SELECT: menu    START+A: save chat";
 static int chips_n;
 static void hint_line(const char *t) {
     fill(0, HINT_Y - 1, 240, 10, C_WHITE);
     small_draw(6, HINT_Y, small_fit(t, 228), C_GREY);
 }
 void ui_hint(int has_text) {
-    const char *h = has_text ? "START: send    START+SELECT: menu" : "START: ideas    START+SELECT: menu";
+    const char *h = has_text ? "START: send    START+A: save chat" : "START+SELECT: menu    START+A: save chat";
     if (h == idle_hint) return;
     idle_hint = h;
     if (!chips_n) hint_line(h);
@@ -315,6 +340,33 @@ void ui_chips(int n, const char *a, int alen, const char *b, int blen) {
     }
     s[k] = 0;
     hint_line(s);
+}
+void ui_message(const char *t) { hint_line(t); }
+/* kokoSD 1.2: Saved chats, as gbamp3's lists: 7 rows of 17 pixels from `top`, the selection blue, long first
+ * messages cut with "...". */
+#define LIST_ROWS 7
+void ui_list(const char *title, const char *const *items, int n, int sel, int top, const char *empty) {
+    frame_start();
+    header_line(title, 0);
+    YIELD();
+    for (int r = 0; r < LIST_ROWS; r++) {
+        int i = top + r, y = HDR_H + r * 17;
+        uint16_t bg = i == sel && i < n ? C_BLUE : C_WHITE;
+        fill(0, y, 6, 17, bg); fill(234, y, 6, 17, bg); fill(6, y, 228, 1, bg);
+        const char *t = i < n ? items[i] : "";
+        unsigned whole; size_t k = text_fit(t, 228, &whole);
+        if (!whole) { if (k > 250) k = 250; for (size_t j = 0; j < k; j++) tbuf[j] = t[j]; tbuf[k] = '.'; tbuf[k + 1] = '.'; tbuf[k + 2] = '.'; tbuf[k + 3] = 0; t = tbuf; }
+        text_draw_bg(6, y + 1, 6, 234, t, 0, C_BLACK, bg);
+        YIELD();
+    }
+    fill(0, HDR_H + LIST_ROWS * 17, 240, 160 - HDR_H - LIST_ROWS * 17, C_WHITE);
+    if (!n) centre(64, empty, C_GREY);
+    small_draw(6, 150, n ? "A: open    B: back" : "B: back", C_GREY);
+    if (n > LIST_ROWS) {
+        char pg[16]; int k = 0;
+        put_num(pg, &k, sel + 1); pg[k++] = '/'; put_num(pg, &k, n); pg[k] = 0;
+        small_draw(234 - (int)small_width(pg), 150, pg, C_GREY);
+    }
 }
 void ui_typing(const char *msg, int mlen, int caret) {
     chat_bot = CHAT_BOT_TYPING;

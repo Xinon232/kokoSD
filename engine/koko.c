@@ -488,3 +488,41 @@ int koko_suggest(const char *prefix, int plen, int at_start, uint16_t *out) {
     for (int i = 0; i < n; i++) out[i] = ids[i];
     return n;
 }
+
+/* kokoSD 1.2: a saved chat. The state as it was at the mark (the start of the message being typed: the
+ * draft's tokens are left out, exactly as koko_rewind would), written or read in pieces through io (1 = ok).
+ * Only the ring slots in use are stored. The next steps rebuild everything else (tbl, koko_h). */
+int koko_state_io(int (*io)(void *p, unsigned n, void *ctx), void *ctx, int writing) {
+    uint32_t hdr[4 + 2 * K_TOPK];
+    if (writing) {
+        uint32_t k = npos - m_npos;
+        hdr[0] = m_npos; hdr[1] = k >= T ? 0 : (m_nvalid < T - k ? m_nvalid : T - k); hdr[2] = (uint32_t)m_n; hdr[3] = 0;
+        for (int i = 0; i < K_TOPK; i++) { hdr[4 + i] = (uint32_t)m_top[i]; hdr[4 + K_TOPK + i] = (uint32_t)m_p[i]; }
+    }
+    if (!io(hdr, sizeof hdr, ctx)) return 0;
+    if (!writing) {
+        if (hdr[1] > T || hdr[2] > K_TOPK) return 0;
+        npos = hdr[0]; nvalid = hdr[1]; a_n = (int)hdr[2]; s_layer = -1; reply_at = NO_REPLY;
+        for (int i = 0; i < K_TOPK; i++) { a_top[i] = (int)hdr[4 + i]; a_p[i] = (int)hdr[4 + K_TOPK + i]; }
+        for (unsigned i = 0; i < K_V / 32; i++) voted[i] = 0;
+    }
+    unsigned used = hdr[0] < T ? hdr[0] : T;                    /* slots 0..used-1 hold the window (ring) */
+    if (!io(toks, used * sizeof toks[0], ctx)) return 0;
+    for (int a = 0; a < K_NATT; a++) {
+        if (!io(vsh[a], used, ctx) || !io(vc[a], used * K_DV, ctx)) return 0;
+        for (int h = 0; h < NH; h++) if (!io(kc[a][h], used * (HK / 4), ctx)) return 0;
+    }
+#ifdef __arm__
+    if (writing) {                                             /* the mixer state at the mark is in video memory */
+        static int32_t row[256] EWRAM_DATA;
+        for (unsigned at = 0; at < (K_L - K_NATT) * D * 6; at += 256) {
+            for (int i = 0; i < 256; i++) row[i] = MSNAP[at + i];
+            if (!io(row, sizeof row, ctx)) return 0;
+        }
+        return 1;
+    }
+#else
+    if (writing) return io(MSNAP, sizeof mst, ctx);
+#endif
+    return io(mst, sizeof mst, ctx);
+}

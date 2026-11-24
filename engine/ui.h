@@ -20,6 +20,12 @@ void ui_title_prompt(int on);                    /* blink the prompt */
 void ui_title_tick(void);                        /* one title frame (nothing moves any more) */
 void ui_redraw(void);                            /* draw the whole chat again (tests compare this with the incremental drawing) */
 void ui_clear(void);                             /* forget the chat lines (new chat) */
+int ui_scroll(int d);                            /* kokoSD 1.2: one line up (d > 0) or down; 0 if it could not move */
+void ui_scroll_home(void);                       /* back to the newest lines */
+int ui_scrolled(void);                           /* lines hidden below the view (0: the newest are shown) */
+int ui_log_io(int (*io)(void *p, unsigned n, void *ctx), void *ctx, int writing);   /* the chat's lines for a saved chat */
+void ui_message(const char *t);                  /* a short note on the hint line (typing layout) */
+void ui_list(const char *title, const char *const *items, int n, int sel, int top, const char *empty);   /* a list (Saved chats) */
 void ui_say(int kind, const char *s, int n);     /* add a chat line (word-wrapped) without drawing */
 void ui_header(const char *right);               /* "Koko" centred, a grey hint on the right (or 0) */
 void ui_rate(int made, uint32_t ticks);          /* header hint: tokens per second (ticks of 1/16384 s) */

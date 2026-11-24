@@ -25,6 +25,8 @@ int koko_step_part(void);
 /* Remember this point / take back every token fed since (see koko.c). */
 void koko_mark(void);
 void koko_rewind(void);
+/* kokoSD 1.2: saved chats: Koko's state at the mark (see koko.c), written (writing 1) or read through io. */
+int koko_state_io(int (*io)(void *p, unsigned n, void *ctx), void *ctx, int writing);
 /* Q12 output scores for n token ids (copy votes included). */
 void koko_scores(const uint16_t *rows, int n, int32_t *out);
 /* Fast output step: the K_TOPN best candidates (best first); returns how many. *scored = rows scored. */

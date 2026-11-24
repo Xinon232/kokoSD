@@ -1,8 +1,21 @@
 # kokoSD: Koko the Chatbot with an SD card
 
-kokoSD 1.1.3 is Koko (below) on SD-card flash carts: SuperCard SD, EZ-Flash Omega (and
+kokoSD 1.2 is Koko (below) on SD-card flash carts: SuperCard SD, EZ-Flash Omega (and
 Definitive Edition, started from the SD card) and EverDrive GBA, through
 [gbaSD](https://github.com/Xinon232/gbaSD). GBA only (no browser version).
+
+## What is new in 1.2
+- **Saved chats.** START+A saves the chat to the SD card (`/koko/chats/chatNNN.kch`, about
+  50-250 KB each). START+SELECT > Saved chats lists them by their first message
+  (alphabetically); A opens one and the chat carries on exactly where it was: the file
+  holds Koko's whole state (attention cache, mixer state, token history), so he does
+  not read the conversation again. Saving again after opening overwrites the same file.
+  A message being typed is not part of the save. A chat made with other weights is not
+  opened.
+- **Scrolling.** Hold START and press Up / Down: the chat moves one line (the last 64
+  lines are kept); typing returns to the newest lines.
+- **START with nothing typed does nothing** (no more ready-made messages), and neither
+  does a message Koko cannot read at all (nothing left in its plain copy).
 
 ## What is new in 1.1.3 (tested on a SuperChis Prime with SuperFW)
 - **Starts on SuperCard-type carts.** Koko set the fastest cartridge timing on its first

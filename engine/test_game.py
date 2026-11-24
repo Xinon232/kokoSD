@@ -63,7 +63,7 @@ class Pad:
     def start_with(self, b): return self.h(START, 4) + self.h(START | b, 4) + self.h(START, 3) + self.h(0, 4)
     def menu(self): return self.start_with(SELECT) + [f'until:{DBG + 4:#x}:5:2000', 'f:4']   # START + SELECT: the menu (state 5)
     def new_chat(self): return self.menu() + [f'k:{A}']                  # its first row
-    def helpers_toggle(self): return self.menu() + [f'k:{DOWN}', f'k:{A}', f'k:{B}', 'f:10']
+    def helpers_toggle(self): return self.menu() + [f'k:{DOWN}', f'k:{DOWN}', f'k:{A}', f'k:{B}', 'f:10']   # (1.2: Saved chats is the second row)
 
 
 def run(name, steps, nturn):
@@ -118,9 +118,9 @@ check((sd & 1) == (RUNNER != 'build/runner') and (sd >> 8) == (want_sd if want_s
       f'SD card at start: mounted {sd & 1}, cart kind {sd >> 8} ({RUNNER})')
 
 # 1. a ready-made message: START fills it in, START sends it
-r = run('koko_quick', [f'k:{START}', IDLE, f'k:{START}'], 1)
+r = run('koko_quick', Pad().text('hi') + [f'k:{START}'], 1)   # (kokoSD 1.2: no ready-made messages any more)
 t = turns_of(r['hist'])
-check(t[0][0] == 'hi', f"ready-made message arrived as typed; reply: {t[0][1].strip()!r} at {r['rate']:.2f} tokens/s")
+check(t[0][0] == 'hi', f"short message arrived as typed; reply: {t[0][1].strip()!r} at {r['rate']:.2f} tokens/s")
 check(native_reply(r['hist'], r['seed']), 'reply identical to the native engine')
 
 # 2. typed with gbawriter's buttons; suggestions checked against the native engine; one accepted with START+L
@@ -156,7 +156,7 @@ check(t[0][0] == 'i like dogs' and r['rewinds'] >= 1, f"after deleting a word: {
 check(native_reply(r['hist'], r['seed']), 'reply identical to the native engine')
 
 # 4. two turns in one conversation
-r = run('koko_two_turns', [f'k:{START}', IDLE, f'k:{START}', f'until:{DBG + 12:#x}:1:400000', 'f:5',
+r = run('koko_two_turns', Pad().text('hi') + [f'k:{START}', f'until:{DBG + 12:#x}:1:400000', 'f:5',
                            ] + Pad().text('who are you') + [f'k:{START}'], 2)
 t = turns_of(r['hist'])
 print('   conversation:', [(a, b.strip()) for a, b in t])
@@ -208,7 +208,7 @@ t = turns_of(r['hist'])
 check(t[0] == ('84 / 7', '84 / 7 = 12.'), f"division typed with the slash: {t[0]}")
 # 10. kokoSD: the menu's How to type page opens (state 6) and B goes back to typing
 pad = Pad()
-subprocess.run([RUNNER, ROM] + BOOT + pad.menu() + [f'k:{DOWN}', f'k:{DOWN}', f'k:{A}', f'until:{DBG + 4:#x}:6:2000', 'f:10',
+subprocess.run([RUNNER, ROM] + BOOT + pad.menu() + [f'k:{DOWN}', f'k:{DOWN}', f'k:{DOWN}', f'k:{A}', f'until:{DBG + 4:#x}:6:2000', 'f:10',
                f'dump:{DBG:#x}:{44 + 2 * HISTMAX + 20}:out/page.bin', f'k:{B}', 'f:20', f'k:{B}', 'f:30',
                f'dump:{DBG:#x}:8:out/page_back.bin'], check=True)
 d = open('out/page.bin', 'rb').read(); lines = struct.unpack('I', d[44 + 2 * HISTMAX + 4:44 + 2 * HISTMAX + 8])[0]
@@ -262,6 +262,38 @@ if os.path.exists(FACTS) and RUNNER != 'build/runner':   # (no card: nothing to 
     check(native_reply(r['hist'], r['seed']) or True, '(the fact replies are fed, not generated)')
 else:
     print('SKIP facts from the SD card: no card (build/runner) or no out/koko/facts.dat (python3 tools/facts_sd.py simplewiki-....xml.bz2)')
+# 13. kokoSD 1.2: START with nothing typed (or only spaces) does nothing
+pad = Pad()
+subprocess.run([RUNNER, ROM] + BOOT + [f'k:{START}', 'f:60'] + pad.text('  ') + [f'k:{START}', 'f:60', f'dump:{DBG:#x}:{44 + 2 * HISTMAX}:out/empty.bin'], check=True)
+r = parse('out/empty.bin')
+check(r['turns'] == 0 and r['state'] in (0, 3), f"START on an empty line and on spaces sends nothing (turns {r['turns']}, state {r['state']})")
+# 14. kokoSD 1.2: START+A saves the chat on the card; New chat; Saved chats opens it; the next reply carries on
+#     exactly (identical to the native engine reading the whole conversation); START+Up / Down scroll
+if RUNNER != 'build/runner':
+    import shutil
+    shutil.copyfile(os.environ['SD_IMAGE'], 'out/save-card.img')
+    old = os.environ['SD_IMAGE']; os.environ['SD_IMAGE'] = 'out/save-card.img'; os.environ['SD_ALLOW_INDEX_WRITES'] = '1'
+    pad = Pad()
+    LIST = f'until:{DBG + 4:#x}:8:3000'
+    steps = (pad.text('my name is sam') + [f'k:{START}', f'until:{DBG + 12:#x}:1:400000', 'f:5'] + pad.text('i like snow') + [f'k:{START}', f'until:{DBG + 12:#x}:2:400000', 'f:5', 'k:1', IDLE, 'shot:out/koko_scroll0.ppm']
+             + pad.h(START, 4) + (pad.h(START | UP, 3) + pad.h(START, 3)) * 3 + pad.h(0, 4) + ['f:10', 'shot:out/koko_scroll3.ppm']
+             + pad.h(START, 4) + (pad.h(START | DOWN, 3) + pad.h(START, 3)) * 3 + pad.h(0, 4) + ['f:10', 'shot:out/koko_scroll_back.ppm']
+             + pad.text('\b') + pad.start_with(A) + ['f:200', 'shot:out/koko_saved.ppm'] + pad.new_chat() + ['f:20']
+             + pad.menu() + [f'k:{DOWN}', f'k:{A}', LIST, 'f:10', 'shot:out/koko_saved_list.ppm', f'k:{A}', IDLE, 'f:10', 'shot:out/koko_opened.ppm']
+             + pad.text('what is my name') + [f'k:{START}'])
+    r = run('koko_saved_chat', steps, 3)
+    os.environ['SD_IMAGE'] = old; del os.environ['SD_ALLOW_INDEX_WRITES']
+    t = turns_of(r['hist'])
+    print('   conversation:', [(a, b.strip()) for a, b in t])
+    files = subprocess.run(['mdir', '-b', '-i', 'out/save-card.img', '::/koko/chats'], capture_output=True, text=True).stdout.split()
+    check(any(f.lower().endswith('chat000.kch') for f in files), f'START+A wrote the chat to the card: {files}')
+    check(len(t) == 3 and t[0][0] == 'my name is sam' and t[1][0] == 'i like snow' and t[2][0] == 'what is my name',
+          'the opened chat carries on: Koko still has the earlier turns')
+    check(native_reply(r['hist'], r['seed']), 'the reply after opening is identical to the native engine reading the whole chat')
+    from PIL import Image
+    sh = lambda n: Image.open(f'out/{n}.ppm').tobytes()
+    check(sh('koko_scroll3') != sh('koko_scroll0') and sh('koko_scroll_back') == sh('koko_scroll0'),
+          'START+Up scrolls the chat back, START+Down returns to the newest lines')
 # 12. kokoSD 1.1: accented letters are typed and shown as typed; Koko reads the plain-letter copy
 pad = Pad()
 r = run('koko_accents', pad.text('i like café in münchen') + [f'k:{START}'], 1)

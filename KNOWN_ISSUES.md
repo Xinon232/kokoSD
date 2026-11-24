@@ -1,7 +1,7 @@
-# kokoSD 1.1.3: known issues and open points
+# kokoSD 1.2: known issues and open points
 
-kokoSD 1.1.3 passes its emulator checks (engine/test_game.py: 30 checks on the
-SuperCard SD, EZ-Flash Omega and EverDrive GBA card models, 26 without a card) and about
+kokoSD 1.2 passes its emulator checks (engine/test_game.py: 35 checks on the
+SuperCard SD, EZ-Flash Omega and EverDrive GBA card models, 27 without a card) and about
 260 random button sessions without a hang. On real hardware it has run on a SuperChis
 Prime with SuperFW (start, typing, replies); the other carts are not tested yet. These are known and not fixed yet:
 
@@ -24,13 +24,17 @@ Prime with SuperFW (start, typing, replies); the other carts are not tested yet.
 - **Typing while Koko reads in the background:** gbawriter's engine is updated once per
   video frame; while the model works, up to 4 frames are given at once, so holding B
   (delete) can repeat a little unevenly during that time. No presses are lost.
-- **START+A and START+B** (save / back in gbawriter) do nothing in Koko.
+- **START+B** does nothing in Koko.
+- **Saved chats:** not tested on real hardware (SD card writes). Saved chats cannot be
+  deleted or renamed in Koko yet (delete the files in /koko/chats on a computer); the list
+  shows at most 48. The chat's last 64 screen lines are kept (Koko himself keeps his
+  usual 256-token memory).
 - **B while Koko reads a message** takes effect when the reading is done (each word not yet
   read while typing takes about a third of a second); then no reply is written.
 - **SuperCard speed:** the cart runs at gbaSD's slower 4/2 timing (the emulator gives about
   3.0 words a second there, 3.4 on an Omega).
 - **1.1 screens:** with the 16 px font the chat shows about 7 lines while typing (10
-  before); older lines scroll away (the last 16 are kept). An article page takes about
+  before); START+Up / Down scroll back through the last 64. An article page takes about
   0.1 s to draw.
 
 ## Fact file limits (tools/facts_sd.py)

@@ -8,6 +8,7 @@
 #include "facts_sd.h"
 #include "writer/writer_glue.h"
 #include "text/text.h"
+#include "chats.h"
 int sum_reply(const char *s, int n, char *out);   /* engine/sums.c */
 int fact_reply(const char *msg, int n, uint16_t *ids, int max);   /* engine/facts.c */
 
@@ -43,7 +44,7 @@ struct Dbg {
     uint32_t menu, caret;               /* kokoSD: menu row; cursor in the message */
     uint32_t boot_ticks;                /* kokoSD: 1/16384 s from power-on to the title (card mounted, fact file opened) */
 };
-enum { ST_EDIT = 0, ST_RUNNING = 1, ST_DONE = 2, ST_IDLE = 3, ST_ARTICLE = 4, ST_MENU = 5, ST_PAGE = 6, ST_TITLE = 7 };   /* kokoSD: an article, the menu, How to type / About */   /* IDLE: editing, model caught up, suggestions shown */
+enum { ST_EDIT = 0, ST_RUNNING = 1, ST_DONE = 2, ST_IDLE = 3, ST_ARTICLE = 4, ST_MENU = 5, ST_PAGE = 6, ST_TITLE = 7, ST_LIST = 8 };   /* kokoSD: an article, the menu, How to type / About */   /* IDLE: editing, model caught up, suggestions shown */
 volatile struct Dbg dbg __attribute__((section(".bss.dbg")));
 
 
@@ -112,8 +113,11 @@ static int mlen;
 static char plain[2 * MSG_MAX + 1];
 static int plen;
 static void refold(void) { plen = (int)text_plain(plain, 2 * MSG_MAX, msg, (unsigned)mlen); plain[plen] = 0; }
-static const char *const quick[] = { "hi", "who are you", "tell me a story about a fox", "what is the capital of France?",
-                                     "can you tell me a joke" };
+/* kokoSD 1.2: something Koko can read: the plain copy has more than spaces (Greek, Cyrillic, symbols: nothing) */
+static int readable(void) { for (int i = 0; i < plen; i++) if (plain[i] != ' ') return 1; return 0; }
+/* kokoSD 1.2: the chat being had: its file number (-1: never saved), first message and number of turns */
+static int chat_id = -1, chat_turns;
+static char chat_title[CHAT_TITLE];
 static uint32_t seed = 0x2545F491;
 static uint16_t fed[MSG_TOK], want[MSG_TOK], sug[3];      /* koko_suggest returns up to 3 */
 static int nfed, nwant, user_fed, stepping, dirty, nsug, sug_stale, mark_ntok;
@@ -184,7 +188,9 @@ static const char HOW_TO_TYPE[] =
     "R alone: a capital for the next letter. Hold R: capitals on; R again: off.\n\n"
     "SELECT alone types a dot. Keep SELECT held and press Up / Down for digits, R / L for , ' \" : ! ? "
     "and Right / Left for ( ) / ; @ # % & _ + = -.\n\n"
-    "START: send. START on an empty line: a ready-made message (START again sends it).\n\n"
+    "START: send (with nothing typed, or nothing Koko can read, START does nothing).\n\n"
+    "START+A: save the chat on the SD card. START+SELECT, Saved chats: open a saved chat and carry on where you "
+    "left off (listed by their first message). Hold START and press Up / Down: scroll the chat.\n\n"
     "START with L or R (in either order): the first or second suggested word. Hold START and press Left / Right: "
     "move the cursor. START + SELECT: this menu.\n\n"
     "Accents: keep the letter's buttons held and press SELECT; SELECT again gives the next one (e: é è ë ê). "
@@ -192,7 +198,7 @@ static const char HOW_TO_TYPE[] =
     "B while Koko writes: stop him.\n\n"
     "The same typing as gbawriter, gbamp3 and the other apps.";
 static const char ABOUT[] =
-    "kokoSD 1.1.3: Koko the Chatbot with an SD card.\n\n"
+    "kokoSD 1.2: Koko the Chatbot with an SD card.\n\n"
     "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
     "Game Boy Advance itself.\n"
     "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "
@@ -222,27 +228,103 @@ static void read_pages(const char *title, const char *text, int n, int state) {
         if (d & (BTN_B | BTN_START | BTN_A)) break;
     }
 }
-/* START + SELECT while typing. Returns 1 for a new chat. */
-static int menu(void) {
-    static int sel;
-    const char *items[4] = { "New chat", 0, "How to type", "About kokoSD" };
-    kq_n = 0;                                     /* presses made while typing are not menu choices */
+/* ---------------- kokoSD 1.2: saved chats ---------------- */
+#define LIST_MAX 48
+static char list_title[LIST_MAX][CHAT_TITLE] __attribute__((section(".bss.ewram")));
+static int16_t list_id[LIST_MAX] __attribute__((section(".bss.ewram")));
+static const char *list_item[LIST_MAX] __attribute__((section(".bss.ewram")));
+static void new_chat_state(void) {
+    koko_reset();
+    ui_clear(); ui_say(L_KOKO, "Woof! I'm Koko. Say something!", 30);
+    mlen = 0; msg[0] = 0; plen = 0; plain[0] = 0; dbg.ntok = 0;
+    chat_id = -1; chat_turns = 0; chat_title[0] = 0;
+}
+/* Write the chat as it was when the message being typed was started (the draft is not part of it). */
+static int save_chat(void) {
+    while (stepping) work();
+    uint32_t n = (uint32_t)(mark_ntok < HISTMAX ? mark_ntok : HISTMAX), sd_ = seed;
+    if (!chat_write_begin(&chat_id, chat_title)) return 0;
+    chat_io(&sd_, 4, 0); chat_io(&n, 4, 0);
+    chat_io((void *)dbg.hist, n * 2, 0);
+    ui_log_io(chat_io, 0, 1);
+    koko_state_io(chat_io, 0, 1);
+    return chat_end();
+}
+static int load_chat(int id) {
+    char title[CHAT_TITLE];
+    uint32_t n = 0, sd_ = 0;
+    koko_reset();
+    if (!chat_read_begin(id, title)) return 0;
+    int ok = chat_io(&sd_, 4, 0) && chat_io(&n, 4, 0) && n <= HISTMAX;
+    if (ok) {
+        ok = chat_io((void *)dbg.hist, n * 2, 0);
+        dbg.ntok = n;
+    }
+    ok = ok && ui_log_io(chat_io, 0, 0) && koko_state_io(chat_io, 0, 0);
+    ok = chat_end() && ok;
+    if (!ok) return 0;
+    for (int i = 0; i < CHAT_TITLE; i++) chat_title[i] = title[i];
+    chat_id = id; chat_turns = 1;
+    mlen = 0; msg[0] = 0; plen = 0; plain[0] = 0;
+    return 1;
+}
+static int title_less(int a, int b) { return fold_compare(list_title[a], list_title[b], 0) < 0; }
+/* The Saved chats list. Returns 1 when a chat was opened (it is then the current chat). */
+static int saved_chats(void) {
+    ui_list("Saved chats", list_item, 0, 0, 0, "Reading the SD card...");
+    int n = chat_list(list_title, list_id, LIST_MAX);
+    int order[LIST_MAX];
+    for (int i = 0; i < n; i++) order[i] = i;
+    for (int i = 1; i < n; i++) { int v = order[i], j = i; while (j > 0 && title_less(v, order[j - 1])) { order[j] = order[j - 1]; j--; } order[j] = v; }
+    for (int i = 0; i < n; i++) list_item[i] = list_title[order[i]];
+    int sel = 0, top = 0;
+    kq_n = 0;
     for (;;) {
-        items[1] = helpers ? "Facts and sums: On" : "Facts and sums: Off";
-        dbg.state = ST_MENU; dbg.menu = (uint32_t)sel;
-        ui_menu("Menu", items, 4, sel);
+        if (sel < top) top = sel;
+        if (sel >= top + 7) top = sel - 6;
+        dbg.state = ST_LIST; dbg.menu = (uint32_t)sel;
+        ui_list("Saved chats", list_item, n, sel, top, sd_ready ? "No saved chats yet (START+A saves one)" : "No SD card");
         for (;;) {
             vsync();
             uint16_t d = keys_down();
             if (!d) continue;
-            if (d & BTN_UP) { sel = (sel + 3) % 4; break; }
-            if (d & BTN_DOWN) { sel = (sel + 1) % 4; break; }
+            if ((d & BTN_UP) && n) { sel = (sel + n - 1) % n; break; }
+            if ((d & BTN_DOWN) && n) { sel = (sel + 1) % n; break; }
+            if ((d & BTN_LEFT) && n) { sel = sel > 7 ? sel - 7 : 0; break; }
+            if ((d & BTN_RIGHT) && n) { sel = sel + 7 < n ? sel + 7 : n - 1; break; }
+            if (d & (BTN_B | BTN_START)) return 0;
+            if ((d & BTN_A) && n) {
+                ui_list("Saved chats", list_item, n, sel, top, "");
+                ui_message("Opening...");
+                if (load_chat(list_id[order[sel]])) return 1;
+                new_chat_state();
+                return 2;                             /* could not be read: a new chat, with a note */
+            }
+        }
+    }
+}
+/* START + SELECT while typing. Returns 1 for a new chat, 2 when a saved chat was opened (3: it failed). */
+static int menu(void) {
+    static int sel;
+    const char *items[5] = { "New chat", "Saved chats", 0, "How to type", "About kokoSD" };
+    kq_n = 0;                                     /* presses made while typing are not menu choices */
+    for (;;) {
+        items[2] = helpers ? "Facts and sums: On" : "Facts and sums: Off";
+        dbg.state = ST_MENU; dbg.menu = (uint32_t)sel;
+        ui_menu("Menu", items, 5, sel);
+        for (;;) {
+            vsync();
+            uint16_t d = keys_down();
+            if (!d) continue;
+            if (d & BTN_UP) { sel = (sel + 4) % 5; break; }
+            if (d & BTN_DOWN) { sel = (sel + 1) % 5; break; }
             if (d & (BTN_B | BTN_START)) return 0;
             if (d & BTN_A) {
                 if (sel == 0) return 1;
-                if (sel == 1) { helpers = !helpers; ui_helpers(helpers); dbg.pure = (uint16_t)!helpers; }
-                if (sel == 2) read_pages("How to type", HOW_TO_TYPE, (int)sizeof HOW_TO_TYPE - 1, ST_PAGE);
-                if (sel == 3) read_pages("About kokoSD", ABOUT, (int)sizeof ABOUT - 1, ST_PAGE);
+                if (sel == 1) { int r = saved_chats(); if (r) return r + 1; }
+                if (sel == 2) { helpers = !helpers; ui_helpers(helpers); dbg.pure = (uint16_t)!helpers; }
+                if (sel == 3) read_pages("How to type", HOW_TO_TYPE, (int)sizeof HOW_TO_TYPE - 1, ST_PAGE);
+                if (sel == 4) read_pages("About kokoSD", ABOUT, (int)sizeof ABOUT - 1, ST_PAGE);
                 kq_n = 0;
                 break;
             }
@@ -263,8 +345,9 @@ static void typing_hint(void) {                  /* kokoSD 1.1: as gbamp3's Sear
     ui_writer_status(writer_group(), writer_caps() ? "Caps" : writer_shift() ? "Shift" : "");
     ui_hint(mlen);
 }
+/* Returns 1 to send the message, 0 to start a new chat, 2 when a saved chat was opened, 3 when it could not be. */
+#define SUG_SIG() (nsug ? sug[0] * 3 + sug[nsug - 1] * 7 + nsug : 0)
 static int edit(void) {
-    static int q = -1;
     int shown_sug = -1, shown_hint = -1;
     writer_begin(msg);
     refold();
@@ -278,7 +361,7 @@ static int edit(void) {
     for (;;) {
         int busy = work();
         dbg.state = busy ? ST_EDIT : ST_IDLE;
-        int sig = nsug ? sug[0] * 3 + sug[nsug - 1] * 7 + nsug : 0;
+        int sig = SUG_SIG();
         if (sig != shown_sug) { chips(); shown_sug = sig; }
         if (!busy) vsync();
         poll();
@@ -296,14 +379,33 @@ static int edit(void) {
         if (fl & WRITER_TEXT) { msg_from_writer(); changed = 1; }
         if (fl & WRITER_PAGE_PREV) { if (nsug > 0) { accept(0); writer_set(msg); changed = 1; } }
         if (fl & WRITER_PAGE_NEXT) { if (nsug > 1) { accept(1); writer_set(msg); changed = 1; } }
-        if (fl & WRITER_START_ALONE) {
-            if (mlen) return 1;
-            q = (q + 1) % 5;                          /* START on an empty line: ready-made messages */
-            writer_set(quick[q]); msg_from_writer(); changed = 1;
+        if (fl & WRITER_START_ALONE) {                /* kokoSD 1.2: nothing typed (or nothing Koko can read): nothing */
+            if (readable()) return 1;
+            if (mlen) { ui_message("Koko cannot read that: type letters or numbers"); shown_sug = SUG_SIG(); }
+        }
+        if (fl & (WRITER_UP | WRITER_DOWN)) {         /* kokoSD 1.2: START+Up / Down scroll the chat */
+            if (fl & WRITER_UP) ui_scroll(1);
+            if (fl & WRITER_DOWN) ui_scroll(-1);
+            if (ui_scrolled()) { ui_message("Older lines    START+Down: newer"); shown_sug = SUG_SIG(); }
+            else { chips(); shown_sug = -1; }
+        }
+        if ((fl & WRITER_TEXT) && ui_scrolled()) { ui_scroll_home(); chips(); shown_sug = -1; }
+        if (fl & WRITER_START_A) {                    /* kokoSD 1.2: save the chat (the note stays until the suggestions change) */
+            if (!sd_ready) ui_message("No SD card: the chat cannot be saved");
+            else if (!chat_turns) ui_message("Nothing to save yet");
+            else {
+                ui_header("saving...");
+                int ok = save_chat();
+                ui_header(0); shown_hint = -1;
+                ui_message(ok ? "Chat saved (START+SELECT: Saved chats)" : "Could not save the chat");
+            }
+            shown_sug = SUG_SIG();
         }
         if (fl & WRITER_START_SELECT) {
             while (stepping) work();
-            if (menu()) return 0;
+            int m = menu();
+            if (m == 1) return 0;
+            if (m >= 2) return m;
             writer_set(msg);
             ui_header(0);
             ui_typing(msg, mlen, (int)writer_caret());
@@ -359,6 +461,8 @@ static void exchange(void) {
     while (mlen && msg[mlen - 1] == ' ') msg[--mlen] = 0;    /* a trailing space is not part of the message */
     refold();
     while (plen && plain[plen - 1] == ' ') plain[--plen] = 0;
+    if (!chat_turns) { int i = 0; for (; i < mlen && i < CHAT_TITLE - 1; i++) chat_title[i] = msg[i]; chat_title[i] = 0; }   /* kokoSD 1.2 */
+    chat_turns++;
     ui_reply_layout(msg, mlen);
     ui_reply_button(1);
     ui_header("reading...");
@@ -464,11 +568,12 @@ int main(void) {
     while (keys_prev) { vsync(); poll(); }        /* kokoSD: the START that left the title types nothing */
     hq_n = 0;
     for (;;) {
-        if (!edit()) {                            /* new chat: the model and the screen forget everything */
+        int e = edit();
+        if (e != 1) {                             /* new chat (0), a saved chat opened (2) or one that could not be (3) */
             while (stepping) work();
-            koko_reset();
-            ui_clear(); ui_say(L_KOKO, "Woof! I'm Koko. Say something!", 30);
-            mlen = 0; msg[0] = 0; plen = 0; plain[0] = 0; dbg.ntok = 0; dbg.newchats++;
+            if (e == 0) new_chat_state();
+            if (e == 3) ui_say(L_NOTE, "That chat could not be opened.", 30);
+            dbg.newchats++;
             while (keys_prev) { vsync(); poll(); }    /* the A that chose New chat types nothing */
             hq_n = 0;
             continue;
