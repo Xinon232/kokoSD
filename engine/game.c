@@ -44,7 +44,7 @@ struct Dbg {
     uint32_t menu, caret;               /* kokoSD: menu row; cursor in the message */
     uint32_t boot_ticks;                /* kokoSD: 1/16384 s from power-on to the title (card mounted, fact file opened) */
 };
-enum { ST_EDIT = 0, ST_RUNNING = 1, ST_DONE = 2, ST_IDLE = 3, ST_ARTICLE = 4, ST_MENU = 5, ST_PAGE = 6, ST_TITLE = 7, ST_LIST = 8 };   /* kokoSD: an article, the menu, How to type / About */   /* IDLE: editing, model caught up, suggestions shown */
+enum { ST_EDIT = 0, ST_RUNNING = 1, ST_DONE = 2, ST_IDLE = 3, ST_ARTICLE = 4, ST_MENU = 5, ST_PAGE = 6, ST_TITLE = 7, ST_LIST = 8, ST_OPTIONS = 9, ST_CONFIRM = 10, ST_RENAME = 11 };   /* kokoSD: an article, the menu, How to type / About */   /* IDLE: editing, model caught up, suggestions shown */
 volatile struct Dbg dbg __attribute__((section(".bss.dbg")));
 
 
@@ -190,7 +190,8 @@ static const char HOW_TO_TYPE[] =
     "and Right / Left for ( ) / ; @ # % & _ + = -.\n\n"
     "START: send (with nothing typed, or nothing Koko can read, START does nothing).\n\n"
     "START+A: save the chat on the SD card. START+SELECT, Saved chats: open a saved chat and carry on where you "
-    "left off (listed by their first message). Hold START and press Up / Down: scroll the chat.\n\n"
+    "left off (listed by their first message); START on a chat in the list: Open, Rename or Delete. "
+    "Hold START and press Up / Down: scroll the chat.\n\n"
     "START with L or R (in either order): the first or second suggested word. Hold START and press Left / Right: "
     "move the cursor. START + SELECT: this menu.\n\n"
     "Accents: keep the letter's buttons held and press SELECT; SELECT again gives the next one (e: é è ë ê). "
@@ -198,13 +199,15 @@ static const char HOW_TO_TYPE[] =
     "B while Koko writes: stop him.\n\n"
     "The same typing as gbawriter, gbamp3 and the other apps.";
 static const char ABOUT[] =
-    "kokoSD 1.2: Koko the Chatbot with an SD card.\n\n"
+    "kokoSD 1.3: Koko the Chatbot with an SD card.\n\n"
     "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
     "Game Boy Advance itself.\n"
     "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "
     "(CC BY-SA 4.0): the file koko/facts.dat on the SD card, or the cartridge's own smaller table. "
     "After such an answer, \"tell me more\" shows the article. Sums are worked out by the game. "
     "Replies marked Fact or Sum come from these helpers; the menu turns them off.\n"
+    "\nKoko the Chatbot (the model, its training, the engine and Koko himself) is by rdsilver: "
+    "rdsilver.itch.io/koko-the-chatbot. kokoSD (SD card, typing, saved chats, this look) is by Halim Jarrar.\n"
     "\nCode: Koko (MIT), gbaSD and gbawriter typing by Halim Jarrar (GPL-3.0-or-later); the cartridge "
     "as a whole is GPL-3.0-or-later. Weights, fact table and artwork: CC BY-SA 4.0. "
     "Fonts: the SuperFW font by David Guillen Fandos (GPL-3.0-or-later; UNSCII and GNU Unifont glyphs) and "
@@ -269,21 +272,95 @@ static int load_chat(int id) {
     return 1;
 }
 static int title_less(int a, int b) { return fold_compare(list_title[a], list_title[b], 0) < 0; }
-/* The Saved chats list. Returns 1 when a chat was opened (it is then the current chat). */
+/* kokoSD 1.3: rename a saved chat: gbawriter typing in the field, START+A saves, START+B cancels.
+ * Returns 1 when the new name was written. */
+static int rename_chat(int id, const char *old) {
+    static char name[CHAT_TITLE];
+    int n = 0;
+    for (; old[n] && n < UI_MSG_MAX; n++) name[n] = old[n];
+    while (n > 0 && (name[n - 1] & 0xC0) == 0x80) n--;            /* no half letter at a cut */
+    if (n > 0 && (unsigned char)name[n - 1] >= 0xC0) n--;
+    name[n] = 0;
+    writer_begin(name);
+    ui_ask("Rename chat", "", old, "!START+A: save    START+B: cancel");
+    ui_input(name, n, n);
+    dbg.state = ST_RENAME;
+    while (keys_prev) { vsync(); poll(); }       /* the press that chose Rename types nothing */
+    hq_n = 0; kq_n = 0;
+    uint32_t last = ticks();
+    for (;;) {
+        vsync(); poll();
+        uint32_t now = ticks();
+        if (now < last) last = now;
+        if (now - last < 274) continue;
+        unsigned frames = (now - last) / 274, f = 0, fl = 0;
+        if (frames > 4) frames = 4;
+        last = now;
+        for (unsigned i = 0; i < hq_n; i++, f++) fl |= writer_frame(hq[i]);
+        hq_n = 0;
+        for (; f < frames; f++) fl |= writer_frame(keys_prev);
+        if (fl & WRITER_TEXT) {
+            const char *t = writer_text();
+            for (n = 0; t[n] && n < UI_MSG_MAX; n++) name[n] = t[n];
+            name[n] = 0;
+            ui_input(name, n, (int)writer_caret());
+        }
+        ui_writer_status(writer_group(), writer_caps() ? "Caps" : writer_shift() ? "Shift" : "");
+        if (fl & WRITER_START_B) { kq_n = 0; return 0; }
+        if (fl & WRITER_START_A) {
+            int k = 0;
+            while (name[k] == ' ') k++;
+            if (!name[k]) { ui_ask("Rename chat", "The name is empty", old, "!START+A: save    START+B: cancel"); ui_input(name, n, (int)writer_caret()); continue; }
+            int ok = chat_rename(id, name + k);
+            if (ok && id == chat_id) { int i = 0; for (; name[k + i] && i < CHAT_TITLE - 1; i++) chat_title[i] = name[k + i]; chat_title[i] = 0; }
+            kq_n = 0;
+            return ok;
+        }
+    }
+}
+/* kokoSD 1.3: START on a saved chat: Open, Rename, Delete. Returns 1 open, 2 renamed or deleted, 0 nothing. */
+static int chat_options(int id, const char *title) {
+    static int sel;
+    const char *items[3] = { "Open", "Rename", "Delete" };
+    sel = 0; kq_n = 0;
+    for (;;) {
+        dbg.state = ST_OPTIONS; dbg.menu = (uint32_t)sel;
+        ui_menu(title, items, 3, sel);
+        uint16_t d;
+        do { vsync(); d = keys_down(); } while (!d);
+        if (d & BTN_UP) sel = (sel + 2) % 3;
+        else if (d & BTN_DOWN) sel = (sel + 1) % 3;
+        else if (d & (BTN_B | BTN_START)) return 0;
+        else if (d & BTN_A) {
+            if (sel == 0) return 1;
+            if (sel == 1) { rename_chat(id, title); return 2; }
+            ui_ask("Delete chat", "Delete this chat?", title, "A: yes    B: no");
+            dbg.state = ST_CONFIRM; kq_n = 0;
+            for (;;) {
+                vsync();
+                d = keys_down();
+                if (d & BTN_A) { if (chat_delete(id) && id == chat_id) chat_id = -1; return 2; }   /* the chat on screen is then unsaved again */
+                if (d & (BTN_B | BTN_START)) break;
+            }
+        }
+    }
+}
+/* The Saved chats list. Returns 1 when a chat was opened (it is then the current chat), 2 when it could not be. */
 static int saved_chats(void) {
+    int sel = 0, top = 0, n, order[LIST_MAX];
+reload:
     ui_list("Saved chats", list_item, 0, 0, 0, "Reading the SD card...");
-    int n = chat_list(list_title, list_id, LIST_MAX);
-    int order[LIST_MAX];
+    n = chat_list(list_title, list_id, LIST_MAX);
     for (int i = 0; i < n; i++) order[i] = i;
     for (int i = 1; i < n; i++) { int v = order[i], j = i; while (j > 0 && title_less(v, order[j - 1])) { order[j] = order[j - 1]; j--; } order[j] = v; }
     for (int i = 0; i < n; i++) list_item[i] = list_title[order[i]];
-    int sel = 0, top = 0;
+    if (sel >= n) sel = n ? n - 1 : 0;
     kq_n = 0;
     for (;;) {
         if (sel < top) top = sel;
         if (sel >= top + 7) top = sel - 6;
-        dbg.state = ST_LIST; dbg.menu = (uint32_t)sel;
-        ui_list("Saved chats", list_item, n, sel, top, sd_ready ? "No saved chats yet (START+A saves one)" : "No SD card");
+        dbg.state = ST_LIST; dbg.menu = (uint32_t)sel; dbg.article = (uint32_t)n;
+        ui_list("Saved chats", list_item, n, sel, top, sd_ready ? "No saved chats yet\nSTART+A while chatting saves one" : "No SD card");
         for (;;) {
             vsync();
             uint16_t d = keys_down();
@@ -292,8 +369,15 @@ static int saved_chats(void) {
             if ((d & BTN_DOWN) && n) { sel = (sel + 1) % n; break; }
             if ((d & BTN_LEFT) && n) { sel = sel > 7 ? sel - 7 : 0; break; }
             if ((d & BTN_RIGHT) && n) { sel = sel + 7 < n ? sel + 7 : n - 1; break; }
-            if (d & (BTN_B | BTN_START)) return 0;
-            if ((d & BTN_A) && n) {
+            if (d & BTN_B) return 0;
+            int open = 0;
+            if ((d & BTN_START) && n) {                   /* kokoSD 1.3: Open / Rename / Delete */
+                int r = chat_options(list_id[order[sel]], list_item[sel]);
+                if (r == 2) goto reload;
+                if (!r) break;
+                open = 1;
+            }
+            if (((d & BTN_A) && n) || open) {
                 ui_list("Saved chats", list_item, n, sel, top, "");
                 ui_message("Opening...");
                 if (load_chat(list_id[order[sel]])) return 1;

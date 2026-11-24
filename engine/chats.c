@@ -92,3 +92,25 @@ int chat_list(char (*titles)[CHAT_TITLE], int16_t *ids, int max) {
     f_closedir(&dir);
     return n;
 }
+/* kokoSD 1.3: delete chat id (1 = done). */
+int chat_delete(int id) {
+    char name[32];
+    chat_name(name, id);
+    return sd_ready && f_unlink(name) == FR_OK;
+}
+/* kokoSD 1.3: give chat id a new title (its first message is what the list shows). */
+int chat_rename(int id, const char *title) {
+    char name[32], head[CHAT_HEAD];
+    UINT done;
+    if (!sd_ready) return 0;
+    chat_name(name, id);
+    if (f_open(&cf, name, FA_READ | FA_WRITE) != FR_OK) return 0;
+    int ok = f_read(&cf, head, CHAT_HEAD, &done) == FR_OK && done == CHAT_HEAD && head[0] == 'K' && head[4] == 'C';
+    if (ok) {
+        for (int i = 0; i < CHAT_TITLE; i++) head[16 + i] = 0;
+        for (int i = 0; title[i] && i < CHAT_TITLE - 1; i++) head[16 + i] = title[i];
+        ok = f_lseek(&cf, 16) == FR_OK && f_write(&cf, head + 16, CHAT_TITLE, &done) == FR_OK && done == CHAT_TITLE;
+    }
+    if (f_close(&cf) != FR_OK) ok = 0;
+    return ok;
+}

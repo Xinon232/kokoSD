@@ -131,6 +131,7 @@ void ui_title(void) {
     small_centre(5, "kokoSD", C_BLACK);
     centre(50, "Koko", C_BLACK);
     small_centre(72, "A chatbot on your Game Boy Advance", C_GREY);
+    small_centre(128, "Koko: rdsilver   kokoSD: Halim Jarrar", C_GREY);   /* kokoSD 1.3: credits */
     ui_title_prompt(1);
     small_centre(146, "START+SELECT while typing: menu", C_GREY);
 }
@@ -138,7 +139,7 @@ void ui_title(void) {
 /* kokoSD 1.1: what the start is doing (finding the SD card and the fact file take a moment). */
 void ui_boot(const char *what, const char *detail) {
     fill(0, 0, 240, 160, C_WHITE);
-    small_centre(5, "kokoSD 1.2", C_BLACK);
+    small_centre(5, "kokoSD 1.3", C_BLACK);
     centre(64, what, C_BLACK);
     if (detail && *detail) small_centre(88, small_fit(detail, 228), C_GREY);
 }
@@ -342,6 +343,16 @@ void ui_chips(int n, const char *a, int alen, const char *b, int blen) {
     hint_line(s);
 }
 void ui_message(const char *t) { hint_line(t); }
+/* kokoSD 1.3: a question on its own screen (Delete this chat? A: yes B: no), or a page to type on (Rename). */
+void ui_ask(const char *title, const char *question, const char *detail, const char *hint) {
+    frame_start();
+    header_line(title, 0);
+    fill(0, HDR_H, 240, 160 - HDR_H, C_WHITE);
+    YIELD();
+    if (question && *question) centre(52, question, C_BLACK);
+    if (detail && *detail) small_centre(76, small_fit(detail, 228), C_GREY);
+    if (hint && *hint) small_draw(6, hint[0] == '!' ? 128 : 150, hint[0] == '!' ? hint + 1 : hint, C_GREY);
+}
 /* kokoSD 1.2: Saved chats, as gbamp3's lists: 7 rows of 17 pixels from `top`, the selection blue, long first
  * messages cut with "...". */
 #define LIST_ROWS 7
@@ -360,7 +371,11 @@ void ui_list(const char *title, const char *const *items, int n, int sel, int to
         YIELD();
     }
     fill(0, HDR_H + LIST_ROWS * 17, 240, 160 - HDR_H - LIST_ROWS * 17, C_WHITE);
-    if (!n) centre(64, empty, C_GREY);
+    if (!n) {                                      /* "big line\nsmall line" */
+        int k = 0; while (empty[k] && empty[k] != '\n') k++;
+        text_draw_bg((240 - width_n(empty, k)) / 2, 56, (240 - width_n(empty, k)) / 2, (240 + width_n(empty, k)) / 2, cut(empty, k), 0, C_GREY, C_WHITE);
+        if (empty[k]) small_centre(80, empty + k + 1, C_GREY);
+    }
     small_draw(6, 150, n ? "A: open    B: back" : "B: back", C_GREY);
     if (n > LIST_ROWS) {
         char pg[16]; int k = 0;

@@ -16,7 +16,13 @@ through [gbaSD](https://github.com/Xinon232/gbaSD). It adds:
 The model itself is Koko's, unchanged. GBA only (no browser version). kokoSD's changes are by
 Halim Jarrar; the original Koko README follows further down.
 
-Current version: **kokoSD 1.2**.
+Current version: **kokoSD 1.3**.
+
+## What is new in 1.3
+- **Rename and delete saved chats:** START on a chat in Saved chats: Open, Rename (type the
+  new name, START+A saves, START+B cancels) or Delete ("Delete this chat?" A: yes, B: no).
+- **Credits in the cartridge:** the title screen and About kokoSD name Koko's author,
+  rdsilver (https://rdsilver.itch.io/koko-the-chatbot).
 
 ## What is new in 1.2
 - **Saved chats.** START+A saves the chat to the SD card (`/koko/chats/chatNNN.kch`, about

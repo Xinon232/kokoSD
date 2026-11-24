@@ -24,7 +24,8 @@ int ui_scroll(int d);                            /* kokoSD 1.2: one line up (d >
 void ui_scroll_home(void);                       /* back to the newest lines */
 int ui_scrolled(void);                           /* lines hidden below the view (0: the newest are shown) */
 int ui_log_io(int (*io)(void *p, unsigned n, void *ctx), void *ctx, int writing);   /* the chat's lines for a saved chat */
-void ui_message(const char *t);                  /* a short note on the hint line (typing layout) */
+void ui_message(const char *t);
+void ui_ask(const char *title, const char *question, const char *detail, const char *hint);   /* kokoSD 1.3: a question screen ('!' hint: higher, for a typing page) */                  /* a short note on the hint line (typing layout) */
 void ui_list(const char *title, const char *const *items, int n, int sel, int top, const char *empty);   /* a list (Saved chats) */
 void ui_say(int kind, const char *s, int n);     /* add a chat line (word-wrapped) without drawing */
 void ui_header(const char *right);               /* "Koko" centred, a grey hint on the right (or 0) */

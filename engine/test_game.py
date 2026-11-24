@@ -294,6 +294,25 @@ if RUNNER != 'build/runner':
     sh = lambda n: Image.open(f'out/{n}.ppm').tobytes()
     check(sh('koko_scroll3') != sh('koko_scroll0') and sh('koko_scroll_back') == sh('koko_scroll0'),
           'START+Up scrolls the chat back, START+Down returns to the newest lines')
+# 15. kokoSD 1.3: START on a saved chat: Rename (typed, START+A) changes its title in the file; Delete, A: yes
+#     removes the file
+if RUNNER != 'build/runner':
+    old = os.environ['SD_IMAGE']; os.environ['SD_IMAGE'] = 'out/save-card.img'; os.environ['SD_ALLOW_INDEX_WRITES'] = '1'
+    pad = Pad()
+    LIST = f'until:{DBG + 4:#x}:8:3000'
+    open_list = pad.menu() + [f'k:{DOWN}', f'k:{A}', LIST, 'f:10']
+    steps = BOOT + open_list + [f'k:{START}', f'until:{DBG + 4:#x}:9:2000', f'k:{DOWN}', f'k:{A}', f'until:{DBG + 4:#x}:11:2000', 'f:10']
+    steps += pad.h(B, 120) + pad.h(0, 4) + pad.text('sam chat') + pad.start_with(A) + [LIST, 'f:10', 'shot:out/koko_renamed.ppm']
+    subprocess.run([RUNNER, ROM] + steps, check=True)
+    head = subprocess.run(['mtype', '-i', 'out/save-card.img', '::/koko/chats/chat000.kch'], capture_output=True).stdout[:80]
+    check(head[16:24] == b'sam chat' and head[24] == 0, f'Rename: the chat is now called {head[16:40].split(bytes(1))[0]!r}')
+    steps = BOOT + open_list + [f'k:{START}', f'until:{DBG + 4:#x}:9:2000', f'k:{DOWN}', f'k:{DOWN}', f'k:{A}', f'until:{DBG + 4:#x}:10:2000', 'f:10', 'shot:out/koko_delete_ask.ppm',
+                                f'k:{A}', LIST, 'f:10', 'shot:out/koko_deleted.ppm', f'dump:{DBG:#x}:{44 + 2 * HISTMAX + 8}:out/del.bin']
+    subprocess.run([RUNNER, ROM] + steps, check=True)
+    os.environ['SD_IMAGE'] = old; del os.environ['SD_ALLOW_INDEX_WRITES']
+    files = subprocess.run(['mdir', '-b', '-i', 'out/save-card.img', '::/koko/chats'], capture_output=True, text=True).stdout.split()
+    left = struct.unpack('I', open('out/del.bin', 'rb').read()[44 + 2 * HISTMAX + 4:44 + 2 * HISTMAX + 8])[0]
+    check(not any(f.lower().endswith('.kch') for f in files) and left == 0, f'Delete, A: yes: the chat file is gone ({files}), the list is empty ({left})')
 # 12. kokoSD 1.1: accented letters are typed and shown as typed; Koko reads the plain-letter copy
 pad = Pad()
 r = run('koko_accents', pad.text('i like café in münchen') + [f'k:{START}'], 1)

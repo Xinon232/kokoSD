@@ -1,6 +1,6 @@
-# kokoSD 1.2: known issues and open points
+# kokoSD 1.3: known issues and open points
 
-kokoSD 1.2 passes its emulator checks (engine/test_game.py: 35 checks on the
+kokoSD 1.3 passes its emulator checks (engine/test_game.py: 37 checks on the
 SuperCard SD, EZ-Flash Omega and EverDrive GBA card models, 27 without a card) and about
 260 random button sessions without a hang. On real hardware it has run on a SuperChis
 Prime with SuperFW (start, typing, replies); the other carts are not tested yet. These are known and not fixed yet:
@@ -25,9 +25,8 @@ Prime with SuperFW (start, typing, replies); the other carts are not tested yet.
   video frame; while the model works, up to 4 frames are given at once, so holding B
   (delete) can repeat a little unevenly during that time. No presses are lost.
 - **START+B** does nothing in Koko.
-- **Saved chats:** not tested on real hardware (SD card writes). Saved chats cannot be
-  deleted or renamed in Koko yet (delete the files in /koko/chats on a computer); the list
-  shows at most 48. The chat's last 64 screen lines are kept (Koko himself keeps his
+- **Saved chats:** not tested on real hardware (SD card writes). The list shows at most
+  48 chats. The chat's last 64 screen lines are kept (Koko himself keeps his
   usual 256-token memory).
 - **B while Koko reads a message** takes effect when the reading is done (each word not yet
   read while typing takes about a third of a second); then no reply is written.

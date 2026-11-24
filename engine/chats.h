@@ -13,4 +13,6 @@ int chat_io(void *p, unsigned n, void *ctx);   /* write or read the next n bytes
 int chat_end(void);                            /* close; 1 when everything went well */
 /* The saved chats on the card: titles and numbers (at most max). */
 int chat_list(char (*titles)[CHAT_TITLE], int16_t *ids, int max);
+int chat_delete(int id);                       /* kokoSD 1.3 */
+int chat_rename(int id, const char *title);    /* kokoSD 1.3: a new title (1 = done) */
 #endif
