@@ -1,0 +1,138 @@
+{
+ "name": "c_s62_facts_pkg_tern",
+ "val_nats_per_token": 2.5352,
+ "val_bits_per_char": 1.0075,
+ "val_by_domain": {
+  "chat": {
+   "nats_per_token": 2.1302,
+   "bits_per_char": 0.7968
+  },
+  "facts": {
+   "nats_per_token": 3.6405,
+   "bits_per_char": 1.6274
+  },
+  "stories": {
+   "nats_per_token": 2.2397,
+   "bits_per_char": 0.8489
+  }
+ },
+ "train_loss_first": 8.5302,
+ "train_loss_last": 2.2138,
+ "steps": 15000,
+ "train_tokens": 491520000,
+ "train_tokens_facts": 122880000,
+ "wall_s": 1520.1,
+ "train_tokens_per_s": 323344,
+ "params": {
+  "total": 13771920,
+  "tables": 8912896,
+  "matrices": 4859024
+ },
+ "expert_usage_entropy": 0.975618839263916,
+ "gba": {
+  "cycles_per_token": 2625048,
+  "gba_tokens_per_s": 6.39,
+  "gba_tokens_per_s_two_step_head": 10.15,
+  "active_weights": 925696,
+  "stored_weights": 4857856,
+  "rom_mb": 9.66
+ },
+ "facts": {
+  "trained_wording": {
+   "recall_among_values": 0.12,
+   "next_token_top1": 0.1272,
+   "bits_per_fact": 0.393,
+   "probes": 1800
+  },
+  "wording_unseen_for_this_person": {
+   "recall_among_values": 0.102,
+   "next_token_top1": 0.1141,
+   "bits_per_fact": 0.326,
+   "probes": 990
+  },
+  "chance": 0.0583,
+  "facts": 30000,
+  "bits_available_per_fact": 4.174
+ },
+ "fact_exposures": 292.3,
+ "device": "cuda",
+ "config": {
+  "V": 4096,
+  "D": 128,
+  "L": 4,
+  "T": 256,
+  "NH": 4,
+  "DK": 64,
+  "DV": 64,
+  "mlp": "moe",
+  "HD": 256,
+  "E": 16,
+  "router": "learned",
+  "moe_aux": 0.01,
+  "tie_head": false,
+  "head": "flat",
+  "head_clusters": "kmeans",
+  "head_short": 0,
+  "head_C": 0,
+  "att_layers": null,
+  "mixer": "none",
+  "x0_mix": false,
+  "copy_head": false,
+  "hashmem_heads": 0,
+  "hashmem_bits": 14,
+  "hashmem_layers": [],
+  "wq": "tern",
+  "arenas": false,
+  "arenas_frac": 0.6,
+  "wq_start_frac": 0.0,
+  "wq_lr_mult": 10,
+  "row_gain": false,
+  "aq": 0,
+  "keyq": "none",
+  "rescore_m": 32,
+  "att_bias": false,
+  "topk": 8,
+  "inject": [
+   {
+    "kind": "bigram",
+    "rows": 16384,
+    "layers": [
+     0,
+     2
+    ],
+    "gate": false
+   },
+   {
+    "kind": "trigram",
+    "rows": 16384,
+    "layers": [
+     0,
+     2
+    ],
+    "gate": false
+   }
+  ],
+  "seed": 1,
+  "opt": "adamw",
+  "muon_lr": 0.02,
+  "lr": 0.002,
+  "wd": 0.05,
+  "wd_off_frac": 1.0,
+  "table_lr_mult": 1.0,
+  "warmup": 500,
+  "steps": 15000,
+  "batch": 128,
+  "eval_every": 3000,
+  "val_seqs": 512,
+  "data": "mix0",
+  "mix": {
+   "chat": 0.5,
+   "facts": 0.25,
+   "stories": 0.25
+  },
+  "facts_n": 5000,
+  "facts_frac": 0.25,
+  "facts_marker": false,
+  "name": "c_s62_facts_pkg_tern"
+ }
+}

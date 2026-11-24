@@ -1,0 +1,132 @@
+{
+ "name": "h_turbo_L4_E256",
+ "val_nats_per_token": 2.2678,
+ "val_bits_per_char": 0.7892,
+ "val_by_domain": {
+  "koko": {
+   "nats_per_token": 2.178,
+   "bits_per_char": 0.7388
+  },
+  "chat": {
+   "nats_per_token": 1.6973,
+   "bits_per_char": 0.5908
+  },
+  "facts": {
+   "nats_per_token": 3.5937,
+   "bits_per_char": 1.2604
+  },
+  "stories": {
+   "nats_per_token": 1.6919,
+   "bits_per_char": 0.5997
+  }
+ },
+ "train_loss_first": 9.928,
+ "train_loss_last": 2.0271,
+ "steps": 120000,
+ "train_tokens": 3932160000,
+ "train_tokens_facts": 0,
+ "wall_s": 15896.2,
+ "train_tokens_per_s": 247365,
+ "params": {
+  "total": 92692233,
+  "tables": 20971520,
+  "matrices": 71720713
+ },
+ "expert_usage_entropy": 0.9324456453323364,
+ "gba": {
+  "cycles_per_token": 9520368,
+  "gba_tokens_per_s": 1.76,
+  "gba_tokens_per_s_two_step_head": 8.3,
+  "active_weights": 4849664,
+  "stored_weights": 71696384,
+  "rom_mb": 29.09
+ },
+ "facts": null,
+ "fact_exposures": null,
+ "device": "cuda",
+ "config": {
+  "V": 16384,
+  "D": 256,
+  "L": 4,
+  "T": 256,
+  "NH": 4,
+  "DK": 256,
+  "DV": 128,
+  "mlp": "moe",
+  "HD": 128,
+  "E": 256,
+  "router": "token",
+  "moe_aux": 0.01,
+  "tie_head": false,
+  "head": "flat",
+  "head_clusters": "kmeans",
+  "head_short": 0,
+  "head_C": 0,
+  "att_layers": [
+   2,
+   3
+  ],
+  "mixer": "diag",
+  "x0_mix": false,
+  "copy_head": true,
+  "hashmem_heads": 0,
+  "hashmem_bits": 14,
+  "hashmem_layers": [],
+  "wq": "tern",
+  "arenas": false,
+  "arenas_frac": 0.6,
+  "int8_parts": [],
+  "wq_start_frac": 0.0,
+  "wq_lr_mult": 10,
+  "row_gain": true,
+  "aq": 0,
+  "keyq": "sign",
+  "rescore_m": 32,
+  "att_bias": true,
+  "topk": 8,
+  "inject": [
+   {
+    "kind": "bigram",
+    "rows": 32768,
+    "layers": [
+     0
+    ],
+    "gate": false,
+    "bits": 4
+   },
+   {
+    "kind": "trigram",
+    "rows": 32768,
+    "layers": [
+     0
+    ],
+    "gate": false,
+    "bits": 4
+   }
+  ],
+  "seed": 1,
+  "opt": "adamw",
+  "muon_lr": 0.02,
+  "lr": 0.002,
+  "wd": 0.05,
+  "wd_off_frac": 1.0,
+  "table_lr_mult": 5,
+  "warmup": 1000,
+  "steps": 120000,
+  "batch": 128,
+  "eval_every": 6000,
+  "val_seqs": 1024,
+  "data": "mix1",
+  "ckpt_every": 2000,
+  "mix": {
+   "koko": 0.4,
+   "chat": 0.25,
+   "facts": 0.1,
+   "stories": 0.25
+  },
+  "facts_n": 0,
+  "facts_frac": 0.25,
+  "facts_marker": false,
+  "name": "h_turbo_L4_E256"
+ }
+}

@@ -1,0 +1,70 @@
+
+### hey koko
+  [greedy] Hey there! How's the snow where you are?
+  [t0.5 k40] Hey there! How's your day going?
+  [t0.7 k40] Hey there! How's your day going?
+  [t0.7 k40 rep1.15] Hey there! How's your day going?
+  [t0.9 k40] Hey there! How's your day?
+
+### what is your favourite food
+  [greedy] I love snacks like hot dogs and cheese sticks! What about you? Do you have a favorite?
+  [t0.5 k40] I love snacks like hot dogs and ice cream, but any snack is a good snack!
+  [t0.7 k40] I love snacks like hot dogs and ice cream, but hot dogs are my favorites!
+  [t0.7 k40 rep1.15] I love snacks like hot dogs and ice cream, but any snack would you like to have!
+  [t0.9 k40] I love snacks like small bits of cheese and bones!
+
+### tell me a story about a lost kitten
+  [greedy] Once upon a time, there was a tiny kitten named Whiskers who loved to explore. One sunny day, Whiskers wandered too far from home. He wandered through the woods, looking for a place to rest. Then, he saw a big, friendly bear. The bear said, "Hello, Whiskers! I'm a friendly bear. I live in this [cut]
+  [t0.5 k40] Once upon a time, in a cozy little house, there was a tiny kitten named Whiskers who loved to play. One day, while playing in the garden, Whiskers found a tiny kitten hiding under a bush. The kitten was scared and alone, but Whiskers stayed with her. From that day on, Whiskers and the kitten became best friends, and Whiskers [cut]
+  [t0.7 k40] Once upon a time, in a cozy little house, there was a little kitten named Whiskers who loved to play. One day, Whiskers found a magical garden filled with colorful flowers and glowing flowers. Whiskers felt a warm, curious heart open and to the garden bloomed with the stars twinkling above. That night, Whiskers dreamed of adventures and the beauty [cut]
+  [t0.7 k40 rep1.15] Once upon a time, in a cozy little house, there was a kitten named Whiskers who loved to play. One day, Whiskers lost his favorite stuffed bear, a soft pink teddy bear, who was very sad. The old teddy bear, still feeling sad, loved to cuddle with the softest teddy in the room. Whiskers took him home and played [cut]
+  [t0.9 k40] Once upon a time, in a cozy little house, there lived a little bunny named Hops. Hops loved to hop under the big oak trees, where the leaves whisper secrets. One day, Hops found a shiny acorn too, so big and pretty. Hops's friends saw it and wanted to help. They gave Hops a big [cut]
+
+### what is the moon
+  [greedy] The Moon is a big rock in space that goes around Earth. It's like a big rock that goes around Earth.
+  [t0.5 k40] The Moon is a big, bright moon in the sky, bright and round. It's a big, glowing ball in the sky.
+  [t0.7 k40] The Moon is a big, angry bird in the sky, way above Earth's moon.
+  [t0.7 k40 rep1.15] The Moon is a big, twinkling star in the sky. It looks like a giant light from Earth.
+  [t0.9 k40] The Moon is a star that grows in the northern Hemisphere, made up of two small stars called Arjuna and Lusatea. The stars are called by all the big white stars.
+
+### i had a bad day at school
+  [greedy] I'm sorry to hear that. What happened?
+  [t0.5 k40] I'm sorry to hear that. Did you have a bad day?
+  [t0.7 k40] I'm sorry to hear that. Did you have a tough day at school?
+  [t0.7 k40 rep1.15] I'm sorry to hear that. Did you have a tough day at school?
+  [t0.9 k40] I'm sorry to hear that. Did you learn anything new today?
+
+### can you tell me a joke
+  [greedy] Why did the husky go to school? To get a paws-itive answer: to get a paws-itive answer: to get a paws-itive answer: to get paws-itive answer: to get paws-itive answer: to get paws-itive answer: to get paws-itive answer: to get paws-itive answer: to get paws [cut]
+  [t0.5 k40] Why did the husky go to school? To get better at fetch!
+  [t0.7 k40] Why did the husky go outside? To get his paws wet!
+  [t0.7 k40 rep1.15] Why did the husky go outside? To get his paws wet!
+  [t0.9 k40] Why did the husky go outside? Because he wanted to chase other dogs in the snow!
+
+### who was george washington
+  [greedy] He was a U.S. Representative.
+  [t0.5 k40] He was a politician.
+  [t0.7 k40] He was a baseball player and manager.
+  [t0.7 k40 rep1.15] He was a baseball player and manager.
+  [t0.9 k40] He was a baseball player and manager.
+
+### what should i do when i am bored
+  [greedy] Why not try a puzzle or a book? They're fun and easy to read!
+  [t0.5 k40] Why not try a puzzle or a book? They're always fun and good for you.
+  [t0.7 k40] Why not try a puzzle or a game? It can be fun even if you're not into it.
+  [t0.7 k40 rep1.15] Why not try a puzzle or draw a picture? Sometimes it helps to relax.
+  [t0.9 k40] Why not try drawing or reading a book? You could try outside where the teacher is there for you.
+
+### what is a husky
+  [greedy] A husky is a big, friendly dog with a thick coat and a wagging tail. They're great for cold climates and love to run.
+  [t0.5 k40] A husky is a big friendly dog known for being energetic and having a great sense of humor.
+  [t0.7 k40] A husky is a big friendly dog known for being energetic and having a great sense of humor.
+  [t0.7 k40 rep1.15] A husky is a big friendly dog known for being energetic and having a great sense of humor.
+  [t0.9 k40] A husky is a big friendly dog known for being energetic and eating seafood. They love to run and play in the water.
+
+### why do cats purr
+  [greedy] Cats purr when happy or feel happy. It's like a warm hug from the outside.
+  [t0.5 k40] Cats purr when they're happy or sad. It's like they're happy or relaxed.
+  [t0.7 k40] Cats purr when they're happy or sad. They have feelings, feeling happy and calm.
+  [t0.7 k40 rep1.15] Cats purr when they're happy or feel happy, playful.
+  [t0.9 k40] Cats purr when they're happy or sad. They have enough insulation.

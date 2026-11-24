@@ -1,0 +1,141 @@
+{
+ "name": "d_pkg_tern_192_facts",
+ "val_nats_per_token": 2.0194,
+ "val_bits_per_char": 0.8025,
+ "val_by_domain": {
+  "chat": {
+   "nats_per_token": 1.6485,
+   "bits_per_char": 0.6166
+  },
+  "facts": {
+   "nats_per_token": 3.0169,
+   "bits_per_char": 1.3486
+  },
+  "stories": {
+   "nats_per_token": 1.7638,
+   "bits_per_char": 0.6685
+  }
+ },
+ "train_loss_first": 8.5279,
+ "train_loss_last": 1.7367,
+ "steps": 15000,
+ "train_tokens": 491520000,
+ "train_tokens_facts": 122880000,
+ "wall_s": 2697.2,
+ "train_tokens_per_s": 182235,
+ "params": {
+  "total": 64788561,
+  "tables": 25952256,
+  "matrices": 38836305
+ },
+ "expert_usage_entropy": 0.9844762682914734,
+ "gba": {
+  "cycles_per_token": 4302632,
+  "gba_tokens_per_s": 3.9,
+  "gba_tokens_per_s_two_step_head": 5.8,
+  "active_weights": 1671168,
+  "stored_weights": 38830080,
+  "rom_mb": 22.01
+ },
+ "facts": {
+  "trained_wording": {
+   "recall_among_values": 0.9994,
+   "next_token_top1": 0.9994,
+   "bits_per_fact": 4.164,
+   "probes": 1800
+  },
+  "wording_unseen_for_this_person": {
+   "recall_among_values": 0.996,
+   "next_token_top1": 0.997,
+   "bits_per_fact": 4.125,
+   "probes": 990
+  },
+  "chance": 0.0583,
+  "facts": 30000,
+  "bits_available_per_fact": 4.174
+ },
+ "fact_exposures": 292.3,
+ "device": "cuda",
+ "config": {
+  "V": 4096,
+  "D": 192,
+  "L": 4,
+  "T": 256,
+  "NH": 4,
+  "DK": 96,
+  "DV": 96,
+  "mlp": "moe",
+  "HD": 384,
+  "E": 64,
+  "router": "token",
+  "moe_aux": 0.01,
+  "tie_head": false,
+  "head": "flat",
+  "head_clusters": "kmeans",
+  "head_short": 0,
+  "head_C": 0,
+  "att_layers": null,
+  "mixer": "none",
+  "x0_mix": false,
+  "copy_head": true,
+  "hashmem_heads": 0,
+  "hashmem_bits": 14,
+  "hashmem_layers": [],
+  "wq": "tern",
+  "arenas": false,
+  "arenas_frac": 0.6,
+  "int8_parts": [],
+  "wq_start_frac": 0.0,
+  "wq_lr_mult": 10,
+  "row_gain": true,
+  "aq": 0,
+  "keyq": "none",
+  "rescore_m": 32,
+  "att_bias": false,
+  "topk": 8,
+  "inject": [
+   {
+    "kind": "bigram",
+    "rows": 32768,
+    "layers": [
+     0,
+     2
+    ],
+    "gate": false,
+    "bits": 4
+   },
+   {
+    "kind": "trigram",
+    "rows": 32768,
+    "layers": [
+     0,
+     2
+    ],
+    "gate": false,
+    "bits": 4
+   }
+  ],
+  "seed": 1,
+  "opt": "adamw",
+  "muon_lr": 0.02,
+  "lr": 0.002,
+  "wd": 0.05,
+  "wd_off_frac": 1.0,
+  "table_lr_mult": 5,
+  "warmup": 500,
+  "steps": 15000,
+  "batch": 128,
+  "eval_every": 3000,
+  "val_seqs": 512,
+  "data": "mix0",
+  "mix": {
+   "chat": 0.5,
+   "facts": 0.25,
+   "stories": 0.25
+  },
+  "facts_n": 5000,
+  "facts_frac": 0.25,
+  "facts_marker": false,
+  "name": "d_pkg_tern_192_facts"
+ }
+}

@@ -1,0 +1,66 @@
+{
+ "GPT-2 small": {
+  "params": 124439808,
+  "bytes_fp32": 497759232,
+  "bytes_8bit": 124439808,
+  "cpu_tokens_per_s": 64.7,
+  "context": 1024,
+  "vocab": 50257
+ },
+ "SmolLM2-135M": {
+  "params": 134515008,
+  "bytes_fp32": 538060032,
+  "bytes_8bit": 134515008,
+  "cpu_tokens_per_s": 41.7,
+  "context": 8192,
+  "vocab": 49152
+ },
+ "SmolLM2-135M-Instruct": {
+  "params": 134515008,
+  "bytes_fp32": 538060032,
+  "bytes_8bit": 134515008,
+  "cpu_tokens_per_s": 47.4,
+  "context": 8192,
+  "vocab": 49152
+ },
+ "TinyStories-33M": {
+  "params": 68514048,
+  "bytes_fp32": 274056192,
+  "bytes_8bit": 68514048,
+  "cpu_tokens_per_s": 128.8,
+  "context": 2048,
+  "vocab": 50257
+ },
+ "TinyStories-8M": {
+  "params": 19702528,
+  "bytes_fp32": 78810112,
+  "bytes_8bit": 19702528,
+  "cpu_tokens_per_s": 243.5,
+  "context": 2048,
+  "vocab": 50257
+ },
+ "TinyStories-1M": {
+  "params": 3745984,
+  "bytes_fp32": 14983936,
+  "bytes_8bit": 3745984,
+  "cpu_tokens_per_s": 366.7,
+  "context": 2048,
+  "vocab": 50257
+ },
+ "Koko": {
+  "params": {
+   "total": 93093137,
+   "tables": 20971520,
+   "matrices": 72121617
+  },
+  "rom_bytes": 33296384,
+  "blob_bytes": 33256212,
+  "cpu_tokens_per_s_native_1thread": 1471.4,
+  "gba_tokens_per_s": [
+   3.5,
+   2.9
+  ],
+  "context": 256,
+  "vocab": 16384
+ }
+}

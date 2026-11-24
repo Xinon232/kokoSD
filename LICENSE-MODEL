@@ -1,0 +1,12 @@
+Koko model weights, fact table and artwork
+
+Copyright (c) 2026 The Koko authors
+
+The trained model weights, the tokenizer (artifacts/), the fact table and the drawing of Koko that are built into
+koko.gba and into the browser version (koko.bin) are licensed under the Creative Commons Attribution-ShareAlike 4.0 International
+License. To view a copy of this license, visit https://creativecommons.org/licenses/by-sa/4.0/
+
+The fact table is text from Simple English Wikipedia by its contributors (CC BY-SA), shortened and cleaned.
+See CREDITS for the data the model was trained on and its licences.
+
+The program code is licensed separately under the MIT License (see LICENSE).

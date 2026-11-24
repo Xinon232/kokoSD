@@ -1,0 +1,128 @@
+{
+ "name": "f_E128_H256",
+ "val_nats_per_token": 1.9585,
+ "val_bits_per_char": 0.7783,
+ "val_by_domain": {
+  "chat": {
+   "nats_per_token": 1.5863,
+   "bits_per_char": 0.5933
+  },
+  "facts": {
+   "nats_per_token": 2.9421,
+   "bits_per_char": 1.3152
+  },
+  "stories": {
+   "nats_per_token": 1.7193,
+   "bits_per_char": 0.6517
+  }
+ },
+ "train_loss_first": 8.5546,
+ "train_loss_last": 1.8855,
+ "steps": 15000,
+ "train_tokens": 491520000,
+ "train_tokens_facts": 0,
+ "wall_s": 1438.7,
+ "train_tokens_per_s": 341653,
+ "params": {
+  "total": 103165705,
+  "tables": 34603008,
+  "matrices": 68562697
+ },
+ "expert_usage_entropy": 0.9672333598136902,
+ "gba": {
+  "cycles_per_token": 4307368,
+  "gba_tokens_per_s": 3.9,
+  "gba_tokens_per_s_two_step_head": 6.81,
+  "active_weights": 1966080,
+  "stored_weights": 68550656,
+  "rom_mb": 33.34
+ },
+ "facts": null,
+ "fact_exposures": null,
+ "device": "cuda",
+ "config": {
+  "V": 4096,
+  "D": 256,
+  "L": 4,
+  "T": 256,
+  "NH": 4,
+  "DK": 256,
+  "DV": 128,
+  "mlp": "moe",
+  "HD": 256,
+  "E": 128,
+  "router": "token",
+  "moe_aux": 0.01,
+  "tie_head": false,
+  "head": "flat",
+  "head_clusters": "kmeans",
+  "head_short": 0,
+  "head_C": 0,
+  "att_layers": [
+   2,
+   3
+  ],
+  "mixer": "diag",
+  "x0_mix": false,
+  "copy_head": true,
+  "hashmem_heads": 0,
+  "hashmem_bits": 14,
+  "hashmem_layers": [],
+  "wq": "tern",
+  "arenas": false,
+  "arenas_frac": 0.6,
+  "int8_parts": [],
+  "wq_start_frac": 0.0,
+  "wq_lr_mult": 10,
+  "row_gain": true,
+  "aq": 0,
+  "keyq": "sign",
+  "rescore_m": 32,
+  "att_bias": true,
+  "topk": 8,
+  "inject": [
+   {
+    "kind": "bigram",
+    "rows": 32768,
+    "layers": [
+     0,
+     2
+    ],
+    "gate": false,
+    "bits": 4
+   },
+   {
+    "kind": "trigram",
+    "rows": 32768,
+    "layers": [
+     0,
+     2
+    ],
+    "gate": false,
+    "bits": 4
+   }
+  ],
+  "seed": 1,
+  "opt": "adamw",
+  "muon_lr": 0.02,
+  "lr": 0.002,
+  "wd": 0.05,
+  "wd_off_frac": 1.0,
+  "table_lr_mult": 5,
+  "warmup": 500,
+  "steps": 15000,
+  "batch": 128,
+  "eval_every": 3000,
+  "val_seqs": 512,
+  "data": "mix0",
+  "mix": {
+   "chat": 0.5,
+   "facts": 0.25,
+   "stories": 0.25
+  },
+  "facts_n": 0,
+  "facts_frac": 0.25,
+  "facts_marker": false,
+  "name": "f_E128_H256"
+ }
+}

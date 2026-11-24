@@ -1,0 +1,7 @@
+{
+ "base": "base.json",
+ "wq": "tern",
+ "wq_lr_mult": 10,
+ "keyq": "sign",
+ "topk": 8
+}

@@ -1,0 +1,53 @@
+<p><strong>Koko is a chatbot that fits on a Game Boy Advance cartridge.</strong> Type a message and Koko, a friendly husky, writes back at about three words a second. No internet, no helper chip: the language model itself is the game.</p>
+
+<p><strong>Play it above in your browser</strong>, or download the ROM for an emulator or flash cartridge. The browser version runs the same code and the same model on the same 240 x 160 screen. Only the keyboard is real.</p>
+
+<h2>What Koko does</h2>
+<ul>
+<li>Chats, tells short stories and jokes, and answers simple questions</li>
+<li>Suggests your next word while you type</li>
+<li>Answers "who was...?" and "what is...?" from a built-in table of 34,000 Wikipedia opening sentences</li>
+<li>Does sums exactly</li>
+</ul>
+
+<h2>Controls</h2>
+<table>
+<tr><th>Action</th><th>Game Boy Advance</th><th>Browser</th></tr>
+<tr><td>Type</td><td>D-pad and A</td><td>Your keyboard</td></tr>
+<tr><td>Send</td><td>START</td><td>Enter</td></tr>
+<tr><td>Accept a suggested word</td><td>L or R</td><td>Tab</td></tr>
+<tr><td>Delete, or stop Koko</td><td>B</td><td>Backspace, Esc</td></tr>
+<tr><td>Capitals</td><td>SELECT</td><td>Shift</td></tr>
+</table>
+
+<h2>By the numbers</h2>
+<table>
+<tr><th></th><th>Koko</th><th>TinyStories-33M</th><th>GPT-2 small</th><th>SmolLM2-135M</th></tr>
+<tr><td>Size</td><td><strong>32 MB</strong>, everything included</td><td>274 MB</td><td>498 MB</td><td>538 MB</td></tr>
+<tr><td>Training text</td><td>4.8 billion tokens</td><td>not published</td><td>40 GB of web pages</td><td>2,000 billion tokens</td></tr>
+<tr><td>Training hardware</td><td>about 13 hours on one gaming GPU</td><td>up to 30 hours on one V100</td><td>not published</td><td>64 H100 GPUs</td></tr>
+<tr><td>Runs on</td><td>a 16.78 MHz handheld from 2001</td><td>a PC</td><td>a PC</td><td>a PC or phone</td></tr>
+</table>
+<p>In blind comparisons, AI judges preferred Koko's chat replies to SmolLM2-135M-Instruct's on 18 of 20 messages, and its stories to GPT-2's on 19 of 20. On general knowledge Koko loses clearly: 22 of 60 questions right against SmolLM2's 43.</p>
+
+<h2>What it took to make</h2>
+<ul>
+<li><strong>Training the weights on the cartridge:</strong> about 13 GPU-hours on RTX 5090s. This is the figure in the table above.</li>
+<li><strong>All training experiments:</strong> 19 runs, about 35 GPU-hours, plus GPU time for writing the training conversations.</li>
+<li><strong>AI coding assistant:</strong> the code, training setup and tests were written with Claude over three days.</li>
+</ul>
+
+<h2>Honest notes</h2>
+<ul>
+<li>Koko is tiny and often wrong.</li>
+<li>Replies marked with a small book come from the fact table, and those with an equals box are calculated. Everything else is the model. Press the book key to turn the helpers off.</li>
+<li>It understands plain English letters, digits and basic punctuation, and remembers about the last 190 words.</li>
+<li>The judges were AI, not people, and the test messages were the kind Koko was trained for. Sizes for the other models are their full 32-bit files.</li>
+<li>It has run on a real Game Boy Advance from a flash cartridge, and is tested in the mGBA emulator.</li>
+</ul>
+
+<h2>Open source</h2>
+<p>The code is MIT licensed. The model weights, fact table and artwork are CC BY-SA 4.0. The full source, including the training code and every test, is in the source download.</p>
+
+<h2>Credits</h2>
+<p>Fact table text from Simple English Wikipedia (CC BY-SA). Font: Inter (SIL Open Font License). Trained on TinyStories, SODA, TinyDialogues, Everyday Conversations, Simple English Wikipedia and conversations written by Qwen2.5-7B-Instruct. Full credits are in the download. Game Boy Advance is a trademark of Nintendo; this is an unofficial hobby project.</p>

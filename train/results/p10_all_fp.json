@@ -1,0 +1,88 @@
+{
+ "name": "p10_all_fp",
+ "val_nats_per_token": 1.7103,
+ "val_bits_per_char": 0.6229,
+ "train_loss_first": 8.8211,
+ "train_loss_last": 1.6793,
+ "steps": 15000,
+ "train_tokens": 491520000,
+ "wall_s": 1131.3,
+ "train_tokens_per_s": 434458,
+ "params": {
+  "total": 72746128,
+  "tables": 71827456,
+  "matrices": 918672
+ },
+ "expert_usage_entropy": null,
+ "gba": {
+  "cycles_per_token": 3543000,
+  "gba_tokens_per_s": 4.74,
+  "active_weights": 409600,
+  "stored_weights": 917504,
+  "rom_mb": 69.38
+ },
+ "device": "cuda",
+ "config": {
+  "V": 4096,
+  "D": 128,
+  "L": 4,
+  "T": 256,
+  "NH": 4,
+  "DK": 64,
+  "DV": 64,
+  "mlp": "dense",
+  "HD": 256,
+  "E": 16,
+  "moe_aux": 0.01,
+  "tie_head": false,
+  "wq": "fp",
+  "arenas": false,
+  "arenas_frac": 0.6,
+  "wq_start_frac": 0.0,
+  "wq_lr_mult": 1.0,
+  "aq": 0,
+  "keyq": "sign",
+  "topk": 8,
+  "inject": [
+   {
+    "kind": "tok",
+    "rows": 4096,
+    "layers": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "gate": true
+   },
+   {
+    "kind": "bigram",
+    "rows": 65536,
+    "layers": [
+     0,
+     2
+    ],
+    "gate": true
+   },
+   {
+    "kind": "trigram",
+    "rows": 65536,
+    "layers": [
+     0,
+     2
+    ],
+    "gate": true
+   }
+  ],
+  "seed": 1,
+  "lr": 0.002,
+  "wd": 0.05,
+  "warmup": 500,
+  "steps": 15000,
+  "batch": 128,
+  "eval_every": 3000,
+  "val_seqs": 512,
+  "data": "tinystories",
+  "name": "p10_all_fp"
+ }
+}

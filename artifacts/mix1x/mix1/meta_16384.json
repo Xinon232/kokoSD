@@ -1,0 +1,81 @@
+{
+ "vocab": 16384,
+ "name": "mix1",
+ "eot_id": 0,
+ "user_id": 1,
+ "koko_id": 2,
+ "domains": {
+  "koko": {
+   "train": {
+    "tokens": 93289509,
+    "stories": 1725384,
+    "chars": 396730873,
+    "bytes": 396730873,
+    "chars_per_token": 4.252684803525816,
+    "bytes_per_token": 4.252684803525816
+   },
+   "val": {
+    "tokens": 319983,
+    "stories": 6000,
+    "chars": 1360872,
+    "bytes": 1360872,
+    "chars_per_token": 4.252964229237895,
+    "bytes_per_token": 4.252964229237895
+   }
+  },
+  "chat": {
+   "train": {
+    "tokens": 157501576,
+    "stories": 1041639,
+    "chars": 651370840,
+    "bytes": 651370840,
+    "chars_per_token": 4.1356465165507075,
+    "bytes_per_token": 4.1356465165507075
+   },
+   "val": {
+    "tokens": 908934,
+    "stories": 6000,
+    "chars": 3767445,
+    "bytes": 3767445,
+    "chars_per_token": 4.144909470775073,
+    "bytes_per_token": 4.144909470775073
+   }
+  },
+  "facts": {
+   "train": {
+    "tokens": 22343262,
+    "stories": 150722,
+    "chars": 91902072,
+    "bytes": 91902072,
+    "chars_per_token": 4.113189744326041,
+    "bytes_per_token": 4.113189744326041
+   },
+   "val": {
+    "tokens": 464402,
+    "stories": 3075,
+    "chars": 1910284,
+    "bytes": 1910284,
+    "chars_per_token": 4.113436448241929,
+    "bytes_per_token": 4.113436448241929
+   }
+  },
+  "stories": {
+   "train": {
+    "tokens": 239808717,
+    "stories": 1214398,
+    "chars": 977158987,
+    "bytes": 977159498,
+    "chars_per_token": 4.07474341758287,
+    "bytes_per_token": 4.074745548447872
+   },
+   "val": {
+    "tokens": 1193544,
+    "stories": 6000,
+    "chars": 4857870,
+    "bytes": 4857871,
+    "chars_per_token": 4.070125667864501,
+    "bytes_per_token": 4.070126505706121
+   }
+  }
+ }
+}

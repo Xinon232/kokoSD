@@ -1,0 +1,29 @@
+# build outputs (make, engine/build_game.py, web/build.sh)
+/build/
+/out/
+/web/artifact/
+*.o
+*.elf
+*.map
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# downloads, datasets, caches, checkpoints and intermediate data
+/dl/
+/train/data/
+/train/runs/
+/scoreboard/hf/
+/artifacts/data/
+/artifacts/models/*/*.pt
+/artifacts/models/*/*.tar
+/artifacts/mix1x/mix1/*.bin
+/engine/*.pkl
+/study/*.pt
+/study/*.npy
+/gen/model_data.c
+/gen/model_data.h
+gen_out/
+*.log

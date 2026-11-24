@@ -1,0 +1,114 @@
+{
+ "run": "h_koko_L8",
+ "score": {
+  "capital": [
+   182,
+   183
+  ],
+  "continent": [
+   192,
+   192
+  ],
+  "language": [
+   186,
+   186
+  ],
+  "currency": [
+   169,
+   169
+  ],
+  "state capital": [
+   50,
+   50
+  ],
+  "arithmetic plus": [
+   21,
+   80
+  ],
+  "arithmetic minus": [
+   13,
+   80
+  ],
+  "arithmetic times": [
+   80,
+   80
+  ],
+  "calendar": [
+   27,
+   27
+  ]
+ },
+ "wrong": {
+  "capital": [
+   [
+    "What is the capital of Georgia?",
+    "Tbilisi",
+    "The capital of Georgia is Atlanta."
+   ]
+  ],
+  "arithmetic plus": [
+   [
+    "What is 20 plus 9?",
+    "29",
+    "That's 32."
+   ],
+   [
+    "What is 3 plus 4?",
+    "7",
+    "3 plus 4 is 6."
+   ],
+   [
+    "What is 34 plus 6?",
+    "40",
+    "34 plus 6 is 42."
+   ],
+   [
+    "What is 23 plus 37?",
+    "60",
+    "23 + 37 = 58."
+   ],
+   [
+    "What is 3 plus 32?",
+    "35",
+    "3 plus 32 is 36."
+   ],
+   [
+    "What is 13 plus 2?",
+    "15",
+    "13 plus 2 is 12."
+   ]
+  ],
+  "arithmetic minus": [
+   [
+    "What is 45 minus 17?",
+    "28",
+    "45 minus 17 is 30."
+   ],
+   [
+    "What is 56 minus 43?",
+    "13",
+    "56 - 43 = 14."
+   ],
+   [
+    "What is 24 minus 14?",
+    "10",
+    "24 minus 14 is 6."
+   ],
+   [
+    "What is 9 minus 5?",
+    "4",
+    "9 - 5 = 0."
+   ],
+   [
+    "What is 11 minus 9?",
+    "2",
+    "1."
+   ],
+   [
+    "What is 42 minus 14?",
+    "28",
+    "42 - 14 = 30."
+   ]
+  ]
+ }
+}

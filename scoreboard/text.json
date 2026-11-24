@@ -1,0 +1,101 @@
+{
+ "n": 200,
+ "results": {
+  "Koko (cartridge, 2-bit)": {
+   "stories": {
+    "bits_per_char": 0.5454,
+    "tokens": 37168,
+    "chars": 152608
+   },
+   "facts": {
+    "bits_per_char": 1.1777,
+    "tokens": 29978,
+    "chars": 124947
+   }
+  },
+  "Koko full-precision twin": {
+   "stories": {
+    "bits_per_char": 0.4961,
+    "tokens": 37168,
+    "chars": 152608
+   },
+   "facts": {
+    "bits_per_char": 1.1761,
+    "tokens": 29978,
+    "chars": 124947
+   }
+  },
+  "GPT-2 small": {
+   "stories": {
+    "bits_per_char": 0.862,
+    "tokens": 37395,
+    "chars": 152608
+   },
+   "facts": {
+    "bits_per_char": 1.0031,
+    "tokens": 27873,
+    "chars": 124947
+   }
+  },
+  "SmolLM2-135M": {
+   "stories": {
+    "bits_per_char": 0.6948,
+    "tokens": 37491,
+    "chars": 152608
+   },
+   "facts": {
+    "bits_per_char": 0.898,
+    "tokens": 30986,
+    "chars": 124947
+   }
+  },
+  "SmolLM2-135M-Instruct": {
+   "stories": {
+    "bits_per_char": 0.7311,
+    "tokens": 37491,
+    "chars": 152608
+   },
+   "facts": {
+    "bits_per_char": 0.9812,
+    "tokens": 30986,
+    "chars": 124947
+   }
+  },
+  "TinyStories-33M": {
+   "stories": {
+    "bits_per_char": 0.4348,
+    "tokens": 37395,
+    "chars": 152608
+   },
+   "facts": {
+    "bits_per_char": 3.1189,
+    "tokens": 27873,
+    "chars": 124947
+   }
+  },
+  "TinyStories-8M": {
+   "stories": {
+    "bits_per_char": 0.5134,
+    "tokens": 37395,
+    "chars": 152608
+   },
+   "facts": {
+    "bits_per_char": 2.8337,
+    "tokens": 27873,
+    "chars": 124947
+   }
+  },
+  "TinyStories-1M": {
+   "stories": {
+    "bits_per_char": 0.7808,
+    "tokens": 37395,
+    "chars": 152608
+   },
+   "facts": {
+    "bits_per_char": 2.8919,
+    "tokens": 27873,
+    "chars": 124947
+   }
+  }
+ }
+}

@@ -1,0 +1,88 @@
+{
+ "name": "p12_all_sherry_wide",
+ "val_nats_per_token": 1.8169,
+ "val_bits_per_char": 0.6617,
+ "train_loss_first": 9.8693,
+ "train_loss_last": 1.7871,
+ "steps": 15000,
+ "train_tokens": 491520000,
+ "wall_s": 1488.2,
+ "train_tokens_per_s": 330278,
+ "params": {
+  "total": 109315792,
+  "tables": 107741184,
+  "matrices": 1574608
+ },
+ "expert_usage_entropy": null,
+ "gba": {
+  "cycles_per_token": 2007864,
+  "gba_tokens_per_s": 8.36,
+  "active_weights": 811008,
+  "stored_weights": 1572864,
+  "rom_mb": 103.12
+ },
+ "device": "cuda",
+ "config": {
+  "V": 4096,
+  "D": 192,
+  "L": 4,
+  "T": 256,
+  "NH": 4,
+  "DK": 64,
+  "DV": 64,
+  "mlp": "dense",
+  "HD": 384,
+  "E": 16,
+  "moe_aux": 0.01,
+  "tie_head": false,
+  "wq": "sherry",
+  "arenas": true,
+  "arenas_frac": 0.6,
+  "wq_start_frac": 0.0,
+  "wq_lr_mult": 3,
+  "aq": 8,
+  "keyq": "sign",
+  "topk": 8,
+  "inject": [
+   {
+    "kind": "tok",
+    "rows": 4096,
+    "layers": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "gate": true
+   },
+   {
+    "kind": "bigram",
+    "rows": 65536,
+    "layers": [
+     0,
+     2
+    ],
+    "gate": true
+   },
+   {
+    "kind": "trigram",
+    "rows": 65536,
+    "layers": [
+     0,
+     2
+    ],
+    "gate": true
+   }
+  ],
+  "seed": 1,
+  "lr": 0.002,
+  "wd": 0.05,
+  "warmup": 500,
+  "steps": 15000,
+  "batch": 128,
+  "eval_every": 3000,
+  "val_seqs": 512,
+  "data": "tinystories",
+  "name": "p12_all_sherry_wide"
+ }
+}

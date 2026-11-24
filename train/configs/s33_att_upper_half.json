@@ -1,0 +1,8 @@
+{
+ "base": "base.json",
+ "att_layers": [
+  2,
+  3
+ ],
+ "mixer": "diag"
+}
