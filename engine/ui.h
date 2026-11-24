@@ -13,6 +13,7 @@ extern uint8_t ui_fb[240 * 160];                 /* the screen, when it is not t
 #define UI_MSG_MAX 56                            /* bytes in a message (UTF-8: an accented letter takes 2) */
 extern void (*ui_yield)(void);                   /* optional hook called during long redraws */
 void ui_init(void);                              /* palette values and a cleared screen */
+void ui_boot(const char *what, const char *detail);   /* kokoSD 1.1: a start-up step on the screen */
 void ui_helpers(int on);                         /* off: "Facts off" in the header (every word from the model) */
 void ui_title(void);                             /* title screen: the name, "Press START" */
 void ui_title_prompt(int on);                    /* blink the prompt */

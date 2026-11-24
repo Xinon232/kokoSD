@@ -134,6 +134,13 @@ void ui_title(void) {
     small_centre(146, "START+SELECT while typing: menu", C_GREY);
 }
 
+/* kokoSD 1.1: what the start is doing (finding the SD card and the fact file take a moment). */
+void ui_boot(const char *what, const char *detail) {
+    fill(0, 0, 240, 160, C_WHITE);
+    small_centre(5, "kokoSD 1.1.1", C_BLACK);
+    centre(64, what, C_BLACK);
+    if (detail && *detail) small_centre(88, small_fit(detail, 228), C_GREY);
+}
 void ui_init(void) {
     for (int i = 0; i < UI_PAL_N; i++) ui_pal[i] = i < P_N ? PAL_RGB[i] : C_WHITE;
     fill(0, 0, 240, 160, C_WHITE);
