@@ -47,6 +47,7 @@ static void consume(void *,InputEvent e){
  if(!ok){input->reject_edit();flags|=WRITER_FULL;}
 }
 extern "C" void writer_begin(const char *initial){
+ /* (kokoSD 1.1.3: writer_frame's chord replay starts from no buttons held) */
  if(!input){input=new(input_mem) InputState();model=new(text_mem) TextModel();}
  else{*input=InputState();}
  model->set_text(initial?initial:"");model->move_end();provisional=false;
@@ -55,7 +56,17 @@ extern "C" unsigned writer_frame(uint16_t g){
  /* GBA: A B SELECT START RIGHT LEFT UP DOWN R L -> Writer: UP DOWN LEFT RIGHT A B L R START SELECT */
  uint16_t h=0;
  if(g&64)h|=1;if(g&128)h|=2;if(g&32)h|=4;if(g&16)h|=8;if(g&1)h|=16;if(g&2)h|=32;if(g&512)h|=64;if(g&256)h|=128;if(g&8)h|=256;if(g&4)h|=512;
- flags=0;input->update(h,consume,nullptr);return flags;
+ flags=0;
+ /* kokoSD 1.1.3: START pressed while L or R is already held (and nothing else) is the suggestion chord too. The
+  * engine takes START+L / START+R only with START first; otherwise START alone sent the message. Replay it in
+  * that order: START with L/R (which ends a pending R tap), L/R let go, then pressed again with START held. */
+ static uint16_t last;
+ const uint16_t LR=64|128,START_=256;
+ if((h&START_)&&!(last&START_)&&(last&LR)&&(h&LR)==(last&LR)&&!(h&~(LR|START_))){
+  input->update(h,consume,nullptr);
+  input->update((uint16_t)(h&~LR),consume,nullptr);
+ }
+ input->update(h,consume,nullptr);last=h;return flags;
 }
 extern "C" const char *writer_text(void){return model->data();}
 extern "C" unsigned writer_caret(void){return (unsigned)model->caret_byte();}

@@ -138,6 +138,14 @@ t = turns_of(r['hist'])
 check(t[0][0] == f'what is the {got[0]} of france?', f"typed message with an accepted suggestion: {t[0][0]!r} -> {t[0][1].strip()!r}")
 check(native_reply(r['hist'], r['seed']), 'reply identical to the native engine')
 
+# 2b. kokoSD 1.1.3: L or R held first, then START, is the same chord (it used to send the message);
+#     R released after it must not capitalise the next letter
+h = Pad.h
+r = run('koko_lr_first', typed + [IDLE] + h(R, 4) + h(R | START, 4) + h(R, 3) + h(0, 4) + pad.text('of ') + [IDLE] + h(L, 4) + h(L | START, 4) + h(START, 3) + h(0, 4) + pad.text('x') + [f'k:{START}'], 1)
+t = turns_of(r['hist'])
+w = t[0][0].split(' ') if t else []
+check(len(w) == 7 and ' '.join(w[:5]) == f'what is the {got[1]} of' and w[5] and w[6] == 'x',
+      f"R then START took the second suggestion, L then START a first one, no capital after R: {t[0][0] if t else None!r}")
 # 3. delete back into a finished word, retype, send
 pad = Pad()
 steps = pad.text('i like cats ') + [IDLE] + pad.text('\b' * 5) + pad.text('dogs') + [f'k:{START}']

@@ -176,14 +176,14 @@ static const char HOW_TO_TYPE[] =
     "SELECT alone types a dot. Keep SELECT held and press Up / Down for digits, R / L for , ' \" : ! ? "
     "and Right / Left for ( ) / ; @ # % & _ + = -.\n\n"
     "START: send. START on an empty line: a ready-made message (START again sends it).\n\n"
-    "Hold START and press L or R: the first or second suggested word. Hold START and press Left / Right: "
+    "START with L or R (in either order): the first or second suggested word. Hold START and press Left / Right: "
     "move the cursor. START + SELECT: this menu.\n\n"
     "Accents: keep the letter's buttons held and press SELECT; SELECT again gives the next one (e: é è ë ê). "
     "They are shown as typed; Koko reads them as plain letters (é as e).\n\n"
     "B while Koko writes: stop him.\n\n"
     "The same typing as gbawriter, gbamp3 and the other apps.";
 static const char ABOUT[] =
-    "kokoSD 1.1.2: Koko the Chatbot with an SD card.\n\n"
+    "kokoSD 1.1.3: Koko the Chatbot with an SD card.\n\n"
     "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
     "Game Boy Advance itself.\n"
     "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "
@@ -368,7 +368,7 @@ static void exchange(void) {
     REG_TM2CNT_H = 0x0083;                        /* 16.78 MHz / 1024 */
     uint32_t t0 = ticks();
     int made = 0;
-    ui_header("B: stop");
+    if (helpers) ui_header(sdf_ready ? "looking up..." : "thinking...");   /* kokoSD 1.1.3: each phase is shown */
     static char ans[96] EW;
     int al = 0, an = 0, mark = 0, article = 0;
     if (helpers && sd_ready) {                           /* kokoSD: Tell me more */
@@ -396,6 +396,7 @@ static void exchange(void) {
         if (al) { an = koko_encode(ans, al, want, MSG_TOK); mark = 2; }
         else { an = fact_reply(plain, plen, want, MSG_TOK); al = an; mark = an ? 1 : 0; }   /* a fact the cartridge has on file */
     }
+    ui_header("B: stop");
     koko_reply_begin();                                  /* repeated-phrase rule on for this reply */
     ui_reply_start(mark);
     while (made < REPLY_MAX) {
