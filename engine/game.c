@@ -183,7 +183,7 @@ static const char HOW_TO_TYPE[] =
     "B while Koko writes: stop him.\n\n"
     "The same typing as gbawriter, gbamp3 and the other apps.";
 static const char ABOUT[] =
-    "kokoSD 1.1.1: Koko the Chatbot with an SD card.\n\n"
+    "kokoSD 1.1.2: Koko the Chatbot with an SD card.\n\n"
     "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
     "Game Boy Advance itself.\n"
     "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "
@@ -422,7 +422,9 @@ static void exchange(void) {
 }
 
 int main(void) {
-    REG_WAITCNT = 0x4317;                         /* fastest cartridge timing + prefetch */
+    /* kokoSD 1.1.2: the cartridge timing stays as the loader left it until the cart is known. The fastest timing
+     * (0x4317) is too fast for a SuperCard's SDRAM: there the first ROM read after it crashes the GBA (a blank
+     * screen), and SuperFW cannot patch the write out (it looks for the address as a constant). */
     REG_TM0CNT_L = 0; REG_TM0CNT_H = 0x0080;      /* free-running, feeds the random seed */
     REG_TM2CNT_H = 0; REG_TM3CNT_H = 0; REG_TM2CNT_L = 0; REG_TM3CNT_L = 0;
     REG_TM3CNT_H = 0x0084; REG_TM2CNT_H = 0x0083;  /* kokoSD: 1/16384 s from the start (debounce, editor frames) */
@@ -432,6 +434,7 @@ int main(void) {
     koko_reset();
     ui_boot("Looking for the SD card...", "");    /* kokoSD 1.1: each step is shown (a hang tells where) */
     sd_mount();                                   /* kokoSD: the SD card (0 without a card) */
+    if (cart_kind >= CART_EZFO) REG_WAITCNT = 0x4317;   /* Omega / EverDrive: fastest cartridge timing + prefetch */
     ui_boot(sd_ready ? "Opening the fact file..." : "No SD card found", sd_cart_name());
     sdf_open();                                   /* and its fact file /koko/facts.dat (0 without one) */
     dbg.sd = (uint32_t)sd_ready | (uint32_t)sdf_ready << 1 | (uint32_t)cart_kind << 8;

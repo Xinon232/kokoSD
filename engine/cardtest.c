@@ -67,7 +67,7 @@ static uint32_t run(uint32_t first, uint32_t span, unsigned count, int random, u
 }
 
 int main(void) {
-    REG_WAITCNT = 0x4317;
+    /* kokoSD 1.1.2: fastest cartridge timing only on an Omega / EverDrive (a SuperCard's SDRAM is too slow for it) */
     ui_init();
     for (int i = 0; i < UI_PAL_N; i++) PAL[i] = ui_pal[i];
     REG_DISPCNT = 0x0404;
@@ -76,7 +76,9 @@ int main(void) {
     ui_header("card test");
     ui_say(L_KOKO, "Card test: about 15 seconds.", 28); ui_redraw();
     char line[120], *p;
-    if (!sd_mount()) {
+    int mounted = sd_mount();
+    if (cart_kind >= CART_EZFO) REG_WAITCNT = 0x4317;
+    if (!mounted) {
         p = str(line, "No SD card or no file system on it ("); p = str(p, sd_cart_name()); p = str(p, ").");
         say(line, (int)(p - line));
         for (;;) {}
