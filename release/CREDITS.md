@@ -1,6 +1,7 @@
 # Koko the Chatbot: credits and licences
 
-Koko's code, model, drawing of Koko and screen design were made for this project.
+Koko's code, model, drawing of Koko and screen design were made for this project by **rdsilver**
+(https://rdsilver.itch.io/koko-the-chatbot). kokoSD is a modified version by Halim Jarrar (see README.md).
 
 ## Licence
 - **Code:** MIT License (see LICENSE). Copyright (c) 2026 The Koko authors.

@@ -1,8 +1,22 @@
 # kokoSD: Koko the Chatbot with an SD card
 
-kokoSD 1.2 is Koko (below) on SD-card flash carts: SuperCard SD, EZ-Flash Omega (and
-Definitive Edition, started from the SD card) and EverDrive GBA, through
-[gbaSD](https://github.com/Xinon232/gbaSD). GBA only (no browser version).
+**Koko the Chatbot** is a language model that runs on an unmodified Game Boy Advance:
+72 million two-bit weights in a 32 MB cartridge, writing about three words a second. Koko
+was made by **rdsilver** ([Koko the Chatbot on itch.io](https://rdsilver.itch.io/koko-the-chatbot)).
+All credit for the model, its training, the engine and Koko himself goes to them.
+
+**kokoSD** is a modified version of Koko for SD-card flash carts (SuperCard SD / SuperChis
+with SuperFW, EZ-Flash Omega and Definitive Edition started from the SD card, EverDrive GBA),
+through [gbaSD](https://github.com/Xinon232/gbaSD). It adds:
+- facts from all of Simple English Wikipedia on the SD card, and "tell me more" to read the article;
+- gbawriter typing (the button chords of gbamp3, gbawriter and the other apps), accented letters;
+- saved chats that carry on exactly where they were, scrolling, a START+SELECT menu;
+- the look of our other apps (gbamp3, gbawriter, gbavocab) and their two fonts.
+
+The model itself is Koko's, unchanged. GBA only (no browser version). kokoSD's changes are by
+Halim Jarrar; the original Koko README follows further down.
+
+Current version: **kokoSD 1.2**.
 
 ## What is new in 1.2
 - **Saved chats.** START+A saves the chat to the SD card (`/koko/chats/chatNNN.kch`, about
@@ -89,7 +103,13 @@ The dump is at dumps.wikimedia.org/simplewiki/latest/ (needs `pip install mwpars
 4 and 8 KB pieces from random places, and 8 KB pieces in a row), shows the time
 per read and saves the results to `/koko-cardtest.txt`. Nothing else is written.
 
-## Licence (kokoSD)
+## Licence and credits (kokoSD)
+Koko the Chatbot (code, model, weights, fact table, artwork): **rdsilver**,
+https://rdsilver.itch.io/koko-the-chatbot ("The Koko authors" in LICENSE and LICENSE-MODEL).
+kokoSD's additions: Halim Jarrar, with gbaSD, gbawriter's typing engine, gbamp3's text drawing and
+GBAVocab's accent folding (all Halim Jarrar, GPL-3.0-or-later) and the SuperFW font
+(David Guillen Fandos, GPL-3.0-or-later; UNSCII and GNU Unifont glyphs).
+
 gbaSD and the kokoSD additions are GPL-3.0-or-later (LICENSE-GPL), so the
 cartridge as a whole is distributed under GPL-3.0-or-later. Koko's own files keep
 their MIT licence (LICENSE); the weights, fact table and artwork stay
