@@ -1,8 +1,21 @@
 # kokoSD: Koko the Chatbot with an SD card
 
-kokoSD 1.1 is Koko (below) on SD-card flash carts: SuperCard SD, EZ-Flash Omega (and
+kokoSD 1.1.3 is Koko (below) on SD-card flash carts: SuperCard SD, EZ-Flash Omega (and
 Definitive Edition, started from the SD card) and EverDrive GBA, through
 [gbaSD](https://github.com/Xinon232/gbaSD). GBA only (no browser version).
+
+## What is new in 1.1.3 (tested on a SuperChis Prime with SuperFW)
+- **Starts on SuperCard-type carts.** Koko set the fastest cartridge timing on its first
+  instruction; a SuperCard / SuperChis cannot read that fast, so the GBA crashed at once
+  (blank screen). SuperFW could not patch it out (the write was built from 0x04000200 + 4).
+  The fast timing is now set only on an EZ-Flash Omega or EverDrive.
+- **Nintendo logo in the header** (devkitPro's gbafix), so a start through the BIOS works.
+- **Start-up steps on screen:** "Looking for the SD card...", "Opening the fact file...".
+- **START with L or R in either order** takes a suggested word (L or R a moment before
+  START used to send the half-typed message).
+- **B always stops Koko:** presses made while he writes no longer push B out of the queue;
+  B while he still reads the message means no reply. The header shows the phase
+  (reading..., looking up..., B: stop).
 
 ## What is new in 1.1
 - **The look of our other apps** (gbamp3, gbawriter, gbavocab): white screen, black text, the

@@ -81,6 +81,15 @@ static void poll(void) {                          /* called often, also from ins
     keys_prev = k;
     if (d && kq_n < 16) { kq[(kq_head + kq_n) & 15] = d; kq_n++; }
 }
+/* kokoSD 1.1.3: while Koko answers, B must stop him even when other buttons were pressed first: every queued
+ * press is taken (the others mean nothing there) and B among them counts. Before, one press was taken per word,
+ * so B waited behind the others, and with 16 queued it was dropped: Koko could not be stopped. */
+static int b_pressed(void) {
+    int b = 0;
+    poll();
+    for (; kq_n; kq_n--, kq_head = (uint8_t)((kq_head + 1) & 15)) if (kq[kq_head] & BTN_B) b = 1;
+    return b;
+}
 static uint16_t keys_down(void) {                 /* the next queued press (0 if none) */
     poll();
     if (!kq_n) return 0;
@@ -397,9 +406,10 @@ static void exchange(void) {
         else { an = fact_reply(plain, plen, want, MSG_TOK); al = an; mark = an ? 1 : 0; }   /* a fact the cartridge has on file */
     }
     ui_header("B: stop");
+    int stopped = b_pressed();                           /* B while Koko was still reading: no reply */
     koko_reply_begin();                                  /* repeated-phrase rule on for this reply */
     ui_reply_start(mark);
-    while (made < REPLY_MAX) {
+    while (!stopped && made < REPLY_MAX) {
         int t;
         if (al) { if (made >= an) break; t = want[made]; }
         else t = koko_pick(&seed, INV_TEMP);
@@ -411,12 +421,12 @@ static void exchange(void) {
         feed(t);
         uint32_t el = ticks() - t0;
         dbg.made = (uint32_t)made; dbg.ticks = el;
-        if (keys_down() & BTN_B) break;
+        if (b_pressed()) { stopped = 1; break; }
     }
     koko_reply_end();
     ui_reply_button(0);
     ui_rate(made, ticks() - t0);
-    if (article) read_article();
+    if (article && !stopped) read_article();             /* B also means: no article */
     dbg.turns++;
     dbg.state = ST_DONE;
     mlen = 0; msg[0] = 0; plen = 0; plain[0] = 0;

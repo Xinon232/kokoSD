@@ -18,6 +18,7 @@ tok = tokenizer()
 ROM, DBG, HISTMAX = 'build/koko.gba', 0x02000000, 1024
 A, B, SELECT, START, RIGHT, LEFT, UP, DOWN, R, L = (1 << i for i in range(10))
 IDLE = f'until:{DBG + 4:#x}:3:4000'
+ST_DONE_ = 2
 BOOT = [f'until:{DBG + 4:#x}:7:6000', 'f:20', 'shot:out/koko_title.ppm', f'k:{START}', 'f:10']   # the title screen (state 7), then START
 
 
@@ -161,6 +162,17 @@ t = turns_of(r['hist'])
 print('   conversation:', [(a, b.strip()) for a, b in t])
 check(len(t) == 2 and t[1][0] == 'who are you', 'second turn arrived as typed')
 check(native_reply(r['hist'], r['seed']), 'second reply identical to the native engine')
+# 4b. kokoSD 1.1.3: B stops Koko even after many other presses during the reply (they used to fill the queue
+#     and B was dropped), and B while he still reads the message means no reply at all
+mash = [f'k:{[A, START, UP, R][i % 4]}' for i in range(20)]
+steps = BOOT + Pad().text('tell me a story about a fox') + [f'k:{START}', f'until:{DBG + 4:#x}:1:4000', 'f:120'] + mash + [f'k:{B}', 'f:40', f'dump:{DBG:#x}:44:out/mash.bin']
+subprocess.run([RUNNER, ROM] + steps, check=True)
+d = open('out/mash.bin', 'rb').read(); st, made = struct.unpack('I', d[4:8])[0], struct.unpack('I', d[24:28])[0]
+check(st == ST_DONE_ and made < 40, f'B after 20 other presses stops the reply (state {st}, {made} tokens)')
+steps = BOOT + Pad().text('tell me a story about a fox') + [f'k:{START}', f'k:{B}', f'until:{DBG + 12:#x}:1:4000', 'f:5', f'dump:{DBG:#x}:44:out/bstop.bin']
+subprocess.run([RUNNER, ROM] + steps, check=True)
+d = open('out/bstop.bin', 'rb').read()
+check(struct.unpack('I', d[24:28])[0] == 0, 'B while Koko reads the message: no reply')
 # 5. a sum is worked out by the game and said by Koko; the conversation then carries on
 pad = Pad()
 r = run('koko_sum', pad.text('what is 17 + 25?') + [f'k:{START}', f'until:{DBG + 12:#x}:1:400000', 'f:5'] + pad.text('thanks') + [f'k:{START}'], 2)

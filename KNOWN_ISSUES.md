@@ -1,12 +1,13 @@
-# kokoSD 1.1: known issues and open points
+# kokoSD 1.1.3: known issues and open points
 
-kokoSD 1.1 passes its emulator checks (engine/test_game.py: 27 checks on the
-SuperCard SD, EZ-Flash Omega and EverDrive GBA card models, 23 without a card), but it
-has **not been tested on real hardware yet**. These are known and not fixed yet:
+kokoSD 1.1.3 passes its emulator checks (engine/test_game.py: 30 checks on the
+SuperCard SD, EZ-Flash Omega and EverDrive GBA card models, 26 without a card) and about
+260 random button sessions without a hang. On real hardware it has run on a SuperChis
+Prime with SuperFW (start, typing, replies); the other carts are not tested yet. These are known and not fixed yet:
 
 ## Not verified yet
-- **Real hardware:** none of kokoSD (SD card, fact file, Tell me more, typing,
-  menu, the 1.1 screens) has run on a real GBA and cart.
+- **Real hardware:** only a SuperChis Prime (SuperFW) so far; EZ-Flash Omega and
+  EverDrive GBA are untested. Koko's speed on the SuperChis is not measured yet.
 - **SuperCard register windows:** how wide the SuperCard decodes its SD registers is
   assumed (1 MB each at 0x09000000, 0x09100000, 0x09800000). 1.1 maps the SD interface
   only during card access, which is safe whatever the width.
@@ -24,6 +25,10 @@ has **not been tested on real hardware yet**. These are known and not fixed yet:
   video frame; while the model works, up to 4 frames are given at once, so holding B
   (delete) can repeat a little unevenly during that time. No presses are lost.
 - **START+A and START+B** (save / back in gbawriter) do nothing in Koko.
+- **B while Koko reads a message** takes effect when the reading is done (each word not yet
+  read while typing takes about a third of a second); then no reply is written.
+- **SuperCard speed:** the cart runs at gbaSD's slower 4/2 timing (the emulator gives about
+  3.0 words a second there, 3.4 on an Omega).
 - **1.1 screens:** with the 16 px font the chat shows about 7 lines while typing (10
   before); older lines scroll away (the last 16 are kept). An article page takes about
   0.1 s to draw.
