@@ -1,10 +1,29 @@
 # kokoSD: Koko the Chatbot with an SD card
 
-kokoSD 1.0 is Koko (below) on SD-card flash carts: SuperCard SD, EZ-Flash Omega (and
+kokoSD 1.1 is Koko (below) on SD-card flash carts: SuperCard SD, EZ-Flash Omega (and
 Definitive Edition, started from the SD card) and EverDrive GBA, through
 [gbaSD](https://github.com/Xinon232/gbaSD). GBA only (no browser version).
 
-## What is new
+## What is new in 1.1
+- **The look of our other apps** (gbamp3, gbawriter, gbavocab): white screen, black text, the
+  name in the small font at the top, grey hints, the light blue selection bar, gbamp3's
+  Search field for typing. Only their two fonts are used: the SuperFW 16 px font for all
+  text to read and the 5x7 font for the header and hints (engine/text, from gbamp3 15.0).
+  Koko's portrait, snow, bubbles and Inter font are gone from the cartridge. Your lines
+  are on the right in grey, Koko's on the left in black; replies from the helpers are
+  marked "Fact" or "Sum".
+- **Accented letters** (gbawriter: keep the letter's buttons held and press SELECT) are
+  typed and shown as typed. Koko and the helpers read a plain-letter copy ("café in
+  München" -> "cafe in Munchen"; ß -> ss, æ -> ae, ø -> o; Greek and Cyrillic are left out),
+  since the model knows plain ASCII only.
+- **SuperCard fix.** gbaSD leaves the SuperCard's SD interface mapped into the ROM space;
+  while it is, the card's registers take the place of ROM at 0x09000000, 0x09100000 and
+  0x09800000, where Koko's 32 MB ROM keeps model data. kokoSD now maps the interface only
+  during each card read or write (engine/diskio.c). The emulator's SuperCard (test/runner.c)
+  now models this, assuming the registers decode a whole 1 MB each: kokoSD 1.0 gave
+  wrong replies there.
+
+## What is new in 1.0
 - **Facts from the SD card.** Copy `koko/facts.dat` to the folder `/koko` on the SD
   card. "who is X", "what is X", "tell me about X" are then answered from every
   usable Simple English Wikipedia article: 244,024 articles and 68,551 redirects
@@ -36,7 +55,7 @@ then build (devkitARM in /opt/devkitpro, Python 3 with numpy):
     python3 tools/build.py --cardtest           # -> build/koko-cardtest.gba
     python3 tools/build_runner.py               # emulator runners (libmgba), with gbaSD's card models
     python3 tools/facts_sd.py simplewiki-latest-pages-articles.xml.bz2   # -> out/koko/facts.dat
-    python3 engine/test_game.py                 # KOKO_RUNNER=build/runner-sc | -ezfo | -edgba
+    python3 engine/test_game.py                 # KOKO_RUNNER=build/runner-sc | -ezfo | -edgba | build/runner (no card)
 
 The dump is at dumps.wikimedia.org/simplewiki/latest/ (needs `pip install mwparserfromhell`).
 

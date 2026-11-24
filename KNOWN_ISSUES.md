@@ -1,12 +1,15 @@
-# kokoSD 1.0: known issues and open points
+# kokoSD 1.1: known issues and open points
 
-kokoSD 1.0 passes its emulator checks (engine/test_game.py: 25 checks on the
-SuperCard SD, EZ-Flash Omega and EverDrive GBA card models), but it has **not been
-tested on real hardware yet**. These are known and not fixed yet:
+kokoSD 1.1 passes its emulator checks (engine/test_game.py: 27 checks on the
+SuperCard SD, EZ-Flash Omega and EverDrive GBA card models, 23 without a card), but it
+has **not been tested on real hardware yet**. These are known and not fixed yet:
 
 ## Not verified yet
-- **Real hardware:** none of kokoSD 1.0 (SD card, fact file, Tell me more, typing,
-  menu) has run on a real GBA and cart.
+- **Real hardware:** none of kokoSD (SD card, fact file, Tell me more, typing,
+  menu, the 1.1 screens) has run on a real GBA and cart.
+- **SuperCard register windows:** how wide the SuperCard decodes its SD registers is
+  assumed (1 MB each at 0x09000000, 0x09100000, 0x09800000). 1.1 maps the SD interface
+  only during card access, which is safe whatever the width.
 - **Card speed:** `koko-cardtest.gba` results from real carts are still missing. The
   emulator's card models leave out the card's own delay, so lookup and start-up times
   on real cards are unknown (models: 0.6-1.1 ms per 0.5 KB read).
@@ -20,9 +23,10 @@ tested on real hardware yet**. These are known and not fixed yet:
 - **Typing while Koko reads in the background:** gbawriter's engine is updated once per
   video frame; while the model works, up to 4 frames are given at once, so holding B
   (delete) can repeat a little unevenly during that time. No presses are lost.
-- **Accented letters** (gbawriter's SELECT conversions such as e -> é) are refused
-  without a message, because Koko reads plain ASCII only.
 - **START+A and START+B** (save / back in gbawriter) do nothing in Koko.
+- **1.1 screens:** with the 16 px font the chat shows about 7 lines while typing (10
+  before); older lines scroll away (the last 16 are kept). An article page takes about
+  0.1 s to draw.
 
 ## Fact file limits (tools/facts_sd.py)
 - An answer is found only by the exact title (after lowercase, articles and simple

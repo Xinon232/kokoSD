@@ -1,8 +1,8 @@
 /* kokoSD: C bridge to GBAWriter's unchanged input engine (writer_core.cpp,
  * GPL-3.0-or-later) for Koko's message line. After gbamp3's writer_glue.cpp
- * (Halim Jarrar, 2026), changed for kokoSD: only plain ASCII is typed (Koko
- * reads no accented letters: such an edit is refused), and writer_set()
- * replaces the text without resetting Shift / Caps. GPL-3.0-or-later. */
+ * (Halim Jarrar, 2026), changed for kokoSD: writer_set() replaces the text
+ * without resetting Shift / Caps. (kokoSD 1.1: accented letters are typed and
+ * shown again; game.c gives Koko a plain-letter copy.) GPL-3.0-or-later. */
 #include "writer_core.h"
 #include <new>
 extern "C" {
@@ -15,7 +15,6 @@ static TextModel *model;
 static bool provisional,provisional_dirty;
 static std::size_t provisional_end;
 static unsigned flags;
-static bool ascii(const char *s){for(;s&&*s;s++)if((unsigned char)*s>126||(unsigned char)*s<32)return false;return true;}
 static void consume(void *,InputEvent e){
  using K=EventKind;bool ok=true;
  switch(e.kind){
@@ -23,7 +22,6 @@ static void consume(void *,InputEvent e){
   if(input->select_active()&&provisional&&model->caret_byte()==provisional_end){if(model->backspace())flags|=WRITER_TEXT;if(!provisional_dirty)model->mark_saved();}
   provisional=false;flags|=WRITER_START_SELECT;break;
  case K::INSERT:
-  if(e.text&&!(e.text[0]=='\n'&&!e.text[1])&&!ascii(e.text)){input->reject_edit();return;}   /* kokoSD: ASCII only */
   /* GBAWriter types a newline for START alone; a one-line field has none. */
   if(e.text&&e.text[0]=='\n'&&!e.text[1]){flags|=WRITER_START_ALONE;break;}
   if(input->select_active())provisional_dirty=model->dirty();
@@ -31,7 +29,6 @@ static void consume(void *,InputEvent e){
   if(input->select_active()){provisional=ok;provisional_end=model->caret_byte();}
   break;
  case K::REPLACE:
-  if(!ascii(e.text)){input->reject_edit();return;}   /* kokoSD: an accent conversion is refused */
   if(input->select_active()&&(!provisional||model->caret_byte()!=provisional_end)){input->reject_edit();return;}
   ok=model->replace_before_caret(e.text);if(ok)flags|=WRITER_TEXT;
   if(input->select_active()&&ok)provisional_end=model->caret_byte();

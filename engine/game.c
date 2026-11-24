@@ -7,6 +7,7 @@
 #include "cart_io.h"
 #include "facts_sd.h"
 #include "writer/writer_glue.h"
+#include "text/text.h"
 int sum_reply(const char *s, int n, char *out);   /* engine/sums.c */
 int fact_reply(const char *msg, int n, uint16_t *ids, int max);   /* engine/facts.c */
 
@@ -97,6 +98,11 @@ static uint16_t keys_down(void) {                 /* the next queued press (0 if
 #define MSG_TOK 64
 static char msg[MSG_MAX + 1];
 static int mlen;
+/* kokoSD 1.1: the message is shown as typed (accented letters too); Koko and the helpers read this plain-letter
+ * copy of it (text_plain: "Zürich" -> "Zurich"), since Koko knows plain ASCII only. */
+static char plain[2 * MSG_MAX + 1];
+static int plen;
+static void refold(void) { plen = (int)text_plain(plain, 2 * MSG_MAX, msg, (unsigned)mlen); plain[plen] = 0; }
 static const char *const quick[] = { "hi", "who are you", "tell me a story about a fox", "what is the capital of France?",
                                      "can you tell me a joke" };
 static uint32_t seed = 0x2545F491;
@@ -111,10 +117,11 @@ static void feed_begin(int tok) {
     stepping = 1;
 }
 static void feed(int tok) { feed_begin(tok); while (koko_step_part()) {} stepping = 0; }
-static int last_space(void) { int i = mlen - 1; while (i >= 0 && msg[i] != ' ') i--; return i; }
+static int last_space_in(const char *s, int n) { int i = n - 1; while (i >= 0 && s[i] != ' ') i--; return i; }
+static int last_space(void) { return last_space_in(msg, mlen); }
 static void retarget(void) {                     /* the words that are finished: everything before the last space */
-    int i = last_space();
-    nwant = i > 0 ? koko_encode(msg, i, want, MSG_TOK) : 0;
+    int i = last_space_in(plain, plen);
+    nwant = i > 0 ? koko_encode(plain, i, want, MSG_TOK) : 0;
     if (nwant < nfed) dirty = 1;
     for (int k = 0; k < nfed && k < nwant; k++) if (fed[k] != want[k]) dirty = 1;
     sug_stale = 1; nsug = 0;
@@ -129,12 +136,12 @@ static int work(void) {                           /* one slice of background wor
     if (!user_fed) { feed_begin(TOK_USER); user_fed = 1; return 1; }
     if (nfed < nwant) { fed[nfed] = want[nfed]; feed_begin(want[nfed]); nfed++; return 1; }
     if (sug_stale) {
-        int i = last_space(), ok = 1;
-        for (int k = i + 1; k < mlen; k++) {
-            int ch = msg[k] | 32;
+        int i = last_space_in(plain, plen), ok = 1;
+        for (int k = i + 1; k < plen; k++) {
+            int ch = plain[k] | 32;
             if (ch < 'a' || ch > 'z') ok = 0;
         }
-        nsug = ok ? koko_suggest(msg + i + 1, mlen - i - 1, i < 0, sug) : 0;
+        nsug = ok ? koko_suggest(plain + i + 1, plen - i - 1, i < 0, sug) : 0;
         if (nsug > 2) nsug = 2;
         sug_stale = 0;
         dbg.nsug = (uint32_t)nsug; dbg.sug[0] = sug[0]; dbg.sug[1] = sug[1];
@@ -156,6 +163,7 @@ static void accept(int k) {                       /* replace the word being type
     for (int j = 0; j < len && mlen < MSG_MAX; j++) msg[mlen++] = p[j];
     if (mlen < MSG_MAX) msg[mlen++] = ' ';
     msg[mlen] = 0;
+    refold();
 }
 /* ---------------- kokoSD: menu and pages ---------------- */
 static const char HOW_TO_TYPE[] =
@@ -170,26 +178,29 @@ static const char HOW_TO_TYPE[] =
     "START: send. START on an empty line: a ready-made message (START again sends it).\n\n"
     "Hold START and press L or R: the first or second suggested word. Hold START and press Left / Right: "
     "move the cursor. START + SELECT: this menu.\n\n"
+    "Accents: keep the letter's buttons held and press SELECT; SELECT again gives the next one (e: é è ë ê). "
+    "They are shown as typed; Koko reads them as plain letters (é as e).\n\n"
     "B while Koko writes: stop him.\n\n"
     "The same typing as gbawriter, gbamp3 and the other apps.";
 static const char ABOUT[] =
-    "kokoSD 1.0: Koko the Chatbot with an SD card.\n\n"
+    "kokoSD 1.1: Koko the Chatbot with an SD card.\n\n"
     "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
     "Game Boy Advance itself.\n"
     "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "
     "(CC BY-SA 4.0): the file koko/facts.dat on the SD card, or the cartridge's own smaller table. "
     "After such an answer, \"tell me more\" shows the article. Sums are worked out by the game. "
-    "Replies with a book or an equals sign are these helpers; the menu turns them off.\n"
+    "Replies marked Fact or Sum come from these helpers; the menu turns them off.\n"
     "\nCode: Koko (MIT), gbaSD and gbawriter typing by Halim Jarrar (GPL-3.0-or-later); the cartridge "
     "as a whole is GPL-3.0-or-later. Weights, fact table and artwork: CC BY-SA 4.0. "
-    "Font: Inter by Rasmus Andersson (SIL Open Font License 1.1).";
+    "Fonts: the SuperFW font by David Guillen Fandos (GPL-3.0-or-later; UNSCII and GNU Unifont glyphs) and "
+    "gbamp3's 5x7 font; accent folding from GBAVocab (Halim Jarrar, GPL-3.0-or-later).";
 /* A page of text to read (an article, How to type, About): Up / Down scroll, Left / Right / L / R turn a page,
  * B (or A, START) goes back. */
 static void read_pages(const char *title, const char *text, int n, int state) {
     int lines = ui_article_wrap(text, n), rows = ui_article_rows(), top = 0, last = lines > rows ? lines - rows : 0;
+    kq_n = 0;                                     /* presses made before the page opened are not page turns */
     dbg.state = (uint32_t)state; dbg.article = (uint32_t)lines; dbg.article_top = 0;
-    ui_article(title, text, 0);
-    kq_n = 0;
+    ui_article(title, text, 0);                   /* presses while it draws count (polled between rows) */
     for (;;) {
         vsync();
         uint16_t d = keys_down();
@@ -237,22 +248,18 @@ static void msg_from_writer(void) {
     const char *t = writer_text();
     for (mlen = 0; t[mlen] && mlen < MSG_MAX; mlen++) msg[mlen] = t[mlen];
     msg[mlen] = 0;
+    refold();
 }
-static void typing_hint(void) {
-    static char h[24];
-    const char *g = writer_group();
-    int n = 0;
-    if (g && *g) { for (; g[n] && n < 10; n++) h[n] = g[n]; }
-    else { const char *s = mlen ? "START send" : "START ideas"; for (; s[n]; n++) h[n] = s[n]; }
-    const char *c = writer_caps() ? "  Caps" : writer_shift() ? "  Shift" : "";
-    for (; *c && n < 23; c++) h[n++] = *c;
-    h[n] = 0;
-    ui_header(h);
+static void typing_hint(void) {                  /* kokoSD 1.1: as gbamp3's Search: letter group and Shift / Caps in the header */
+    ui_writer_status(writer_group(), writer_caps() ? "Caps" : writer_shift() ? "Shift" : "");
+    ui_hint(mlen);
 }
 static int edit(void) {
     static int q = -1;
     int shown_sug = -1, shown_hint = -1;
     writer_begin(msg);
+    refold();
+    ui_header(0);
     ui_typing(msg, mlen, mlen);
     koko_mark(); mark_ntok = (int)dbg.ntok;
     nfed = nwant = user_fed = stepping = dirty = nsug = 0; sug_stale = 1;
@@ -289,6 +296,7 @@ static int edit(void) {
             while (stepping) work();
             if (menu()) return 0;
             writer_set(msg);
+            ui_header(0);
             ui_typing(msg, mlen, (int)writer_caret());
             shown_sug = -1; shown_hint = -1;
             continue;
@@ -340,12 +348,14 @@ static void exchange(void) {
     dbg.state = ST_RUNNING;
     kq_n = 0;                                     /* kokoSD: presses made while typing (B in letters) are not "stop" */
     while (mlen && msg[mlen - 1] == ' ') msg[--mlen] = 0;    /* a trailing space is not part of the message */
+    refold();
+    while (plen && plain[plen - 1] == ' ') plain[--plen] = 0;
     ui_reply_layout(msg, mlen);
     ui_reply_button(1);
-    ui_header("reading");
+    ui_header("reading...");
     /* finish what the editor started: the whole message, then Koko's marker */
     while (stepping) work();
-    nwant = koko_encode(msg, mlen, want, MSG_TOK);
+    nwant = koko_encode(plain, plen, want, MSG_TOK);
     if (nwant < nfed) dirty = 1;
     for (int k = 0; k < nfed && k < nwant; k++) if (fed[k] != want[k]) dirty = 1;
     sug_stale = 0;
@@ -358,19 +368,19 @@ static void exchange(void) {
     REG_TM2CNT_H = 0x0083;                        /* 16.78 MHz / 1024 */
     uint32_t t0 = ticks();
     int made = 0;
-    ui_header("B stop");
+    ui_header("B: stop");
     static char ans[96] EW;
     int al = 0, an = 0, mark = 0, article = 0;
     if (helpers && sd_ready) {                           /* kokoSD: Tell me more */
-        int ab = more_about(msg, mlen);
+        int ab = more_about(plain, plen);
         if (ab) {
             static char q[80] EW;                        /* "tell me about X": the fact table's own wording */
             const char *pre = "tell me about "; int ql = 0;
             while (pre[ql]) { q[ql] = pre[ql]; ql++; }
-            for (int i = ab; i < mlen && ql < 79; i++) q[ql++] = msg[i];
+            for (int i = ab; i < plen && ql < 79; i++) q[ql++] = plain[i];
             sdf_forget();
             article = fact_reply(q, ql, want, MSG_TOK) > 0;
-        } else article = more_request(msg, mlen);
+        } else article = more_request(plain, plen);
         const char *title, *text;
         if (article && sdf_article(&title, &text)) {
             const char *a = "Here is more about "; al = 0;
@@ -382,9 +392,9 @@ static void exchange(void) {
     }
     if (helpers && !article) {
         sdf_forget();
-        al = sum_reply(msg, mlen, ans);                  /* a sum: the game works it out and Koko says it */
+        al = sum_reply(plain, plen, ans);                  /* a sum: the game works it out and Koko says it */
         if (al) { an = koko_encode(ans, al, want, MSG_TOK); mark = 2; }
-        else { an = fact_reply(msg, mlen, want, MSG_TOK); al = an; mark = an ? 1 : 0; }   /* a fact the cartridge has on file */
+        else { an = fact_reply(plain, plen, want, MSG_TOK); al = an; mark = an ? 1 : 0; }   /* a fact the cartridge has on file */
     }
     koko_reply_begin();                                  /* repeated-phrase rule on for this reply */
     ui_reply_start(mark);
@@ -408,7 +418,7 @@ static void exchange(void) {
     if (article) read_article();
     dbg.turns++;
     dbg.state = ST_DONE;
-    mlen = 0; msg[0] = 0;
+    mlen = 0; msg[0] = 0; plen = 0; plain[0] = 0;
 }
 
 int main(void) {
@@ -423,7 +433,7 @@ int main(void) {
     sd_mount();                                   /* kokoSD: the SD card (0 without a card) */
     sdf_open();                                   /* and its fact file /koko/facts.dat (0 without one) */
     dbg.sd = (uint32_t)sd_ready | (uint32_t)sdf_ready << 1 | (uint32_t)cart_kind << 8;
-    ui_title();                                   /* Koko's portrait until START (or A) is pressed */
+    ui_title();                                   /* the title until START (or A) is pressed */
     dbg.state = ST_TITLE; dbg.boot_ticks = ticks();   /* kokoSD: the title is up (tests wait for it); start-up time */
     for (int f = 0;; f++) {
         vsync();
@@ -442,7 +452,7 @@ int main(void) {
             while (stepping) work();
             koko_reset();
             ui_clear(); ui_say(L_KOKO, "Woof! I'm Koko. Say something!", 30);
-            mlen = 0; msg[0] = 0; dbg.ntok = 0; dbg.newchats++;
+            mlen = 0; msg[0] = 0; plen = 0; plain[0] = 0; dbg.ntok = 0; dbg.newchats++;
             while (keys_prev) { vsync(); poll(); }    /* the A that chose New chat types nothing */
             hq_n = 0;
             continue;

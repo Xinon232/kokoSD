@@ -1,49 +1,51 @@
-/* Koko's screen (see ui.h). Bitmap of 240x160 palette indices; proportional anti-aliased font.
- * A "paint" is an ink on a surface: 4 palette entries, surface -> ink, so anti-aliased text needs no blending
- * at draw time. Text must be drawn over its paint's surface. */
+/* Koko's screen (see ui.h), kokoSD 1.1: drawn like our other apps (gbamp3, gbawriter, gbavocab) with their two
+ * fonts only: the SuperFW 16 px font for everything to read and the 5x7 font for the header and hints
+ * (engine/text, from gbamp3). White background, black text, grey hints, the light blue selection bar.
+ * Mode 4: 240x160 palette indices, page 0 only. Text is UTF-8 (accented letters are shown). GPL-3.0-or-later. */
 #include "ui.h"
-#include "font_ui.h"
-#include "husky.h"
+#include "text/text.h"
 
-#define RGB(r, g, b) ((r) | ((g) << 5) | ((b) << 10))
 #ifdef __arm__
 #define FB ((volatile uint16_t *)0x06000000)       /* video memory takes 16-bit writes only */
 #define EW __attribute__((section(".bss.ewram")))
 #else
 uint8_t ui_fb[240 * 160];
+#define FB ((volatile uint16_t *)ui_fb)
 #define EW
 #endif
 uint16_t ui_pal[UI_PAL_N] EW;
 void (*ui_yield)(void);                           /* optional: called between pieces of a long redraw (button polling) */
 #define YIELD() do { if (ui_yield) ui_yield(); } while (0)
-enum { BG, BG_DIM, BG_ACC, BUB, PILL, PILL_DIM, PANEL, PANEL_DIM, SEL, CHIP, CHIP_ACC, BTN, NPAINT };
-#define C(p) ((p) * 4)                              /* the surface colour of a paint */
-#define INK(p) ((p) * 4 + 3)
-static const uint16_t SURF[NPAINT] = {
-    RGB(7, 11, 20), RGB(7, 11, 20), RGB(7, 11, 20), RGB(13, 18, 28), RGB(11, 15, 25), RGB(11, 15, 25),
-    RGB(4, 7, 14), RGB(4, 7, 14), RGB(31, 31, 31), RGB(11, 15, 25), RGB(11, 15, 25), RGB(31, 31, 31) };
-static const uint16_t INKC[NPAINT] = {
-    RGB(31, 31, 31), RGB(17, 21, 28), RGB(15, 27, 31), RGB(31, 31, 31), RGB(31, 31, 31), RGB(17, 21, 28),
-    RGB(29, 30, 31), RGB(14, 18, 25), RGB(4, 7, 14), RGB(31, 31, 31), RGB(15, 27, 31), RGB(7, 11, 20) };
 
-#ifdef __arm__
-static void pset(int x, int y, int c) {
-    volatile uint16_t *p = &FB[(y * 240 + x) >> 1];
-    *p = (x & 1) ? (uint16_t)((*p & 0x00FF) | (c << 8)) : (uint16_t)((*p & 0xFF00) | c);
+/* The apps' colours (gbamp3 ui.c) and their palette indices. */
+#define C_WHITE 0x7fff
+#define C_BLACK 0x0000
+#define C_BLUE  0x7f55                              /* RGB(170,210,255): the selection bar */
+#define C_GREY  0x4210
+#define C_LIGHT 0x6318                              /* the input field */
+enum { P_WHITE, P_BLACK, P_BLUE, P_GREY, P_LIGHT, P_N };
+static const uint16_t PAL_RGB[P_N] = { C_WHITE, C_BLACK, C_BLUE, C_GREY, C_LIGHT };
+
+/* The hooks engine/text/text.c draws through (as gbamp3's gfx.c, but straight onto the shown page). */
+unsigned gfx_m4 = 1;
+volatile uint16_t *gfx_line(int y) { return FB + y * 120; }
+uint16_t gfx_pixel(uint16_t rgb) { for (int i = 0; i < P_N; i++) if (PAL_RGB[i] == rgb) return (uint16_t)i; return P_BLACK; }
+void gfx_mark(int y0, int y1) { (void)y0; (void)y1; }
+
+static void fill(int x, int y, int w, int h, uint16_t rgb) {
+    if (w <= 0 || h <= 0) return;
+    unsigned c = gfx_pixel(rgb);
+    for (int j = y; j < y + h; j++) {
+        volatile uint16_t *l = gfx_line(j);
+        int a = x, n = w;
+        if (a & 1) { l[a >> 1] = (uint16_t)((l[a >> 1] & 0x00ff) | c << 8); a++; n--; }
+        if (n >= 2 && (a & 2)) { l[a >> 1] = (uint16_t)(c | c << 8); a += 2; n -= 2; }
+        for (volatile uint32_t *w = (volatile uint32_t *)(l + (a >> 1)); n >= 4; n -= 4, a += 4) *w++ = c * 0x01010101u;   /* 4 pixels a store */
+        for (; n >= 2; n -= 2, a += 2) l[a >> 1] = (uint16_t)(c | c << 8);
+        if (n) l[a >> 1] = (uint16_t)((l[a >> 1] & 0xff00) | c);
+    }
 }
-static void hline(int x, int y, int w, int c) {
-    if (w <= 0) return;
-    if (x & 1) { pset(x, y, c); x++; w--; }
-    volatile uint16_t *p = &FB[(y * 240 + x) >> 1];
-    for (; w >= 2; w -= 2, x += 2) *p++ = (uint16_t)(c | c << 8);
-    if (w) pset(x, y, c);
-}
-#else
-static void pset(int x, int y, int c) { ui_fb[y * 240 + x] = (uint8_t)c; }
-static void hline(int x, int y, int w, int c) { for (int i = 0; i < w; i++) pset(x + i, y, c); }
-#endif
 #ifdef __arm__
-static int pget(int x, int y) { uint16_t v = FB[(y * 240 + x) >> 1]; return (x & 1) ? v >> 8 : v & 0xFF; }
 static void rows_up(int y0, int y1, int by) {                 /* move rows y0..y1-1 up by `by` pixels (whole rows are 60 words) */
     volatile uint32_t *d = (volatile uint32_t *)0x06000000 + (y0 - by) * 60, *s = (volatile uint32_t *)0x06000000 + y0 * 60;
     for (int n = (y1 - y0) * 60; n > 0; n--) *d++ = *s++;
@@ -54,119 +56,49 @@ static void frame_start(void) {                               /* wait for the sc
     while (*vc < 160) {}
 }
 #else
-static int pget(int x, int y) { return ui_fb[y * 240 + x]; }
 static void rows_up(int y0, int y1, int by) { for (int i = y0 * 240; i < y1 * 240; i++) ui_fb[i - by * 240] = ui_fb[i]; }
 static void frame_start(void) {}
 #endif
-static void rect(int x, int y, int w, int h, int c) { for (int i = 0; i < h; i++) hline(x, y + i, w, c); }
-static void rrect(int x, int y, int w, int h, int r, int c) {      /* rounded corners, radius 4, 6 or 8 */
-    static const uint8_t in4[4] = { 2, 1, 0, 0 }, in6[6] = { 4, 2, 1, 1, 0, 0 }, in8[8] = { 5, 3, 2, 1, 1, 0, 0, 0 };
-    const uint8_t *in = r == 4 ? in4 : r == 6 ? in6 : in8;
-    for (int i = 0; i < h; i++) {
-        int k = i < r ? in[i] : (h - 1 - i) < r ? in[h - 1 - i] : 0;
-        hline(x + k, y + i, w - 2 * k, c);
-    }
-}
-static int glyph(int x, int y, int ch, int paint, int title) {
-    if (ch < 32 || ch > 126) ch = '?';
-    const uint32_t *g = title ? FONT_TITLE[ch - 32] : FONT_BODY[ch - 32];
-    int h = title ? FONT_TITLE_H : FONT_BODY_H;
-    for (int r = 0; r < h; r++) {
-        uint32_t bits = g[r];
-        for (int px = x; bits; px++, bits >>= 2)
-            if ((bits & 3) && px >= 0 && px < 240 && y + r >= 0 && y + r < 160) pset(px, y + r, paint * 4 + (int)(bits & 3));
-    }
-    return title ? FONT_TITLE_W[ch - 32] : FONT_BODY_W[ch - 32];
-}
-static int text_n(int x, int y, const char *s, int n, int paint) { for (int i = 0; i < n; i++) x += glyph(x, y, s[i], paint, 0); return x; }
-static int text(int x, int y, const char *s, int paint) { while (*s) x += glyph(x, y, *s++, paint, 0); return x; }
-static int width_n(const char *s, int n) { int w = 0; for (int i = 0; i < n; i++) w += FONT_BODY_W[(s[i] < 32 || s[i] > 126 ? '?' : s[i]) - 32]; return w; }
-static int width(const char *s) { int n = 0; while (s[n]) n++; return width_n(s, n); }
 
-/* ---------------- title screen ---------------- */
-#define HUSKY_PAL0 48                               /* the portrait's 15 colours follow the paints in the palette */
-static int glyph2(int x, int y, int ch, int paint) {              /* title font at twice its size */
-    const uint32_t *g = FONT_TITLE[ch - 32];
-    for (int r = 0; r < FONT_TITLE_H; r++) {
-        uint32_t bits = g[r];
-        for (int px = x; bits; px += 2, bits >>= 2)
-            if (bits & 3) rect(px, y + 2 * r, 2, 2, paint * 4 + (int)(bits & 3));
+/* ---------------- text helpers: n bytes of UTF-8 ---------------- */
+static char tbuf[256] EW;
+static const char *cut(const char *s, int n) { if (n > 255) n = 255; for (int i = 0; i < n; i++) tbuf[i] = s[i]; tbuf[n] = 0; return tbuf; }
+static int width_n(const char *s, int n) { return (int)text_width(cut(s, n)); }
+/* Text on white, drawn opaque over its own width (gbamp3's two-pixel writes: much faster than pixel by pixel). */
+static int text_n(int x, int y, const char *s, int n, uint16_t c) {
+    const char *t = cut(s, n);
+    int w = (int)text_width(t), x1 = x + w > 240 ? 240 : x + w;
+    if (w) text_draw_bg(x, y, x, x1, t, 0, c, C_WHITE);
+    return x + w;
+}
+static int cont(char c) { return ((unsigned char)c & 0xc0) == 0x80; }       /* a UTF-8 continuation byte */
+static void centre(int y, const char *s, uint16_t c) { int w = (int)text_width(s), x = (240 - w) / 2; text_draw_bg(x, y, x, x + w, s, 0, c, C_WHITE); }
+static void small_centre(int y, const char *s, uint16_t c) { small_draw((240 - (int)small_width(s)) / 2, y, s, c); }
+/* The small font's text cut to fit `w` pixels ("..." at the end when cut). */
+static const char *small_fit(const char *s, int w) {
+    if ((int)small_width(s) <= w) return s;
+    int n = 0;
+    while (s[n] && n < 250) n++;
+    for (; n > 0; n--) {
+        if (cont(s[n])) continue;
+        const char *t = cut(s, n);
+        tbuf[n] = '.'; tbuf[n + 1] = '.'; tbuf[n + 2] = '.'; tbuf[n + 3] = 0;
+        if ((int)small_width(t) <= w) return t;
     }
-    return 2 * FONT_TITLE_W[ch - 32];
-}
-static void centred(int y, const char *s, int paint) { text((240 - width(s)) / 2, y, s, paint); }
-/* Snow drifting behind the portrait. A flake is only ever drawn on plain background and put back afterwards. */
-#define NFLAKE 34
-static struct { int16_t x, y, vx, vy; uint8_t lvl, on, px, py; } flake[NFLAKE] EW;
-static uint32_t snow_rng;
-static int rnd(int n) { snow_rng = snow_rng * 1664525u + 1013904223u; return (int)((snow_rng >> 16) % (unsigned)n); }
-static void flake_new(int i, int top) {
-    flake[i].x = (int16_t)(rnd(240) << 4); flake[i].y = (int16_t)(top ? 0 : rnd(160) << 4);
-    flake[i].lvl = (uint8_t)(1 + rnd(3));                              /* dim and slow = far away */
-    flake[i].vy = (int16_t)(3 + flake[i].lvl * 3 + rnd(4)); flake[i].vx = (int16_t)(rnd(7) - 3);
-    flake[i].on = 0;
-}
-void ui_title_tick(void) {
-    for (int i = 0; i < NFLAKE; i++) {
-        if (flake[i].on) { pset(flake[i].px, flake[i].py, C(BG)); flake[i].on = 0; }
-        flake[i].y = (int16_t)(flake[i].y + flake[i].vy);
-        flake[i].x = (int16_t)(flake[i].x + flake[i].vx + ((flake[i].y >> 8) & 1 ? 1 : -1));
-        if (flake[i].x < 0) flake[i].x += 240 << 4;
-        if (flake[i].x >= 240 << 4) flake[i].x -= 240 << 4;
-        if (flake[i].y >= 160 << 4) flake_new(i, 1);
-        int x = flake[i].x >> 4, y = flake[i].y >> 4;
-        if (y >= 142 || pget(x, y) != C(BG)) continue;                 /* not over the portrait, the words or the blinking line */
-        pset(x, y, BG * 4 + flake[i].lvl);
-        flake[i].on = 1; flake[i].px = (uint8_t)x; flake[i].py = (uint8_t)y;
-    }
-}
-void ui_title_prompt(int on) {
-    rect(0, 143, 240, 15, C(BG));
-    if (on) centred(144, "Press START", BG);
-}
-void ui_title(void) {
-    rect(0, 0, 240, 160, C(BG));
-    int x0 = (240 - HUSKY_W) / 2, y0 = 6;
-    for (int y = 0; y < HUSKY_H; y++)
-        for (int x = 0; x < HUSKY_W; x++) {
-            int v = (HUSKY[y][x >> 1] >> ((x & 1) * 4)) & 15;
-            if (v) pset(x0 + x, y0 + y, HUSKY_PAL0 + v - 1);
-        }
-    int w = 0;
-    for (const char *t = "Koko"; *t; t++) w += 2 * FONT_TITLE_W[*t - 32];
-    int x = (240 - w) / 2;
-    for (const char *t = "Koko"; *t; t++) x += glyph2(x, 96, *t, BG);
-    centred(126, "the chatbot in a Game Boy Advance cartridge", BG_DIM);
-    ui_title_prompt(1);
-    snow_rng = 2024;
-    for (int i = 0; i < NFLAKE; i++) flake_new(i, 0);
+    return "";
 }
 
-void ui_init(void) {
-    for (int p = 0; p < NPAINT; p++)
-        for (int k = 0; k < 4; k++) {
-            int c = 0;
-            for (int ch = 0; ch < 3; ch++) {
-                int a = (SURF[p] >> (5 * ch)) & 31, b = (INKC[p] >> (5 * ch)) & 31;
-                c |= ((a * (3 - k) + b * k + 1) / 3) << (5 * ch);
-            }
-            ui_pal[p * 4 + k] = (uint16_t)c;
-        }
-    for (int i = 0; i < 15; i++) ui_pal[HUSKY_PAL0 + i] = HUSKY_PAL[i];
-    rect(0, 0, 240, 160, C(BG));
-}
-
-/* ---------------- header ---------------- */
+/* ---------------- header (as gbamp3's: the name in the small font, centred) ---------------- */
+#define HDR_H 16
 static int helpers = 1;
 void ui_helpers(int on) { helpers = on; }
-void ui_header(const char *right) {
-    rect(0, 0, 240, 17, C(BG));
-    int x = 10;
-    for (const char *t = "Koko"; *t; t++) x += glyph(x, 2, *t, BG, 1);
-    rect(x + 4, 8, 3, 3, INK(BG_ACC));                                   /* accent dot: solid = helpers on, hollow = model only */
-    if (!helpers) pset(x + 5, 9, C(BG));
-    if (right) text(232 - width(right), 3, right, BG_DIM);
+static void header_line(const char *title, const char *right) {
+    fill(0, 0, 240, HDR_H, C_WHITE);
+    small_centre(5, title, C_BLACK);
+    if (!helpers) small_draw(6, 5, "Facts off", C_GREY);
+    if (right && *right) small_draw(234 - (int)small_width(right), 5, right, C_GREY);
 }
+void ui_header(const char *right) { header_line("Koko", right); }
 void ui_rate(int made, uint32_t t) {
     char b[24]; int n = 0;
     if (made && t) {
@@ -178,72 +110,90 @@ void ui_rate(int made, uint32_t t) {
     b[n] = 0;
     ui_header(b);
 }
+/* While typing: gbawriter's letter group and Shift / Caps on the right, as in gbamp3's Search. */
+void ui_writer_status(const char *group, const char *mode) {
+    fill(150, 0, 90, HDR_H, C_WHITE);
+    int x = 234 - (int)small_width("abc");
+    if (group && group[0]) small_draw(234 - (int)small_width(group), 5, group, C_GREY);
+    x -= 6;
+    if (mode && mode[0]) small_draw(x - (int)small_width(mode), 5, mode, C_GREY);
+}
 
-/* ---------------- chat log: wrapped lines, user lines in a bubble on the right ---------------- */
+/* ---------------- title screen ---------------- */
+void ui_title_tick(void) {}
+void ui_title_prompt(int on) {
+    fill(0, 108, 240, 16, C_WHITE);
+    if (on) centre(108, "Press START", C_BLACK);
+}
+void ui_title(void) {
+    fill(0, 0, 240, 160, C_WHITE);
+    small_centre(5, "kokoSD", C_BLACK);
+    centre(50, "Koko", C_BLACK);
+    small_centre(72, "A chatbot on your Game Boy Advance", C_GREY);
+    ui_title_prompt(1);
+    small_centre(146, "START+SELECT while typing: menu", C_GREY);
+}
+
+void ui_init(void) {
+    for (int i = 0; i < UI_PAL_N; i++) ui_pal[i] = i < P_N ? PAL_RGB[i] : C_WHITE;
+    fill(0, 0, 240, 160, C_WHITE);
+}
+
+/* ---------------- chat log: wrapped lines; Koko on the left in black, the user on the right in grey ---------------- */
 #define NLINE 16
-#define LINE_MAX 56
-#define KOKO_W 220
-#define USER_W 150
-static struct Line { char t[LINE_MAX]; uint8_t n, kind, mark, y, dn; } lines[NLINE] EW;   /* y: where it is drawn (0 = not shown); dn: characters drawn there */   /* mark: 1 looked up, 2 computed */
-#define MARK_W 12
+#define LINE_MAX 64
+#define KOKO_W 228
+#define USER_W 180
+static struct Line { char t[LINE_MAX]; uint8_t n, kind, mark, y, dn; } lines[NLINE] EW;   /* y: where it is drawn (0 = not shown); dn: bytes drawn there */   /* mark: 1 looked up, 2 computed */
+#define MARK_W 30                                   /* "Fact" / "Sum" in the small font before such a reply */
 static int drawn_bot;                              /* first row below the drawn lines */
-static int nline, chat_bot = 138, cur_y;          /* cur_y: where the last line was drawn (-1: not visible) */
-#define CHAT_TOP 19
-#define LH 13
+#define CHAT_TOP 17
+#define LH 16
+#define GAP 4                                       /* between a run of the user's lines and Koko's */
+#define FIELD_Y 143                                 /* the input field (17 rows, as gbamp3's Search field) */
+#define HINT_Y 132                                  /* typing: suggestions or a hint in the small font */
+#define CHAT_BOT_TYPING (HINT_Y - 2)
+#define CHAT_BOT_REPLY (FIELD_Y - 1)
+static int nline, chat_bot = CHAT_BOT_REPLY, cur_y;   /* cur_y: where the last line was drawn (-1: not visible) */
 
 static void line_push(int kind) {
     if (nline == NLINE) { for (int i = 1; i < NLINE; i++) lines[i - 1] = lines[i]; nline--; }
     lines[nline].n = 0; lines[nline].kind = (uint8_t)kind; lines[nline].mark = 0; lines[nline].y = 0; lines[nline].dn = 0; nline++;
 }
-/* A small sign in front of a reply that did not come from the model: a book (looked up) or an equals box (computed). */
-static void mark_icon(int x, int y, int mark) {
-    int c = INK(BG_ACC);
-    if (mark == 1) {
-        rect(x, y + 4, 9, 1, c); rect(x, y + 10, 9, 1, c); rect(x, y + 4, 1, 7, c); rect(x + 8, y + 4, 1, 7, c); rect(x + 4, y + 4, 1, 7, c);
-    } else {
-        rect(x + 1, y + 3, 7, 1, c); rect(x + 1, y + 11, 7, 1, c); rect(x + 1, y + 3, 1, 9, c); rect(x + 7, y + 3, 1, 9, c);
-        rect(x + 3, y + 6, 3, 1, c); rect(x + 3, y + 8, 3, 1, c);
-    }
-}
 static int layout(uint8_t *ys) {                   /* as many of the newest lines as fit; returns the first shown, fills ys */
     int first = nline, h = 0;
     while (first > 0) {
-        int add = LH + ((first < nline && lines[first - 1].kind != lines[first].kind) ? 6 : 0);
-        if (h + add > chat_bot - CHAT_TOP - 4) break;
+        int add = LH + ((first < nline && lines[first - 1].kind != lines[first].kind) ? GAP : 0);
+        if (h + add > chat_bot - CHAT_TOP - 1) break;
         h += add; first--;
     }
-    int y = CHAT_TOP + 3;
+    int y = CHAT_TOP + 1;
     for (int i = first; i < nline; i++) {
-        if (i > first && lines[i].kind != lines[i - 1].kind) y += 6;
+        if (i > first && lines[i].kind != lines[i - 1].kind) y += GAP;
         ys[i] = (uint8_t)y; y += LH;
     }
     return first;
 }
-static void draw_line(int i, int y, int first) {
-    if (lines[i].kind == L_USER) {
-        if (i == first || lines[i - 1].kind != L_USER) {             /* one bubble behind a run of user lines */
-            int j = i, w = 0;
-            for (; j < nline && lines[j].kind == L_USER; j++) { int lw = width_n(lines[j].t, lines[j].n); if (lw > w) w = lw; }
-            rrect(232 - w - 14, y - 2, w + 14, (j - i) * LH + 4, 6, C(BUB));
-        }
-        text_n(232 - 7 - width_n(lines[i].t, lines[i].n), y, lines[i].t, lines[i].n, BUB);
-    } else {
-        if (lines[i].mark) mark_icon(10, y, lines[i].mark);
-        text_n(10 + (lines[i].mark ? MARK_W : 0), y, lines[i].t, lines[i].n, lines[i].kind == L_NOTE ? BG_DIM : BG);
+static int line_x(int i) { return 6 + (lines[i].mark ? MARK_W : 0); }
+static void draw_line(int i, int y) {
+    if (lines[i].kind == L_USER) text_n(234 - width_n(lines[i].t, lines[i].n), y, lines[i].t, lines[i].n, C_GREY);
+    else {
+        if (lines[i].mark) small_draw(6, y + 5, lines[i].mark == 1 ? "Fact" : "Sum", C_GREY);
+        text_n(line_x(i), y, lines[i].t, lines[i].n, lines[i].kind == L_NOTE ? C_GREY : C_BLACK);
     }
     lines[i].y = (uint8_t)y; lines[i].dn = lines[i].n;
 }
 static void chat_draw(void) {
     uint8_t ys[NLINE];
     int first = layout(ys);
-    rect(0, CHAT_TOP, 240, chat_bot - CHAT_TOP, C(BG));
-    cur_y = -1; drawn_bot = CHAT_TOP + 3;
+    fill(0, CHAT_TOP - 1, 240, chat_bot - CHAT_TOP + 1, C_WHITE);
+    cur_y = -1; drawn_bot = CHAT_TOP + 1;
     for (int i = 0; i < first; i++) lines[i].y = 0;
     for (int i = first; i < nline; i++) {
         YIELD();
-        draw_line(i, ys[i], first);
+        draw_line(i, ys[i]);
         if (i == nline - 1) cur_y = ys[i];
-        drawn_bot = ys[i] + LH + 2;
+        drawn_bot = ys[i] + LH;
     }
 }
 /* Lines from index `from` on are new or changed; the rest are on screen already. Instead of blanking the chat and
@@ -258,39 +208,42 @@ static void chat_update(int from) {
         shift = s;
     }
     if (shift < 0 || from <= first) { chat_draw(); return; }
-    if (shift > 0 && lines[first].kind == L_USER) { chat_draw(); return; }   /* a bubble cut at the top needs its corners redrawn */
     frame_start();
     if (shift > 0) {
         rows_up(ys[first] + shift, drawn_bot, shift);
-        rect(0, CHAT_TOP, 240, ys[first] - CHAT_TOP, C(BG));           /* the strip above the first line: nothing of the line that left */
-        rect(0, drawn_bot - shift, 240, shift, C(BG));
+        fill(0, CHAT_TOP - 1, 240, ys[first] - CHAT_TOP + 1, C_WHITE);   /* the strip above the first line: nothing of the line that left */
+        fill(0, drawn_bot - shift, 240, shift, C_WHITE);
     }
     for (int i = 0; i < first; i++) lines[i].y = 0;
     for (int i = first; i < from; i++) lines[i].y = ys[i];
     for (int i = from; i < nline; i++) {
         if (lines[i].y && lines[i].y - shift == ys[i] && lines[i].dn >= lines[i].n) {
             /* already on screen and only shorter (its last word moved down): rub out the end, leave the rest alone */
-            int x = 10 + (lines[i].mark ? MARK_W : 0) + width_n(lines[i].t, lines[i].n);
-            rect(x, ys[i], 240 - x, LH, C(BG));
+            int x = line_x(i) + width_n(lines[i].t, lines[i].n);
+            fill(x, ys[i], 240 - x, LH, C_WHITE);
             lines[i].y = ys[i]; lines[i].dn = lines[i].n;
             continue;
         }
-        rect(0, ys[i], 240, LH, C(BG));
-        draw_line(i, ys[i], first);
+        fill(0, ys[i], 240, LH, C_WHITE);
+        draw_line(i, ys[i]);
     }
-    cur_y = ys[nline - 1]; drawn_bot = ys[nline - 1] + LH + 2;
+    cur_y = ys[nline - 1]; drawn_bot = ys[nline - 1] + LH;
 }
-/* Add text to the newest line, wrapping by words. Returns how many new lines that started. */
+/* Add text to the newest line, wrapping by words (a line breaks only between whole UTF-8 characters).
+ * Returns how many new lines that started. */
 static int line_add(const char *s, int n, int maxw) {
     int wrapped = 0;
     for (int i = 0; i < n; i++) {
         struct Line *l = &lines[nline - 1];
         if (s[i] == ' ' && l->n == 0) continue;
         if (l->n < LINE_MAX) l->t[l->n++] = s[i];
+        if (i + 1 < n && cont(s[i + 1]) && l->n < LINE_MAX) continue;          /* the character is not complete yet */
         if (width_n(l->t, l->n) > maxw - (l->mark ? MARK_W : 0) || l->n == LINE_MAX) {             /* carry the unfinished word down */
             int k = l->n - 1;
             while (k > 0 && l->t[k] != ' ') k--;
-            int kind = l->kind, from = k > 0 ? k + 1 : l->n - 1, cnt = l->n - from;
+            int last = l->n - 1;
+            while (last > 0 && cont(l->t[last])) last--;                       /* no space: carry the last character */
+            int kind = l->kind, from = k > 0 ? k + 1 : last, cnt = l->n - from;
             char tail[LINE_MAX];
             for (int j = 0; j < cnt; j++) tail[j] = l->t[from + j];
             l->n = (uint8_t)(k > 0 ? k : from);
@@ -305,137 +258,91 @@ static int line_add(const char *s, int n, int maxw) {
 void ui_clear(void) { nline = 0; }
 void ui_say(int kind, const char *s, int n) { line_push(kind); line_add(s, n, kind == L_USER ? USER_W : KOKO_W); }
 
-
-/* ---------------- typing layout ---------------- */
-static const char *const keyrow[4] = { "abcdefghijklm", "nopqrstuvwxyz", "0123456789+-\002", ".,!?'___/()\001<" };   /* ___: the space bar (three cells), \001: new chat, \002: helpers on/off */
-int ui_key(int r, int c) { return keyrow[r][c]; }
-/* The space bar covers columns 5 to 7 of the bottom row and counts as one key, standing at column 6. */
-#define BAR(r, c) ((r) == 3 && (c) >= 5 && (c) <= 7)
-int ui_key_move(int *kx, int *ky, int dx, int dy) {            /* move the cursor one step; returns 1 if it moved */
-    int x = *kx, y = *ky;
-    if (dy) y = (y + dy + 4) % 4;
-    if (dx) { x = (x + dx + 13) % 13; if (BAR(y, x) && BAR(*ky, *kx)) x = dx > 0 ? 8 : 4; }
-    if (BAR(y, x)) x = 6;
-    int moved = x != *kx || y != *ky;
-    *kx = x; *ky = y;
-    return moved;
+/* ---------------- the input field (gbamp3's Search field) and the hint line ---------------- */
+static int reply_stop = -1;
+static void field_frame(void) {
+    fill(0, FIELD_Y, 240, 1, C_LIGHT); fill(0, FIELD_Y + 1, 6, 16, C_LIGHT); fill(234, FIELD_Y + 1, 6, 16, C_LIGHT);
 }
-static void button(int y, int stop) {                 /* round button in the input bar: up arrow = send, square = stop */
-    rrect(214, y + 2, 12, 12, 6, C(BTN));
-    if (stop) { rect(218, y + 6, 4, 4, INK(BTN)); return; }
-    for (int i = 0; i < 3; i++) hline(219 - i, y + 5 + i, 2 + 2 * i, INK(BTN));
-    rect(219, y + 7, 2, 5, INK(BTN));
+static void field_placeholder(const char *t, int caret) {
+    field_frame();
+    fill(6, FIELD_Y + 1, 2, 16, C_LIGHT);
+    text_draw_bg(8, FIELD_Y + 1, 8, 234, t, 0, C_GREY, C_LIGHT);
+    if (caret) fill(6, FIELD_Y + 1, 1, 15, C_BLACK);
 }
-void ui_reply_button(int stop) { button(141, stop); }   /* while Koko is answering the button is a stop square */
-static void pill_at(int y, int typing, const char *msg, int mlen) {
-    rrect(6, y, 228, 16, 8, C(PILL));
-    button(y, 0);
-    if (!typing || !mlen) { text(16, y + 1, typing ? "Type a message" : "Say something to Koko", PILL_DIM); if (!typing) return; }
-    int from = 0;
-    while (width_n(msg + from, mlen - from) > 186) from++;                 /* a long message shows its end */
-    int x = text_n(16, y + 1, msg + from, mlen - from, PILL);
-    if (mlen) rect(x + 1, y + 3, 1, 10, INK(PILL));                        /* caret */
-    else rect(14, y + 3, 1, 10, INK(PILL));
-}
-void ui_pill(int typing, const char *msg, int mlen) { pill_at(typing ? UI_PILL_Y : 141, typing, msg, mlen); }
-void ui_chips(int n, const char *a, int alen, const char *b, int blen) {
-    rect(0, UI_CHIP_Y, 240, 14, C(BG));
-    int x = 8;
-    for (int k = 0; k < n; k++) {
-        const char *p = k ? b : a; int len = k ? blen : alen;
-        if (len && p[0] == ' ') { p++; len--; }
-        int w = width_n(p, len) + 24;
-        rrect(x, UI_CHIP_Y, w, 14, 6, C(CHIP));
-        glyph(x + 6, UI_CHIP_Y, k ? 'R' : 'L', CHIP_ACC, 0);
-        text_n(x + 16, UI_CHIP_Y, p, len, CHIP);
-        x += w + 6;
-    }
-}
-int ui_chip_at(int x, int n, const char *a, int alen, const char *b, int blen) {
-    int x0 = 8;
-    for (int k = 0; k < n; k++) {
-        const char *p = k ? b : a; int len = k ? blen : alen;
-        if (len && p[0] == ' ') { p++; len--; }
-        int w = width_n(p, len) + 24;
-        if (x >= x0 && x < x0 + w) return k;
-        x0 += w + 6;
-    }
-    return -1;
-}
-void ui_keycap(int r, int c, int sel, int upper) {
-    int ch = keyrow[r][c], x = UI_KEY_X + c * UI_KEY_W, y = UI_KEY_Y + r * UI_KEY_H;
-    if (BAR(r, c)) {                                                       /* the space bar: one wide key, always outlined */
-        if (c != 6) return;
-        int p = sel ? SEL : CHIP, bx = UI_KEY_X + 5 * UI_KEY_W;
-        rect(bx, y, 3 * UI_KEY_W, UI_KEY_H, C(PANEL));
-        rrect(bx + 2, y, 3 * UI_KEY_W - 4, UI_KEY_H - 1, 6, C(p));
-        rect(bx + 15, y + 9, 24, 1, INK(p)); rect(bx + 15, y + 7, 1, 3, INK(p)); rect(bx + 38, y + 7, 1, 3, INK(p));
-        return;
-    }
-    if (upper && r < 2) ch -= 32;
-    rect(x, y, UI_KEY_W, UI_KEY_H, C(PANEL));
-    if (sel) rrect(x + 1, y, UI_KEY_W - 2, UI_KEY_H - 1, 4, C(SEL));
-    int paint = sel ? SEL : PANEL;
-    if (ch == UI_KEY_HELP) {                                               /* helpers on/off: a book */
-        rect(x + 5, y + 4, 9, 1, INK(paint)); rect(x + 5, y + 10, 9, 1, INK(paint));
-        rect(x + 5, y + 4, 1, 7, INK(paint)); rect(x + 13, y + 4, 1, 7, INK(paint)); rect(x + 9, y + 4, 1, 7, INK(paint));
-        return;
-    }
-    if (ch == UI_KEY_NEW) {                                                /* new chat: a page with a plus */
-        rect(x + 5, y + 3, 9, 1, INK(paint)); rect(x + 5, y + 11, 9, 1, INK(paint));
-        rect(x + 5, y + 3, 1, 9, INK(paint)); rect(x + 13, y + 3, 1, 9, INK(paint));
-        rect(x + 7, y + 7, 5, 1, INK(paint)); rect(x + 9, y + 5, 1, 5, INK(paint));
-        return;
-    }
-    if (ch == '<') { for (int i = 0; i < 4; i++) rect(x + 5 + i, y + 6 - i, 1, 1 + 2 * i, INK(paint)); rect(x + 9, y + 6, 5, 1, INK(paint)); return; }  /* delete */
-    glyph(x + (UI_KEY_W - FONT_BODY_W[ch - 32]) / 2, y, ch, paint, 0);
-}
-void ui_keyboard(int kx, int ky, int upper) {
-    rect(0, UI_KEY_Y - 3, 240, 160 - UI_KEY_Y + 3, C(PANEL));
-    for (int r = 0; r < 4; r++) { YIELD(); for (int c = 0; c < 13; c++) ui_keycap(r, c, r == ky && c == kx, upper); }
-}
-/* kokoSD: typing with gbawriter's buttons, so no keyboard: the chat reaches down to the suggestion chips. */
 void ui_input(const char *msg, int mlen, int caret) {
-    int y = UI_PILL_Y;
-    rrect(6, y, 228, 16, 8, C(PILL));
-    button(y, 0);
-    if (!mlen) { text(16, y + 1, "Type a message", PILL_DIM); rect(14, y + 3, 1, 10, INK(PILL)); return; }
+    reply_stop = -1;
+    if (!mlen) { field_placeholder("Type a message", 1); return; }
     if (caret < 0 || caret > mlen) caret = mlen;
-    int from = 0;
-    while (from < caret && width_n(msg + from, caret - from) > 186) from++;   /* the cursor stays in view */
-    int to = from;
-    while (to < mlen && width_n(msg + from, to + 1 - from) <= 186) to++;
-    text_n(16, y + 1, msg + from, to - from, PILL);
-    rect(16 + width_n(msg + from, caret - from) + (caret > from ? 1 : -2), y + 3, 1, 10, INK(PILL));   /* cursor */
+    field_frame();
+    static char t[UI_MSG_MAX + 1] EW;
+    int n = mlen < UI_MSG_MAX ? mlen : UI_MSG_MAX;
+    if (n < 0) n = 0;
+    for (int i = 0; i < n; i++) t[i] = msg[i];
+    t[n] = 0;
+    int cx = width_n(msg, caret), skip = cx > 226 ? cx - 226 : 0;   /* the cursor stays in view */
+    text_draw_bg(6, FIELD_Y + 1, 6, 234, t, (unsigned)skip, C_BLACK, C_LIGHT);
+    fill(6 + cx - skip, FIELD_Y + 1, 1, 15, C_BLACK);
+}
+static const char *idle_hint = "START: ideas    START+SELECT: menu";
+static int chips_n;
+static void hint_line(const char *t) {
+    fill(0, HINT_Y - 1, 240, 10, C_WHITE);
+    small_draw(6, HINT_Y, small_fit(t, 228), C_GREY);
+}
+void ui_hint(int has_text) {
+    const char *h = has_text ? "START: send    START+SELECT: menu" : "START: ideas    START+SELECT: menu";
+    if (h == idle_hint) return;
+    idle_hint = h;
+    if (!chips_n) hint_line(h);
+}
+void ui_chips(int n, const char *a, int alen, const char *b, int blen) {
+    chips_n = n;
+    if (!n) { hint_line(idle_hint); return; }
+    static char s[96] EW; int k = 0;
+    for (int j = 0; j < n; j++) {
+        const char *p = j ? b : a; int len = j ? blen : alen;
+        if (len && p[0] == ' ') { p++; len--; }
+        const char *pre = j ? "     START+R: " : "START+L: ";
+        while (*pre && k < 80) s[k++] = *pre++;
+        for (int i = 0; i < len && k < 94; i++) s[k++] = p[i];
+    }
+    s[k] = 0;
+    hint_line(s);
 }
 void ui_typing(const char *msg, int mlen, int caret) {
-    chat_bot = UI_CHIP_Y - 3;
+    chat_bot = CHAT_BOT_TYPING;
     chat_draw();
-    rect(0, chat_bot, 240, 160 - chat_bot, C(BG));
+    fill(0, chat_bot, 240, FIELD_Y - chat_bot, C_WHITE);
     YIELD();
     ui_input(msg, mlen, caret); ui_chips(0, 0, 0, 0, 0);
 }
 void ui_menu(const char *title, const char *const *items, int n, int sel) {
     frame_start();
-    for (int y = 0; y < 160; y += 20) { rect(0, y, 240, 20, C(BG)); YIELD(); }   /* buttons are read while it draws */
-    int x = 10;
-    for (const char *s = title; *s; s++) x += glyph(x, 2, *s, BG, 1);
-    for (int i = 0; i < n; i++) {
-        int y = CHAT_TOP + 6 + i * 18;
-        if (i == sel) rrect(6, y - 2, 228, 17, 6, C(SEL));
-        text(14, y, items[i], i == sel ? SEL : BG);
+    header_line(title, 0);
+    YIELD();
+    for (int i = 0; i < n; i++) {                                  /* rows as gbamp3's lists: 17 rows each, the selection blue */
+        int y = HDR_H + i * 17;
+        uint16_t bg = i == sel ? C_BLUE : C_WHITE;
+        fill(0, y, 6, 17, bg); fill(234, y, 6, 17, bg); fill(6, y, 228, 1, bg);
+        text_draw_bg(6, y + 1, 6, 234, items[i], 0, C_BLACK, bg);
         YIELD();
     }
-    text(232 - width("A choose  B back"), 147, "A choose  B back", BG_DIM);
+    fill(0, HDR_H + n * 17, 240, 160 - HDR_H - n * 17, C_WHITE);
+    small_draw(6, 150, "A: choose    B: back", C_GREY);
 }
 
 /* ---------------- reply layout ---------------- */
+void ui_reply_button(int stop) {                      /* the field while Koko answers (B stops him) and after */
+    if (stop == reply_stop) return;
+    reply_stop = stop;
+    field_placeholder(stop ? "Koko is writing...    B: stop" : "Press a button to reply", 0);
+}
 void ui_reply_layout(const char *msg, int mlen) {
-    chat_bot = 138;
+    chat_bot = CHAT_BOT_REPLY;
     line_push(L_USER); line_add(msg, mlen, USER_W);
-    rect(0, UI_PILL_Y - 4, 240, 160 - UI_PILL_Y + 4, C(BG));
+    fill(0, CHAT_BOT_TYPING, 240, FIELD_Y - CHAT_BOT_TYPING, C_WHITE);
     chat_draw();
-    ui_pill(0, 0, 0);
+    reply_stop = -1; ui_reply_button(1);
 }
 void ui_reply_start(int mark) { line_push(L_KOKO); lines[nline - 1].mark = (uint8_t)mark; chat_update(nline - 1); }
 void ui_redraw(void) { chat_draw(); }
@@ -445,19 +352,20 @@ void ui_reply_text(const char *p, int n) {
     if (w) chat_update(nline - 1 - w);
     else if (cur_y < 0) chat_draw();
     else {
-        text_n(10 + (lines[nline - 1].mark ? MARK_W : 0) + width_n(lines[nline - 1].t, before), cur_y, lines[nline - 1].t + before, lines[nline - 1].n - before, BG);
+        text_n(line_x(nline - 1) + width_n(lines[nline - 1].t, before), cur_y, lines[nline - 1].t + before, lines[nline - 1].n - before, C_BLACK);
         lines[nline - 1].dn = lines[nline - 1].n;
     }
 }
 
-/* ---------------- kokoSD: an article to read ("Tell me more") ---------------- */
+/* ---------------- kokoSD: an article to read ("Tell me more"), How to type, About ---------------- */
 /* The text is wrapped once into lines (starts kept here); a page shows ART_ROWS of them. */
 #define ART_LINES 640
-#define ART_ROWS 9
-#define ART_W 220
+#define ART_ROWS 8
+#define ART_W 228
 static uint16_t art_start[ART_LINES + 1] EW;
 static uint8_t art_len[ART_LINES] EW;
 static int art_n;
+static int char_len(const char *t, int i, int n) { int j = i + 1; while (j < n && cont(t[j])) j++; return j - i; }
 int ui_article_wrap(const char *t, int n) {
     art_n = 0;
     int i = 0;
@@ -466,14 +374,16 @@ int ui_article_wrap(const char *t, int n) {
             if (i + 1 < n && t[i + 1] == '\n') { art_start[art_n] = (uint16_t)i; art_len[art_n++] = 0; i++; }
             i++; continue;
         }
-        int j = i, w = 0, cut = -1;
+        int j = i, w = 0, cut_at = -1;
         while (j < n && t[j] != '\n') {
-            w += width_n(t + j, 1);
-            if (w > ART_W) break;
-            if (t[j] == ' ') cut = j;
-            j++;
+            int k = char_len(t, j, n);
+            w += width_n(t + j, k);
+            if (w > ART_W || j + k - i > 255) break;
+            if (t[j] == ' ') cut_at = j;
+            j += k;
         }
-        int end = (j < n && t[j] != '\n' && cut > i) ? cut : j;
+        int end = (j < n && t[j] != '\n' && cut_at > i) ? cut_at : j;
+        if (end == i) end = i + char_len(t, i, n);
         art_start[art_n] = (uint16_t)i; art_len[art_n++] = (uint8_t)(end - i);
         i = end;
         while (i < n && t[i] == ' ') i++;
@@ -481,25 +391,29 @@ int ui_article_wrap(const char *t, int n) {
     return art_n;
 }
 int ui_article_rows(void) { return ART_ROWS; }
+static void put_num(char *b, int *k, int v) { char d[6]; int n = 0; do { d[n++] = (char)('0' + v % 10); v /= 10; } while (v); while (n) b[(*k)++] = d[--n]; }
 void ui_article(const char *title, const char *t, int first) {
     frame_start();
-    for (int y = 0; y < 160; y += 20) { rect(0, y, 240, 20, C(BG)); YIELD(); }
-    int x = 10;
-    for (const char *s = title; *s && x < 200; s++) x += glyph(x, 2, *s, BG, 1);   /* the article's title */
-    for (int r = 0; r < ART_ROWS && first + r < art_n; r++) {
+    header_line(small_fit(title, 228), 0);
+    for (int r = 0; r < ART_ROWS; r++) {
         YIELD();
-        text_n(10, CHAT_TOP + 3 + r * LH, t + art_start[first + r], art_len[first + r], BG);
+        int y = CHAT_TOP + r * LH;
+        fill(0, y, 6, LH, C_WHITE);
+        text_draw_bg(6, y, 6, 240, first + r < art_n ? cut(t + art_start[first + r], art_len[first + r]) : "", 0, C_BLACK, C_WHITE);
     }
-    char hint[40]; int h = 0;
-    const char *a = first + ART_ROWS < art_n ? "Down more  B back" : "B back";
-    while (*a) hint[h++] = *a++;
-    hint[h] = 0;
-    text(232 - width(hint), 147, hint, BG_DIM);
+    fill(0, CHAT_TOP + ART_ROWS * LH, 240, 160 - CHAT_TOP - ART_ROWS * LH, C_WHITE);
+    small_draw(6, 150, first + ART_ROWS < art_n ? "Down: more    B: back" : "B: back", C_GREY);
+    char pg[16]; int k = 0;
+    int pages = (art_n + ART_ROWS - 1) / ART_ROWS, at = (first + ART_ROWS - 1) / ART_ROWS + 1;
+    if (pages < 1) pages = 1;
+    if (at > pages) at = pages;
+    put_num(pg, &k, at); pg[k++] = '/'; put_num(pg, &k, pages); pg[k] = 0;
+    small_draw(234 - (int)small_width(pg), 150, pg, C_GREY);
 }
 void ui_chat_again(void) {                           /* back from an article: the chat as it was (reply layout) */
-    rect(0, 0, 240, 160, C(BG));
+    fill(0, 0, 240, 160, C_WHITE);
     ui_header(0);
-    chat_bot = 138;
+    chat_bot = CHAT_BOT_REPLY;
     chat_draw();
-    ui_pill(0, 0, 0);
+    reply_stop = -1; ui_reply_button(0);
 }

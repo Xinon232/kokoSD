@@ -41,6 +41,10 @@ def build(cardtest=False):
     koko = ['crt0.s', 'ui.c', 'rt.c'] + (['cardtest.c'] if cardtest else
             ['game.c', 'koko.c', 'koko_tok.c', 'sums.c', 'facts.c', 'kernels.s', 'blob.s'])
     for n in koko: obj(R/'engine'/n, KOKO)
+    T = R/'engine'/'text'                      # kokoSD 1.1: our apps' two fonts (gbamp3's text drawing; its data in slow RAM)
+    obj(T/'text.c', KOKO + [f'-I{T}', '-Wno-unused-function'], 'ew-text')
+    obj(T/'blit.c', KOKO, 'ew-blit')
+    obj(T/'fonts.S', [f'-Wa,-I{T}'], 'fonts')
     if not cardtest: obj(R/'bench'/'tern.s', KOKO)
     for n in ('sd.c', 'diskio.c') + (() if cardtest else ('facts_sd.c',)): obj(R/'engine'/n, SD + ['-marm', f'-I{R/"gen"}'], f'sd-{Path(n).stem}')
     for s in [G/'fatfs'/'ff.c', G/'fatfs'/'ffunicode.c'] + [G/'src'/n for n in (

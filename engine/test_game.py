@@ -47,7 +47,18 @@ class Pad:
         elif ch in self.RCYCLE: cyc, n = R, self.RCYCLE.index(ch)
         else: cyc, n = RIGHT, self.RIGHTCYCLE.index(ch)
         return self.h(SELECT, 4) + (self.h(SELECT | cyc, 4) + self.h(SELECT, 3)) * n + self.h(0, 4)
-    def text(self, s): return [st for ch in s for st in self.key(ch)]
+    ACCENTS = {'é': ('e', 1), 'è': ('e', 2), 'ü': ('u', 1), 'ñ': ('n', 1), 'ß': ('s', 1), 'ö': ('o', 2)}
+    def accent(self, ch):
+        """kokoSD 1.1: keep the letter's buttons held and press SELECT (n times for the n-th accented form)."""
+        base, n = self.ACCENTS[ch]
+        for d, first, second in self.GROUPS:
+            for layer, letters in ((0, first), (L, second)):
+                if base in letters:
+                    hold = d | layer | (B, A, R)[letters.index(base)]
+                    out = self.h(d | layer, 4) + self.h(hold, 4)
+                    for _ in range(n): out += self.h(hold | SELECT, 4) + self.h(hold, 3)
+                    return out + self.h(d | layer, 3) + self.h(0, 4)
+    def text(self, s): return [st for ch in s for st in (self.accent(ch) if ch in self.ACCENTS else self.key(ch))]
     def start_with(self, b): return self.h(START, 4) + self.h(START | b, 4) + self.h(START, 3) + self.h(0, 4)
     def menu(self): return self.start_with(SELECT) + [f'until:{DBG + 4:#x}:5:2000', 'f:4']   # START + SELECT: the menu (state 5)
     def new_chat(self): return self.menu() + [f'k:{A}']                  # its first row
@@ -203,7 +214,7 @@ def sd_fact(path, key):
 # 11. kokoSD: facts from the SD card's file (a subject the cartridge's own table does not have), then
 #     "tell me more": the article opens (state 4), Down scrolls it, B goes back to the chat
 FACTS = 'out/koko/facts.dat'
-if os.path.exists(FACTS):
+if os.path.exists(FACTS) and RUNNER != 'build/runner':   # (no card: nothing to read)
     card = 'out/facts-card.img'
     if not os.path.exists(card) or os.path.getmtime(card) < os.path.getmtime(FACTS):
         size = (os.path.getsize(FACTS) >> 20) + 64
@@ -230,5 +241,11 @@ if os.path.exists(FACTS):
           f'tell me more: {t[1][1] if len(t) > 1 else None!r}, the article has {lines} lines, Down scrolled to line {top}')
     check(native_reply(r['hist'], r['seed']) or True, '(the fact replies are fed, not generated)')
 else:
-    print('SKIP facts from the SD card: no out/koko/facts.dat (python3 tools/facts_sd.py simplewiki-....xml.bz2)')
+    print('SKIP facts from the SD card: no card (build/runner) or no out/koko/facts.dat (python3 tools/facts_sd.py simplewiki-....xml.bz2)')
+# 12. kokoSD 1.1: accented letters are typed and shown as typed; Koko reads the plain-letter copy
+pad = Pad()
+r = run('koko_accents', pad.text('i like café in münchen') + [f'k:{START}'], 1)
+t = turns_of(r['hist'])
+check(t and t[0][0] == 'i like cafe in munchen', f"accents: Koko read {t[0][0] if t else None!r} for 'i like café in münchen'")
+check(native_reply(r['hist'], r['seed']), 'reply identical to the native engine')
 sys.exit(0 if ok else 1)
