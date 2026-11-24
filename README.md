@@ -24,6 +24,8 @@ Definitive Edition, started from the SD card) and EverDrive GBA, through
 - Buttons are debounced (a bouncing contact is not a second press), and presses made
   while Koko works are kept in order.
 
+**Known issues:** see [KNOWN_ISSUES.md](KNOWN_ISSUES.md) (not tested on real hardware yet).
+
 ## Building kokoSD
 The weights are not in git. Take Koko's data block out of a released `koko.gba`,
 then build (devkitARM in /opt/devkitpro, Python 3 with numpy):
