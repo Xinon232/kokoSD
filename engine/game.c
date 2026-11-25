@@ -415,10 +415,16 @@ reload:
 extern char __rom_end[];
 #define MODEL_CHECK 0x0cdc9b2fu                    /* engine/selftest: koko_h after the sentence below (native twin) */
 static const uint16_t check_toks[] = { 1, 1546, 3021, 3, 7622, 384, 461, 1229, 14, 3049, 278, 266, 4582, 3972, 7952, 16, 2 };
+static void range_sums(const volatile uint32_t *tab, uint32_t at, uint32_t n, uint32_t *s1, uint32_t *s2);
 static int rom_piece(unsigned i, uint32_t *s1, uint32_t *s2) {   /* sums of 1 MB piece i; 0 when there is no table */
     const volatile uint32_t *tab = (const volatile uint32_t *)(((uint32_t)__rom_end + 4095u) & ~4095u);
     if (tab[0] != 0x4D55534Bu || i >= tab[2]) return 0;   /* "KSUM" */
     uint32_t size = tab[1], at = i << 20, n = size - at < (1u << 20) ? (size - at) >> 2 : 1u << 18;
+    range_sums(tab, at, n, s1, s2);
+    return tab[3 + 2 * i] == *s1 && tab[4 + 2 * i] == *s2 ? 1 : -1;
+}
+/* the two sums of n words from ROM offset at, with the words a loader may change counted as their originals */
+static void range_sums(const volatile uint32_t *tab, uint32_t at, uint32_t n, uint32_t *s1, uint32_t *s2) {
     const volatile uint32_t *p = (const volatile uint32_t *)(0x08000000u + at);
     uint32_t a = 0, b = 0;
     for (uint32_t k = 0; k < n; k++) { uint32_t w = p[k]; a += w; b += w * (k + 1); if (!(k & 4095)) poll(); }
@@ -431,7 +437,13 @@ static int rom_piece(unsigned i, uint32_t *s1, uint32_t *s2) {   /* sums of 1 MB
         a += d; b += d * (k + 1);
     }
     *s1 = a; *s2 = b;
-    return tab[3 + 2 * i] == a && tab[4 + 2 * i] == b ? 1 : -1;
+}
+static const volatile uint32_t *rom_blk_tab(void) {  /* kokoSD 1.4.9: "KBLK" after the KSUM table (tools/fixrom.py) */
+    const volatile uint32_t *t = (const volatile uint32_t *)(((uint32_t)__rom_end + 4095u) & ~4095u);
+    if (t[0] != 0x4D55534Bu) return 0;
+    const volatile uint32_t *m = t + 3 + 2 * t[2];
+    t = (const volatile uint32_t *)(((uint32_t)(m + 1 + 2 * m[0]) + 4095u) & ~4095u);
+    return t[0] == 0x4B4C424Bu ? t : 0;
 }
 static unsigned rom_pieces(void) {
     const volatile uint32_t *tab = (const volatile uint32_t *)(((uint32_t)__rom_end + 4095u) & ~4095u);
@@ -769,8 +781,8 @@ extern void watch_irq(void);
 static const char *sym_name(uint32_t a, uint32_t *off) {
     const volatile uint32_t *t = (const volatile uint32_t *)(((uint32_t)__rom_end + 4095u) & ~4095u);
     if (t[0] != 0x4D55534Bu) return 0;
-    const volatile uint32_t *m = t + 3 + 2 * t[2];
-    t = (const volatile uint32_t *)(((uint32_t)(m + 1 + 2 * m[0]) + 4095u) & ~4095u);
+    if (!(t = rom_blk_tab())) return 0;
+    t = (const volatile uint32_t *)(((uint32_t)(t + 2 + 2 * t[1]) + 4095u) & ~4095u);
     if (t[0] != 0x4D59534Bu) return 0;                /* "KSYM" */
     uint32_t n = t[1], lo = 0, hi = n;
     const volatile uint32_t *ad = t + 2;
@@ -814,6 +826,41 @@ __attribute__((noreturn, used)) void watch_report(void) {
     ui_small(122, d);
     for (;;) {}
 }
+/* kokoSD 1.4.9 (test builds): the ROM as the cart gives it back, before anything else uses it. Every 1 MB and
+ * every 4 KB of the first 256 KB (the program) against the sums tools/fixrom.py wrote, and the first 256 KB
+ * read twice word by word, four times over (a read that gives different values). Errors stay on the screen. */
+static char *put_d(char *p, uint32_t v) { char b[12]; int k = 0; do { b[k++] = (char)('0' + v % 10); v /= 10; } while (v); while (k) *p++ = b[--k]; *p = 0; return p; }
+static void rom_check(void) {
+    const volatile uint32_t *t = (const volatile uint32_t *)(((uint32_t)__rom_end + 4095u) & ~4095u), *bt = rom_blk_tab();
+    if (!bt) return;
+    ui_boot("Checking the ROM (test build)...", "");
+    char l1[64], l2[64], l3[64];
+    char *p1 = put_s(l1, "Bad MB:"), *p2 = put_s(l2, "Bad 4 KB:"), *p3;
+    int n1 = 0, n2 = 0;
+    uint32_t s1, s2, unstable = 0, first = 0;
+    for (unsigned i = 0; i < t[2]; i++)
+        if (rom_piece(i, &s1, &s2) < 0 && n1++ < 10) { p1 = put_s(p1, " "); p1 = put_d(p1, i); }
+    for (unsigned i = 0; i < bt[1]; i++) {
+        range_sums(t, i << 12, 1024, &s1, &s2);
+        if ((s1 != bt[2 + 2 * i] || s2 != bt[3 + 2 * i]) && n2++ < 3) { p2 = put_s(p2, " "); p2 = put_x(p2, 0x08000000u + (i << 12), 8); }
+    }
+    const volatile uint32_t *r = (const volatile uint32_t *)0x08000000u;
+    for (int pass = 0; pass < 4; pass++)
+        for (uint32_t k = 0; k < (bt[1] << 10); k++) {
+            uint32_t a = r[k], b = r[k];
+            if (a != b) { if (!unstable) first = 0x08000000u + 4 * k; unstable++; }
+            if (!(k & 4095)) poll();
+        }
+    p3 = put_s(l3, "Unstable reads: "); p3 = put_d(p3, unstable);
+    if (unstable) { p3 = put_s(p3, " first "); p3 = put_x(p3, first, 8); }
+    if (!n1 && !n2 && !unstable) { ui_boot("ROM check: all OK", "(test build)"); for (int f = 0; f < 45; f++) vsync(); return; }
+    if (!n1) put_s(p1, " none");
+    if (!n2) put_s(p2, " none");
+    ui_ask("ROM check: errors", "Please send a photo", l1, 0);
+    ui_lines(l2, "A: continue");
+    ui_small(110, l3);
+    for (;;) { vsync(); if (keys_down() & BTN_A) break; }
+}
 static void watch_start(void) {                   /* the freeze detector on (video-frame interrupt) */
     *(volatile uint16_t *)0x04000208 = 0;
     watch[1] = watch[0]; watch[2] = 0; watch[3] = 0; watch[5] = 0;
@@ -840,6 +887,7 @@ int main(void) {
     koko_yield = poll; ui_yield = poll;
     dbg.magic = 0x4B4F4B4F; dbg.turns = 0; dbg.ntok = 0; dbg.made = 0; dbg.rewinds = 0; dbg.newchats = 0; dbg.pure = 0;
     koko_reset();
+    rom_check();                                  /* kokoSD 1.4.9 (test build) */
     ui_boot("Looking for the SD card...", "");    /* kokoSD 1.1: each step is shown (a hang tells where) */
     sd_mount();                                   /* kokoSD: the SD card (0 without a card) */
     if (cart_kind >= CART_EZFO) REG_WAITCNT = 0x4317;   /* Omega / EverDrive: fastest cartridge timing + prefetch */

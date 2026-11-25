@@ -111,7 +111,7 @@ def check(cond, what):
     ok &= bool(cond); print('PASS' if cond else 'FAIL', what)
 
 # 0. kokoSD: the SD card was mounted at start (dbg.sd: bit 0 mounted, bits 8-15 gbaSD's cart_kind)
-subprocess.run([RUNNER, ROM, 'f:20', f'dump:{DBG + 44 + 2 * HISTMAX:#x}:4:out/sd.bin'], check=True)
+subprocess.run([RUNNER, ROM, f'until:{DBG + 4:#x}:7:9000', f'dump:{DBG + 44 + 2 * HISTMAX:#x}:4:out/sd.bin'], check=True)   # (1.4.9: after the ROM check)
 sd = struct.unpack('I', open('out/sd.bin', 'rb').read())[0]
 want_sd = {'build/runner': 0, 'build/runner-sc': 1, 'build/runner-ezfo': 2, 'build/runner-edgba': 4}.get(RUNNER)
 check((sd & 1) == (RUNNER != 'build/runner') and (sd >> 8) == (want_sd if want_sd else sd >> 8),

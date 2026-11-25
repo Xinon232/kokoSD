@@ -27,6 +27,16 @@ if len(sys.argv) > 2 and sys.argv[2] == '--sums':
     tab += [struct.pack('<II', o, int(w[o // 4])) for o in may]
     d += b''.join(tab)
     while len(d) % 4096: d.append(0xFF)
+    # kokoSD 1.4.9: the start-up ROM check's finer sums: "KBLK", the count, then per 4 KB of the first 256 KB (the
+    # program, fonts and tables) the same two sums as above, on the next 4 KB boundary
+    blk = 1024                                          # words in 4 KB
+    nb = min(64, (len(w) + blk - 1) // blk)
+    t2 = [b'KBLK', struct.pack('<I', nb)]
+    for i in range(nb):
+        c = w[i * blk:(i + 1) * blk]
+        t2.append(struct.pack('<II', int(c.sum()) & 0xFFFFFFFF, int((c * np.arange(1, len(c) + 1, dtype=np.uint64)).sum()) & 0xFFFFFFFF))
+    d += b''.join(t2)
+    while len(d) % 4096: d.append(0xFF)
     # kokoSD 1.4.6: the freeze report's function names (engine/game.c sym_name), on the next 4 KB boundary:
     # "KSYM", the count, the start addresses (sorted), the name offsets, then the names (ending in 0)
     if len(sys.argv) > 3:
