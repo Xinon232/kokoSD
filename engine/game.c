@@ -68,22 +68,28 @@ static uint16_t raw_prev;
 static uint32_t moved_at[10];
 /* kokoSD 2.0: keep-alive. A SuperCard's "ROM" is SDRAM, which only keeps what is read often enough on some carts:
  * our other apps are a few MB that are read all the time, Koko's 31 MB are mostly left alone while one types or
- * waits, and the model then reads all of it. So one word of every 512 bytes is read, the whole ROM about once a
- * second, spread over the calls of poll() (about 3% of the time). Off during the self test's idle check. */
+ * waits, and the model then reads all of it. So one word of every 512 bytes is read, the whole ROM about every
+ * two seconds, spread over the calls of poll(). The loop runs from fast RAM (from ROM it cost a third of Koko's
+ * speed). Off during the self test's idle check. */
 extern char __rom_end[];
 extern unsigned cart_kind;
 static uint32_t ka_row, ka_last;
 static int ka_off;
+__attribute__((section(".iwram.text"), target("arm"), noinline))
+static uint32_t ka_touch(uint32_t row, uint32_t n, uint32_t rows) {
+    const volatile uint16_t *r = (const volatile uint16_t *)0x08000000u;
+    while (n--) { (void)r[row << 8]; if (++row >= rows) row = 0; }
+    return row;
+}
 static void keep_alive(void) {
     if (ka_off || cart_kind != CART_SUPERCARD) return;
-    uint32_t now = ticks(), rows = ((uint32_t)__rom_end - 0x08000000u) >> 9;
+    uint32_t now = ticks();
     if (now < ka_last) ka_last = now;              /* the timers were started again */
-    uint32_t due = (now - ka_last) * 4u;           /* 16384 ticks a second, ~64000 rows: 4 a tick */
-    if (!due) return;
+    uint32_t due = (now - ka_last) * 2u;           /* 16384 ticks a second, ~61500 rows: 2 a tick, all in ~2 s */
+    if (due < 32) return;                          /* (in small batches) */
     ka_last = now;
     if (due > 4096) due = 4096;
-    const volatile uint16_t *r = (const volatile uint16_t *)0x08000000u;
-    for (; due; due--) { (void)r[ka_row << 8]; if (++ka_row >= rows) ka_row = 0; }
+    ka_row = ka_touch(ka_row, due, ((uint32_t)__rom_end - 0x08000000u) >> 9);
 }
 static void poll(void) {                          /* called often, also from inside the model's work and long redraws */
     keep_alive();
