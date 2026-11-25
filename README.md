@@ -53,14 +53,15 @@ cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 a
 
 
 ## What is new in 2.4 (test)
-Four additions, each with its own switch in **START+SELECT > Settings** (kept in `koko/settings.txt`):
+Four additions, each with its own switch in **START+SELECT > Settings** (kept in `koko/settings.txt`); the
+last row there, **What these settings do**, explains them on the GBA:
 
 | Setting | Choices (default first) | What it does |
 |---|---|---|
 | Facts | Read out / As a hint / Off | Read out: the Wikipedia sentence is Koko's reply (marked Fact), as before. As a hint: the sentence is put into your message, before your question, and Koko answers in his own words (marked Hint). Off: no facts and no sums. |
 | Fact matching | Wide / Strict | Wide finds the article for more ways of asking; Strict is 2.3's matching. |
 | Memory | On / Off | What you tell Koko about yourself is kept and told to him at the start of each new chat. "What Koko remembers" shows it; SELECT there forgets it all. |
-| Word memory | On / Off | Which words follow which in the Wikipedia text is mixed into Koko's choice of the next word. |
+| Word memory | Off / On | Which words follow which in the Wikipedia text is mixed into Koko's choice of the next word. Off by default: it made replies sound like Wikipedia without being more often right. |
 
 **More facts, better matched.** The fact file (`koko/facts.dat`, made again: 323 MB, of which 52 MB word memory) has 264,618
 articles (2.3: 244,015): titles such as "Mercury (planet)" are now in it, as "mercury planet" and, where no

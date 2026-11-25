@@ -176,7 +176,8 @@ static uint16_t fed[MSG_TOK], want[MSG_TOK], sug[3];      /* koko_suggest return
 static int nfed, nwant, user_fed, stepping, dirty, nsug, sug_stale, mark_ntok;
 static int helpers = 1;                           /* fact table and calculator on; off = every word comes from the model;
                                                    * kokoSD 2.4: 2 = facts as a hint (Koko is told the fact and answers) */
-static int words_on = 1;                          /* kokoSD 2.4: word memory from the fact file (when it has one) */
+static int words_on = 0;                          /* kokoSD 2.4: word memory from the fact file (when it has one); off by default:
+                                                   * in tests it made replies sound like Wikipedia, not more often right */
 /* kokoSD 2.4: what Koko remembers about you, told at the start of each new chat (engine/memory.c). Fed in the
  * background while the first message is typed; the editor's mark moves past it when it is in. */
 #define PRE_MAX 200
@@ -649,6 +650,31 @@ static void words_set(void) {                     /* kokoSD 2.4 */
     koko_words = words_on && sdf_words_ready() ? sdf_words : 0;
     koko_words_mix = 32;                          /* 64 was best on held-out article text; in chat it pulled Koko toward article wording */
 }
+/* kokoSD 2.4: Settings > What these settings do */
+static const char SETTINGS_HELP[] =
+    "FACTS (default: Read out)\n"
+    "Read out: when you ask \"who is\", \"what is\" or \"tell me about\", Koko says the first sentence of the "
+    "Simple English Wikipedia article (marked Fact). It is always right. \"tell me more\" then opens the article.\n"
+    "As a hint: the sentence is put into your message, before your question, and Koko answers in his own words "
+    "(marked Hint). Friendlier, often uses the fact, but he can still get things wrong (names, dates). It takes "
+    "10 to 25 seconds longer, as Koko reads the fact first.\n"
+    "Off: no facts and no sums: every word is Koko's own (and often made up).\n\n"
+    "FACT MATCHING (default: Wide)\n"
+    "Wide: Koko finds the article for many ways of asking: \"can you tell me about\", \"have you heard of\", "
+    "\"do you know\", \"what does ... mean\", \"info about\", and with extra words: \"the singer Taylor Swift\", "
+    "\"the planet Mercury\". In a test 41 of 50 such questions found their article (Strict: 19).\n"
+    "Strict: only the plain ways of asking of kokoSD 2.3.\n\n"
+    "MEMORY (default: On)\n"
+    "Koko notes what you tell him about yourself: \"my name is ...\", \"call me ...\", \"I am 10 years old\", "
+    "\"I live in ...\", \"I like ...\", \"my favorite ... is ...\", \"I have a ...\". At each new chat he is told it "
+    "while you type your first message. He uses your name well (\"Hi Lena!\"), other things less often. "
+    "It is kept in koko/memory.txt (one sentence a line). What Koko remembers: see it, SELECT forgets it all. "
+    "Saved chats go on without it.\n\n"
+    "WORD MEMORY (default: Off)\n"
+    "For each word Koko writes, the fact file is asked which words usually follow his last words in Wikipedia, "
+    "and that is mixed into his choice. His replies sound more like an encyclopedia (\"Germany was founded in ...\"), "
+    "but in tests they were not more often right. On a slow SD card it may make him slower. Needs the 2.4 fact file.\n\n"
+    "Settings are kept in koko/settings.txt.";
 /* kokoSD 2.4: the settings are kept in /koko/settings.txt ("facts=1" ...: 0 off, 1 read out, 2 as a hint) */
 static int set_val(const char *t, int n, const char *key, int dflt) {
     for (int i = 0; i < n; i++) {
@@ -667,7 +693,7 @@ static void settings_load(void) {
     f_close(chat_fil());
     if (!ok) return;
     helpers = set_val(mem_buf, (int)got, "facts", 1); fact_wide = set_val(mem_buf, (int)got, "matching", 1) & 1;
-    mem_on = set_val(mem_buf, (int)got, "memory", 1) & 1; words_on = set_val(mem_buf, (int)got, "words", 1) & 1;
+    mem_on = set_val(mem_buf, (int)got, "memory", 1) & 1; words_on = set_val(mem_buf, (int)got, "words", 0) & 1;
     ui_helpers(helpers); dbg.pure = (uint16_t)!helpers;
 }
 static void settings_save(void) {
@@ -683,7 +709,7 @@ static void settings_save(void) {
 /* kokoSD 2.4: the menu's Settings: the four 2.4 features, each on or off (A changes the row) */
 static void settings(void) {
     int sel = 0, changed = 0;
-    const char *items[5];
+    const char *items[6];
     static char mem_item[32];
     kq_n = 0;
     for (;;) {
@@ -696,14 +722,15 @@ static void settings(void) {
           if (c >= 10) mem_item[k++] = (char)('0' + c / 10);
           mem_item[k++] = (char)('0' + c % 10); mem_item[k++] = ')'; mem_item[k] = 0; }
         items[4] = mem_item;
+        items[5] = "What these settings do";
         dbg.state = ST_MENU; dbg.menu = (uint32_t)(16 + sel);
-        ui_menu("Settings", items, 5, sel);
+        ui_menu("Settings", items, 6, sel);
         for (;;) {
             vsync();
             uint16_t d = keys_down();
             if (!d) continue;
-            if (d & BTN_UP) { sel = (sel + 4) % 5; break; }
-            if (d & BTN_DOWN) { sel = (sel + 1) % 5; break; }
+            if (d & BTN_UP) { sel = (sel + 5) % 6; break; }
+            if (d & BTN_DOWN) { sel = (sel + 1) % 6; break; }
             if (d & (BTN_B | BTN_START)) { if (changed) settings_save(); return; }
             if (d & BTN_A) {
                 if (sel == 0) { helpers = (helpers + 1) % 3; ui_helpers(helpers); dbg.pure = (uint16_t)!helpers; }
@@ -711,6 +738,7 @@ static void settings(void) {
                 if (sel == 2) mem_on = !mem_on;
                 if (sel == 3 && sdf_words_ready()) { words_on = !words_on; words_set(); }
                 if (sel == 4) memory_page();
+                if (sel == 5) { rom_text = SETTINGS_HELP; read_pages("What these settings do", rom_src, (int)sizeof SETTINGS_HELP - 1, ST_PAGE); }
                 changed |= sel < 4;
                 kq_n = 0;
                 break;

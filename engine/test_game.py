@@ -69,7 +69,7 @@ class Pad:
     def helpers_toggle(self): return self.settings(0, 2)   # Read out -> As a hint -> Off
     def helpers_hint(self): return self.settings(0, 1)
     def memory_off(self): return self.settings(2)
-    def words_off(self): return self.settings(3)
+    def words_toggle(self): return self.settings(3)
 
 
 def forget(img=None):
@@ -411,7 +411,13 @@ r = run('koko_memoff', pad.memory_off() + pad.text('my name is sam') + [f'k:{STA
 t = turns_of(r['hist'])
 check(len(t) == 1 and t[0][0] == 'hi' and not card_file('::/koko/memory.txt'), f'memory off: no memory.txt, the new chat is only the new message: {t}')
 st = card_file('::/koko/settings.txt')
-check(st == b'facts=1\nmatching=1\nmemory=0\nwords=1\n', f'Settings are kept on the card: {st!r}')
+check(st == b'facts=1\nmatching=1\nmemory=0\nwords=0\n', f'Settings are kept on the card: {st!r}')
+# 19c. kokoSD 2.4: Settings > What these settings do opens a page to read (state 6)
+pad = Pad()
+subprocess.run([RUNNER, ROM] + BOOT + pad.menu() + [f'k:{DOWN}', 'f:20', f'k:{DOWN}', 'f:20', f'k:{A}', 'f:40'] + [f'k:{UP}', 'f:30', f'k:{A}',
+               f'until:{DBG + 4:#x}:6:3000', 'f:20', 'shot:out/koko_settings_help.ppm', f'dump:{DBG:#x}:{44 + 2 * HISTMAX + 20}:out/help.bin'], check=True)
+d = open('out/help.bin', 'rb').read(); lines = struct.unpack('I', d[44 + 2 * HISTMAX + 4:44 + 2 * HISTMAX + 8])[0]
+check(lines > 40, f'What these settings do: a page of {lines} lines')
 # 19b. what is on the card is told at the start (the file as a person might write it), and Koko uses it
 open('out/memory.txt', 'w').write('My name is Sam.\nI live in Berlin.\nMy favorite animal is the cat.\n')
 forget(); subprocess.run(['mmd', '-i', os.environ['SD_IMAGE'], '::/koko'], capture_output=True)
@@ -455,7 +461,7 @@ if os.path.exists(WFACTS) and RUNNER != 'build/runner' and open(WFACTS, 'rb').re
         subprocess.run(['mcopy', '-i', card, WFACTS, '::/koko/facts.dat'], check=True)
     old = os.environ['SD_IMAGE']; os.environ['SD_IMAGE'] = card
     res = {}
-    for name, extra in (('on', []), ('off', Pad().words_off())):
+    for name, extra in (('on', Pad().words_toggle()), ('off', [])):   # (2.4: off by default)
         pad = Pad()
         r = run(f'koko_words_{name}', extra + pad.text('tell me a story about a dragon') + [f'k:{START}'], 1)
         res[name] = r
