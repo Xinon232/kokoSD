@@ -68,8 +68,15 @@ static uint16_t raw_prev;
 static uint32_t moved_at[10];
 static void life_note(void);                      /* kokoSD 1.3.1: restart detector (below) */
 extern volatile uint32_t watch[10];               /* kokoSD 1.4.6: freeze detector (engine/watch.s) */
+static uint16_t timer_fix;                        /* kokoSD 1.4.8: how often the timers had stopped (freeze report) */
 static void poll(void) {                          /* called often, also from inside the model's work and long redraws */
     watch[0]++;
+    /* kokoSD 1.4.8: the button timing (debounce, the editor's frames) needs timers 2 and 3 running. A freeze
+     * report on a SuperChis showed the menu waiting for a press that never came: if they stopped, start them. */
+    if ((REG_TM2CNT_H & 0xC7) != 0x83 || (REG_TM3CNT_H & 0xC4) != 0x84) {
+        timer_fix++;
+        REG_TM3CNT_H = 0x0084; REG_TM2CNT_H = 0x0083;
+    }
     uint16_t raw = (uint16_t)(~REG_KEYINPUT & 0x03FF), k = keys_prev;
     if (raw != keys_prev || raw != raw_prev) {
         uint32_t now = ticks();
@@ -793,6 +800,18 @@ __attribute__((noreturn, used)) void watch_report(void) {
     p = put_s(h, watch[5] == 2 ? "L+R+SELECT. " : "No reply for 16 s. "); p = put_s(p, "Please send a photo.");
     ui_ask("Koko got stuck", q, d, 0);
     ui_lines(e, h);
+    /* kokoSD 1.4.8: are the timers running, what the buttons were, what was queued */
+    uint16_t c2 = REG_TM2CNT_H, c3 = REG_TM3CNT_H;
+    uint32_t t0 = ticks();
+    for (int f = 0; f < 10; f++) { while (REG_VCOUNT >= 160) {} while (REG_VCOUNT < 160) {} }
+    uint32_t t1 = ticks();
+    p = put_s(q, "t "); p = put_x(p, c2, 4); p = put_s(p, " "); p = put_x(p, c3, 4); p = put_s(p, " +"); p = put_x(p, t1 - t0, 4);
+    p = put_s(p, " fix "); p = put_x(p, timer_fix, 4);
+    ui_small(110, q);
+    p = put_s(d, "k "); p = put_x(p, keys_prev, 3); p = put_s(p, " raw "); p = put_x(p, raw_prev, 3);
+    p = put_s(p, " now "); p = put_x(p, ~REG_KEYINPUT & 0x3FF, 3); p = put_s(p, " q "); p = put_x(p, kq_n, 2);
+    p = put_s(p, " h "); p = put_x(p, hq_n, 2);
+    ui_small(122, d);
     for (;;) {}
 }
 static void watch_start(void) {                   /* the freeze detector on (video-frame interrupt) */

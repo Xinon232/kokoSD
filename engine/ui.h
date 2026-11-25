@@ -19,6 +19,7 @@ void ui_title(void);                             /* title screen: the name, "Pre
 void ui_title_prompt(int on);
 void ui_title_note(const char *t);
 void ui_title_note2(const char *t);
+void ui_small(int y, const char *t);             /* kokoSD 1.4.8: a small grey line */
 void ui_title_note3(const char *a, const char *b);   /* kokoSD 1.4.7: the registers a restart left */              /* kokoSD 1.4.2: why the fact file is not used */               /* kokoSD 1.3.1: a line under the subtitle (restart detector) */                    /* blink the prompt */
 void ui_title_tick(void);                        /* one title frame (nothing moves any more) */
 void ui_redraw(void);                            /* draw the whole chat again (tests compare this with the incremental drawing) */

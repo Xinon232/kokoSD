@@ -123,6 +123,7 @@ void ui_writer_status(const char *group, const char *mode) {
 /* ---------------- title screen ---------------- */
 void ui_title_tick(void) {}
 void ui_title_note(const char *t) { small_centre(92, t, C_BLACK); }   /* kokoSD 1.3.1: restart detector */
+void ui_small(int y, const char *t) { small_centre(y, small_fit(t, 228), C_GREY); }   /* kokoSD 1.4.8 */
 void ui_title_note2(const char *t) { small_centre(84, t, C_GREY); }   /* kokoSD 1.4.2: no facts from the card: why */
 void ui_title_note3(const char *a, const char *b) { small_centre(100, a, C_GREY); small_centre(136, b, C_GREY); }   /* kokoSD 1.4.7 */
 void ui_title_prompt(int on) {
@@ -142,7 +143,7 @@ void ui_title(void) {
 /* kokoSD 1.1: what the start is doing (finding the SD card and the fact file take a moment). */
 void ui_boot(const char *what, const char *detail) {
     fill(0, 0, 240, 160, C_WHITE);
-    small_centre(5, "kokoSD 1.4.7", C_BLACK);
+    small_centre(5, "kokoSD 1.4.8", C_BLACK);
     centre(64, what, C_BLACK);
     if (detail && *detail) small_centre(88, small_fit(detail, 228), C_GREY);
 }
