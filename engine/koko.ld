@@ -14,7 +14,7 @@ SECTIONS {
         KEEP(*(.crt0))
         *(.text .text.*)
         *(.glue_7 .glue_7t .vfp11_veneer .v4_bx)
-        *(.rodata .rodata.*)
+        *(EXCLUDE_FILE(*blob.o) .rodata EXCLUDE_FILE(*blob.o) .rodata.*)
         . = ALIGN(4);
     } > rom
     .iwram : {
@@ -39,7 +39,15 @@ SECTIONS {
         __ewram_sd_end = .;
     } > ewram AT> rom
     __ewram_sd_lma = LOADADDR(.ewram_sd);
-    __rom_end = __ewram_sd_lma + SIZEOF(.ewram_sd);   /* kokoSD 1.4: the ROM sums table follows (tools/fixrom.py) */
+    /* kokoSD 1.4.4: Koko's data block last. Everything else (code, fonts, tables and the copies of the fast-RAM
+     * and slow-RAM code) sits at the start of the ROM, so the top of the 32 MB cartridge space holds model data
+     * only (a SuperChis with SuperFW failed with code there: no SD card, a crash on the title). */
+    .blob : {
+        . = ALIGN(4);
+        *blob.o(.rodata .rodata.*)
+        . = ALIGN(4);
+    } > rom
+    __rom_end = ADDR(.blob) + SIZEOF(.blob);   /* kokoSD 1.4: the ROM sums table follows (tools/fixrom.py) */
     .ewram_sd_bss (NOLOAD) : {                   /* cleared at start */
         __ewram_sd_bss_start = .;
         *(.bss.sd .bss.sd.*)
