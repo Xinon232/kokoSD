@@ -45,8 +45,27 @@ static uint32_t strict_load_multiple(struct ARMCore *c, uint32_t a, int mask, en
     for (int i = 0; i < 16; i++) if (mask & (1 << i)) { c->gprs[i] = 0xA5A5A5A5u; at += 4; }
     return at;
 }
+/* kokoSD 1.4.11: every store into the ROM space is noted (address, size, the instruction's address, the mode),
+ * except the SuperCard's own registers. On a real SuperCard the ROM is SDRAM: with writes on, such a store
+ * changes the program or the model; the emulator drops it. Notes go to /tmp/koko_romwrites.txt. */
+static void (*model_store16)(struct ARMCore *, uint32_t, int16_t, int *);
+static void note_rom_store(struct ARMCore *c, uint32_t a, int size, uint32_t v) {
+    if (a < 0x08000000 || a >= 0x0A000000) return;
+    if (a == 0x09fffffe || ((sd_mode & 2) && (a == 0x09000000 || a == 0x09800000 || a == 0x09440000 || (a >> 20) == 0x091))) return;
+    FILE *f = fopen("/tmp/koko_romwrites.txt", "a");
+    if (f) { fprintf(f, "store%d %08X = %08X at pc %08X mode %u\n", size, a, v, c->gprs[15], sd_mode); fclose(f); }
+}
+static void watch_store32(struct ARMCore *c, uint32_t a, int32_t v, int *cy) { note_rom_store(c, a, 32, (uint32_t)v); original_memory.store32(c, a, v, cy); }
+static void watch_store16(struct ARMCore *c, uint32_t a, int16_t v, int *cy) { note_rom_store(c, a, 16, (uint16_t)v); model_store16(c, a, v, cy); }
+static void watch_store8(struct ARMCore *c, uint32_t a, int8_t v, int *cy) { note_rom_store(c, a, 8, (uint8_t)v); original_memory.store8(c, a, v, cy); }
+static uint32_t watch_store_multiple(struct ARMCore *c, uint32_t a, int mask, enum LSMDirection d, int *cy) {
+    note_rom_store(c, a, 99, (uint32_t)mask); return original_memory.storeMultiple(c, a, mask, d, cy);
+}
 static void strict_install(struct mCore *core) {
     struct ARMCore *cpu = core->cpu;
+    model_store16 = cpu->memory.store16;
+    cpu->memory.store32 = watch_store32; cpu->memory.store16 = watch_store16; cpu->memory.store8 = watch_store8;
+    cpu->memory.storeMultiple = watch_store_multiple;
     cpu->memory.load32 = strict_load32; cpu->memory.load16 = strict_load16; cpu->memory.load8 = strict_load8;
     cpu->memory.loadMultiple = strict_load_multiple;
 }
