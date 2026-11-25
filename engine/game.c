@@ -262,7 +262,7 @@ static const char HOW_TO_TYPE[] =
     "B while Koko writes: stop him.\n\n"
     "The same typing as gbawriter, gbamp3 and the other apps.";
 static const char ABOUT[] =
-    "kokoSD 2.4 (test): Koko the Chatbot with an SD card.\n\n"
+    "kokoSD 2.4: Koko the Chatbot with an SD card.\n\n"
     "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
     "Game Boy Advance itself.\n"
     "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "
@@ -301,7 +301,7 @@ static uint16_t read_pages(const char *title, ui_src src, int n, int state) {
         if (d & (BTN_B | BTN_START | BTN_A | BTN_SELECT)) return d;
     }
 }
-/* kokoSD 2.4: the menu's Memory: what Koko remembers; A turns it on / off, SELECT forgets it all */
+/* kokoSD 2.4: Settings > What Koko remembers: the list; SELECT forgets it all */
 static void memory_page(void) {
     char *t = mem_buf;
     for (;;) {

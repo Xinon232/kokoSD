@@ -16,13 +16,13 @@ through [gbaSD](https://github.com/Xinon232/gbaSD). It adds:
 The model itself is Koko's, unchanged. GBA only (no browser version). kokoSD's changes are by
 Halim Jarrar; the original Koko README follows further down.
 
-Current version: **kokoSD 2.3**. Test build: **kokoSD 2.4 (test)** (below).
+Current version: **kokoSD 2.4**.
 
 ## Install
 From the [Releases](../../releases) page:
 1. `kokoSD.gba`: copy it anywhere on the SD card and start it from the flash cart's menu.
-2. `koko.zip` (Simple English Wikipedia for Koko's facts, CC BY-SA 4.0): unzip it at the top of the card, so the
-   file is `/koko/facts.dat` (250 MB). Without it Koko still chats, but cannot look facts up or show articles.
+2. `koko.zip` (Simple English Wikipedia for Koko's facts and word memory, CC BY-SA 4.0): unzip it at the top of the
+   card, so the file is `/koko/facts.dat` (323 MB; 2.4 needs this file for word memory, older files still work). Without it Koko still chats, but cannot look facts up or show articles.
 
 Works on SuperCard SD / SuperChis with SuperFW, EZ-Flash Omega (and Definitive Edition started from the SD card)
 and EverDrive GBA (exFAT and FAT32 cards). Saved chats go to `/koko/chats/`. Buttons: START+SELECT > How to type.
@@ -52,7 +52,7 @@ cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 a
   questions that do not match a title exactly (see KNOWN_ISSUES.md).
 
 
-## What is new in 2.4 (test)
+## What is new in 2.4
 Four additions, each with its own switch in **START+SELECT > Settings** (kept in `koko/settings.txt`); the
 last row there, **What these settings do**, explains them on the GBA:
 
@@ -62,6 +62,53 @@ last row there, **What these settings do**, explains them on the GBA:
 | Fact matching | Wide / Strict | Wide finds the article for more ways of asking; Strict is 2.3's matching. |
 | Memory | On / Off | What you tell Koko about yourself is kept and told to him at the start of each new chat. "What Koko remembers" shows it; SELECT there forgets it all. |
 | Word memory | Off / On | Which words follow which in the Wikipedia text is mixed into Koko's choice of the next word. Off by default: it made replies sound like Wikipedia without being more often right. |
+
+### The default settings and why
+The defaults were chosen from tests with the native engine (host/, the cartridge's own code on a PC: same model,
+same seeds, so the replies are the GBA's) and in the emulator. Examples are real replies.
+
+**Facts: Read out (on).** The Wikipedia sentence is always right; Koko on his own is often wrong. "As a hint"
+sounds friendlier and usually keeps the main point, but still invents details and takes 10-25 s longer, so it is
+offered, not the default.
+
+| Question | Read out | As a hint | No fact (Off) |
+|---|---|---|---|
+| who was Julius Caesar | "Gaius Julius Caesar (12 July 100 BC - 15 March 44 BC) was a military commander, politician and author..." | "He was the ruler of the Roman Republic." | "Julius Caesar was a Roman emperor who was killed by Poseidon." |
+| what is a penguin | "Penguins are seabirds in the family Spheniscidae..." | "A penguin is a bird that lives in the sea." | "...with a funny-like creature called a polar bear. They live in the Arctic..." |
+| what is a tornado | "...fast spinning winds made by a strong rotating thunderstorm..." | "...like a big spinning spinning in the sky. It dances with the wind..." | "...a long, thin, round thing that can be very wild..." |
+| who was Leonardo da Vinci | "...an Italian polymath who lived during the Renaissance." | "...a very important person in the Roman Catholic Church. He was born in Rome in 1530." (wrong) | "He was a politician." |
+
+**Fact matching: Wide (on).** The clearest gain and no cost: 41 of 50 questions asked in other words found their
+article (Strict, 2.3's matching: 19), none of them the wrong one. Without a match Koko makes things up:
+
+| Question | Strict (2.3) | Wide (2.4) |
+|---|---|---|
+| have you heard of the beatles | "Yes, I can imagine those! It's so exciting to hear them." | "The Beatles were an English pop/rock band, started in Liverpool, England in 1960." |
+| who was the scientist marie curie | "He was a scientist." | "...was a Polish-born French physicist and chemist." |
+| what is the planet venus | "...a big red star in the sky... about 50 light years away" | "Venus is the second planet from the Sun..." |
+| i want to know about the titanic | "A titanicCristan is a common name, like a sponge." | "The RMS Titanic was a British steam ship..." |
+| do you know pikachu | "Pikachu is super cool. It's like a giant playground!" | "Pikachu is a yellow mouse Pokemon... created by Satoshi Tajiri." |
+
+**Memory: On.** Your name is used reliably and makes Koko feel personal; the rest is hit and miss, and a miss does
+no harm. It is told to Koko while you type the first message, so normally there is no wait. Told "My name is Lena.
+I am 10 years old. I live in Vienna. My favorite food is pancakes. I like horses. I have a cat named Mimi.":
+
+| You say | With memory | Without |
+|---|---|---|
+| hi koko! | "Hi Lena! What's your favorite food?" | "Hello there! How can I help you today?" |
+| what is my name? | "Your name is Lena." (every time) | "Your name is Alex, Alex." |
+| what is my cat called? | "It's called Mimi. She's a big cat with a big, fluffy tail." (one seed of two) | "His cat is called the cat." |
+| how old am i? | "You are a puppy, Lena." (age is not used) | "You're a good person, I guess." |
+
+**Word memory: Off.** It changes about half of the replies, but makes them sound like an encyclopedia rather than
+more often right, and on a slow card it may slow Koko down. Try it if you like:
+
+| Question | Off | On |
+|---|---|---|
+| who was the first president of america? | "The first president was John F. Kennedy." | "The first president was George Washington." |
+| how do plants grow? | "...They use their wings to make their own food..." | "Plants grow from tiny plants with little seeds inside them." |
+| what do you know about germany? | "Germany was a country in Europe." | "Germany was founded in the 17th century, but it was called Einsatzgruppen." |
+| what is the biggest animal? | "The biggest animal is the lions." | (the same) |
 
 **More facts, better matched.** The fact file (`koko/facts.dat`, made again: 323 MB, of which 52 MB word memory) has 264,618
 articles (2.3: 244,015): titles such as "Mercury (planet)" are now in it, as "mercury planet" and, where no
@@ -97,7 +144,7 @@ effect is small and mixed: replies sound a bit more like an encyclopedia ("about
 "Paris is the third-largest city in France") without being more often right (it also adds made-up dates).
 No speed cost measured in the emulator (2.74 against 2.79 words/s).
 
-## What is new in 2.3
+## What was new in 2.3
 - **Whole articles for "tell me more".** The article is read from the card page by page instead of all at once
   into memory, so it is no longer limited to 6,000 characters: `koko/facts.dat` (made again with
   `tools/facts_sd.py`, 249.8 MB) keeps articles up to 64,000 characters, which is all of nearly every article

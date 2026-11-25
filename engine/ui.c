@@ -142,7 +142,7 @@ void ui_title(void) {
 /* kokoSD 1.1: what the start is doing (finding the SD card and the fact file take a moment). */
 void ui_boot(const char *what, const char *detail) {
     fill(0, 0, 240, 160, C_WHITE);
-    small_centre(5, "kokoSD 2.4 (test)", C_BLACK);
+    small_centre(5, "kokoSD 2.4", C_BLACK);
     centre(64, what, C_BLACK);
     if (detail && *detail) small_centre(88, small_fit(detail, 228), C_GREY);
 }

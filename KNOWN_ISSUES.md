@@ -1,9 +1,11 @@
-# kokoSD 2.3 / 2.4 (test): known issues and open points
+# kokoSD 2.4: known issues and open points
 
-kokoSD 2.3 passes its emulator checks (engine/test_game.py: 47 checks on the SuperCard SD model, 46 on the
-EZ-Flash Omega and EverDrive GBA models, 32 without a card) and the random button sessions of
+kokoSD 2.4 passes its emulator checks on the SuperCard SD model (engine/test_game.py, with the 2.4 checks for
+Settings, memory, hints, matching and word memory) and the random button sessions of
 tools/crash_test.py. On real hardware it runs on a SuperChis Prime with SuperFW (stable since 2.1: chats, facts,
-tell me more, saved chats); the other carts are not tested on hardware yet. These are known and not## kokoSD 2.4 (test)
+tell me more, saved chats); the other carts are not tested on hardware yet. These are known and not fixed yet:
+
+## kokoSD 2.4
 - **Word memory on a real card:** each word Koko writes asks the card for 1-2 sectors of the word table. The
   emulator's card models show no slowdown, but they leave out the card's own delay: on a slow card Koko may write
   more slowly with Word memory on (Settings can turn it off).
@@ -15,9 +17,7 @@ tell me more, saved chats); the other carts are not tested on hardware yet. Thes
   long chats what he was told at the start fades.
 - **The menu redraws slowly** (Settings and the 2.4 rows): a press made while a page or the menu is being drawn
   can be lost.
-- Not yet tested on hardware.
-
- fixed yet:
+- The 2.4 additions are not tested on hardware yet.
 
 ## Not verified yet
 - **Real hardware:** only a SuperChis Prime (SuperFW) so far; EZ-Flash Omega and
