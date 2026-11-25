@@ -26,7 +26,20 @@ sys.path.insert(0, str(R/'engine'))
 from facts_build import STOP, norm, fnv, ascii_fold, first_sentence
 import mwparserfromhell as mw
 
-TEXT_MAX = 6000                                   # characters of an article kept for Tell me more
+TEXT_MAX = 64000                                  # characters of an article kept for Tell me more (kokoSD 2.3: the
+                                                  # GBA reads it page by page; the entry's length field is 16 bits)
+ABBREV = re.compile(r'(?:\b(?:Dr|Mr|Mrs|Ms|St|Jr|Sr|Prof|Gen|Lt|Col|Capt|Sgt|Rev|Mt|Ft|No|Vol|vs|etc|Inc|Ltd|Co|Corp|U\.S|U\.K|e\.g|i\.e|[A-Z])\.)$')
+
+
+def sentence_cut(t, limit):
+    """The end of the last whole sentence before `limit` (not after an abbreviation such as Dr. or an initial)."""
+    best = -1
+    for m in re.finditer(r'[.!?]["\')]?(?=\s)', t[:limit]):
+        if m.group(0)[0] == '.' and ABBREV.search(t[max(0, m.start() - 6):m.start() + 1]):
+            continue
+        best = m.end()
+    return best
+
 DROP_SECTIONS = re.compile(r'^(references|related pages|other websites|notes|sources|further reading|gallery|external links|see also|bibliography|footnotes)$', re.I)
 
 
@@ -67,8 +80,8 @@ def plain(wikitext):
     t = re.sub(r'\( +', '(', t)
     t = re.sub(r'\n{3,}', '\n\n', t).strip()
     if len(t) > TEXT_MAX:
-        cut = t.rfind('. ', 0, TEXT_MAX)
-        t = t[:cut + 1 if cut > TEXT_MAX // 2 else TEXT_MAX].rstrip() + ' ...'
+        cut = sentence_cut(t, TEXT_MAX)
+        t = t[:cut if cut > TEXT_MAX // 2 else TEXT_MAX].rstrip() + ' ...'
     return t
 
 

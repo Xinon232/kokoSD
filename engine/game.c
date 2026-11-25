@@ -250,7 +250,7 @@ static const char HOW_TO_TYPE[] =
     "B while Koko writes: stop him.\n\n"
     "The same typing as gbawriter, gbamp3 and the other apps.";
 static const char ABOUT[] =
-    "kokoSD 2.2: Koko the Chatbot with an SD card.\n\n"
+    "kokoSD 2.3: Koko the Chatbot with an SD card.\n\n"
     "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
     "Game Boy Advance itself.\n"
     "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "
@@ -265,11 +265,13 @@ static const char ABOUT[] =
     "gbamp3's 5x7 font; accent folding from GBAVocab (Halim Jarrar, GPL-3.0-or-later).";
 /* A page of text to read (an article, How to type, About): Up / Down scroll, Left / Right / L / R turn a page,
  * B (or A, START) goes back. */
-static void read_pages(const char *title, const char *text, int n, int state) {
-    int lines = ui_article_wrap(text, n), rows = ui_article_rows(), top = 0, last = lines > rows ? lines - rows : 0;
+static const char *rom_text;                      /* kokoSD 2.3: How to type / About: the text in the cartridge */
+static const char *rom_src(uint32_t at, uint32_t n) { (void)n; return rom_text + at; }
+static void read_pages(const char *title, ui_src src, int n, int state) {
+    int lines = ui_article_wrap(src, (uint32_t)n), rows = ui_article_rows(), top = 0, last = lines > rows ? lines - rows : 0;
     kq_n = 0;                                     /* presses made before the page opened are not page turns */
     dbg.state = (uint32_t)state; dbg.article = (uint32_t)lines; dbg.article_top = 0;
-    ui_article(title, text, 0);                   /* presses while it draws count (polled between rows) */
+    ui_article(title, 0);                         /* presses while it draws count (polled between rows) */
     for (;;) {
         vsync();
         uint16_t d = keys_down();
@@ -278,7 +280,7 @@ static void read_pages(const char *title, const char *text, int n, int state) {
         if (d & (BTN_UP | BTN_LEFT | BTN_L)) top -= (d & BTN_UP) ? 3 : rows;
         if (top > last) top = last;
         if (top < 0) top = 0;
-        if (top != was) { ui_article(title, text, top); dbg.article_top = (uint32_t)top; }
+        if (top != was) { ui_article(title, top); dbg.article_top = (uint32_t)top; }
         if (d & (BTN_B | BTN_START | BTN_A)) break;
     }
 }
@@ -612,8 +614,8 @@ static int menu(void) {
                 if (sel == 0) return 1;
                 if (sel == 1) { int r = saved_chats(); if (r) return r + 1; }
                 if (sel == 2) { helpers = !helpers; ui_helpers(helpers); dbg.pure = (uint16_t)!helpers; }
-                if (sel == 3) read_pages("How to type", HOW_TO_TYPE, (int)sizeof HOW_TO_TYPE - 1, ST_PAGE);
-                if (sel == 4) read_pages("About kokoSD", ABOUT, (int)sizeof ABOUT - 1, ST_PAGE);
+                if (sel == 3) { rom_text = HOW_TO_TYPE; read_pages("How to type", rom_src, (int)sizeof HOW_TO_TYPE - 1, ST_PAGE); }
+                if (sel == 4) { rom_text = ABOUT; read_pages("About kokoSD", rom_src, (int)sizeof ABOUT - 1, ST_PAGE); }
                 if (sel == 5) { self_test(); if (dbg.article) return 1; }   /* it ran: a new chat (the model was used) */
                 kq_n = 0;
                 break;
@@ -760,9 +762,9 @@ static int more_about(const char *s, int n) {      /* "tell me more about X": le
     return n > i + 1 ? i : 0;
 }
 static void read_article(void) {
-    const char *title, *text;
-    int n = sdf_article(&title, &text);
-    if (n) read_pages(title, text, n, ST_ARTICLE);
+    const char *title;
+    int n = sdf_article(&title);
+    if (n) { ui_message("Reading the article..."); read_pages(title, sdf_article_text, n, ST_ARTICLE); }
     ui_chat_again();
 }
 
@@ -811,8 +813,8 @@ static void exchange(void) {
             sdf_forget();
             article = fact_reply(q, ql, want, MSG_TOK) > 0;
         } else article = more_request(plain, plen);
-        const char *title, *text;
-        if (article && sdf_article(&title, &text)) {
+        const char *title;
+        if (article && sdf_article(&title)) {
             const char *a = "Here is more about "; al = 0;
             while (*a && al < 80) ans[al++] = *a++;
             for (const char *t = title; *t && al < 94; t++) ans[al++] = *t;

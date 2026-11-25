@@ -142,7 +142,7 @@ void ui_title(void) {
 /* kokoSD 1.1: what the start is doing (finding the SD card and the fact file take a moment). */
 void ui_boot(const char *what, const char *detail) {
     fill(0, 0, 240, 160, C_WHITE);
-    small_centre(5, "kokoSD 2.2", C_BLACK);
+    small_centre(5, "kokoSD 2.3", C_BLACK);
     centre(64, what, C_BLACK);
     if (detail && *detail) small_centre(88, small_fit(detail, 228), C_GREY);
 }
@@ -452,48 +452,62 @@ void ui_reply_text(const char *p, int n) {
 }
 
 /* ---------------- kokoSD: an article to read ("Tell me more"), How to type, About ---------------- */
-/* The text is wrapped once into lines (starts kept here); a page shows ART_ROWS of them. */
-#define ART_LINES 640
+/* The text is wrapped once into lines; a page shows ART_ROWS of them. kokoSD 2.3: the text comes from a source that
+ * gives any part of it (the SD card's article is read in parts, up to 64,000 characters), and the lines' starts
+ * and lengths are kept in video memory the screen does not use (0x06014000, for sprites: there is no room left
+ * in RAM). */
+#define ART_LINES 4095
 #define ART_ROWS 8
 #define ART_W 228
-static uint16_t art_start[ART_LINES + 1] EW;
-static uint8_t art_len[ART_LINES] EW;
+#ifdef __arm__
+#define art_start ((volatile uint16_t *)0x06014000)
+#define art_len ((volatile uint16_t *)0x06016000)
+#else
+static uint16_t art_start[ART_LINES + 1], art_len[ART_LINES];
+#endif
 static int art_n;
+static ui_src art_src;
+static uint32_t art_total;
 static int char_len(const char *t, int i, int n) { int j = i + 1; while (j < n && cont(t[j])) j++; return j - i; }
-int ui_article_wrap(const char *t, int n) {
-    art_n = 0;
-    int i = 0;
+int ui_article_wrap(ui_src src, uint32_t n) {
+    art_src = src; art_total = n; art_n = 0;
+    uint32_t i = 0;
     while (i < n && art_n < ART_LINES) {
-        if (t[i] == '\n') {                          /* a line break; an empty line (two breaks) is a blank line */
-            if (i + 1 < n && t[i + 1] == '\n') { art_start[art_n] = (uint16_t)i; art_len[art_n++] = 0; i++; }
+        int span = n - i < 300 ? (int)(n - i) : 300;
+        const char *t = src(i, (uint32_t)span);
+        if (!t) break;                               /* (a card error: the article ends here) */
+        if (t[0] == '\n') {                          /* a line break; an empty line (two breaks) is a blank line */
+            if (span > 1 && t[1] == '\n') { art_start[art_n] = (uint16_t)i; art_len[art_n++] = 0; i++; }
             i++; continue;
         }
-        int j = i, w = 0, cut_at = -1;
-        while (j < n && t[j] != '\n') {
-            int k = char_len(t, j, n);
+        int j = 0, w = 0, cut_at = -1;
+        while (j < span && t[j] != '\n') {
+            int k = char_len(t, j, span);
             w += width_n(t + j, k);
-            if (w > ART_W || j + k - i > 255) break;
+            if (w > ART_W || j + k > 255) break;
             if (t[j] == ' ') cut_at = j;
             j += k;
         }
-        int end = (j < n && t[j] != '\n' && cut_at > i) ? cut_at : j;
-        if (end == i) end = i + char_len(t, i, n);
-        art_start[art_n] = (uint16_t)i; art_len[art_n++] = (uint8_t)(end - i);
-        i = end;
-        while (i < n && t[i] == ' ') i++;
+        int end = (j < span && t[j] != '\n' && cut_at > 0) ? cut_at : j;
+        if (end == 0) end = char_len(t, 0, span);
+        art_start[art_n] = (uint16_t)i; art_len[art_n++] = (uint16_t)end;
+        i += (uint32_t)end;
+        while (i < n && end < span && t[end] == ' ') { i++; end++; }
+        if (!(art_n & 15)) YIELD();
     }
     return art_n;
 }
 int ui_article_rows(void) { return ART_ROWS; }
 static void put_num(char *b, int *k, int v) { char d[6]; int n = 0; do { d[n++] = (char)('0' + v % 10); v /= 10; } while (v); while (n) b[(*k)++] = d[--n]; }
-void ui_article(const char *title, const char *t, int first) {
+void ui_article(const char *title, int first) {
     frame_start();
     header_line(small_fit(title, 228), 0);
     for (int r = 0; r < ART_ROWS; r++) {
         YIELD();
-        int y = CHAT_TOP + r * LH;
+        int y = CHAT_TOP + r * LH, i = first + r;
+        const char *t = i < art_n && art_len[i] ? art_src(art_start[i], art_len[i]) : 0;
         fill(0, y, 6, LH, C_WHITE);
-        text_draw_bg(6, y, 6, 240, first + r < art_n ? cut(t + art_start[first + r], art_len[first + r]) : "", 0, C_BLACK, C_WHITE);
+        text_draw_bg(6, y, 6, 240, t ? cut(t, art_len[i]) : "", 0, C_BLACK, C_WHITE);
     }
     fill(0, CHAT_TOP + ART_ROWS * LH, 240, 160 - CHAT_TOP - ART_ROWS * LH, C_WHITE);
     small_draw(6, 150, first + ART_ROWS < art_n ? "Down: more    B: back" : "B: back", C_GREY);

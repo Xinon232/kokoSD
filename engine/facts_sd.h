@@ -9,9 +9,10 @@ extern uint32_t sdf_count;                  /* titles (with redirects) in the fi
 /* The opening sentence for a title hash (engine/facts.c's FNV-1a of the key):
  * token ids (at most max), or 0. Remembers the article for sdf_article(). */
 int sdf_lookup(uint32_t hash, uint16_t *ids, int max);
-/* The article of the last successful lookup: its title and plain text (read
- * from the card into a buffer kept here). Returns the text length, 0 if none. */
-int sdf_article(const char **title, const char **text);
+/* The article of the last successful lookup: its title; returns the text length, 0 if none. kokoSD 2.3: the text
+ * is read in parts: sdf_article_text(at, n) gives n bytes from offset at (n at most 6000), 0 on a card error. */
+int sdf_article(const char **title);
+const char *sdf_article_text(uint32_t at, uint32_t n);
 void sdf_forget(void);                      /* no article to tell more about */
 int sdf_probe(uint32_t r, int article);     /* kokoSD 1.4 self test: a lookup of a real title (1 = ok) */
 #endif

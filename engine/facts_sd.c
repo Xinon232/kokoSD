@@ -17,6 +17,7 @@ static uint32_t page[128] SD;               /* one index sector: 64 x (hash, ent
 static uint8_t ent[192] SD;
 static char title[64] SD, text[6200] SD;
 static uint32_t last_text, last_len;
+static uint32_t win_at, win_n;              /* kokoSD 2.3: the part of the article in text[] */
 static int last_ok;
 
 static int read_at(uint32_t at, void *buf, unsigned n) {
@@ -82,15 +83,25 @@ int sdf_lookup(uint32_t hash, uint16_t *ids, int max) {
     }
     for (unsigned i = 0; i < tl && i < sizeof title - 1; i++) title[i] = (char)ent[7 + i];
     title[tl < sizeof title - 1 ? tl : sizeof title - 1] = 0;
-    last_text = text_at + toff; last_len = tlen < sizeof text ? tlen : sizeof text - 1; last_ok = 1;
+    last_text = text_at + toff; last_len = tlen; last_ok = 1; win_n = 0;   /* kokoSD 2.3: the whole article */
     return cnt;
 }
 
-int sdf_article(const char **t, const char **x) {
-    if (!sdf_ready || !last_ok || !last_len || !read_at(last_text, text, last_len)) return 0;
-    text[last_len] = 0;
-    *t = title; *x = text;
+/* kokoSD 2.3: the article is read page by page (up to 64,000 characters: the whole of nearly every article), not
+ * all at once into memory (6,000 at most). */
+int sdf_article(const char **t) {
+    if (!sdf_ready || !last_ok || !last_len) return 0;
+    *t = title;
     return (int)last_len;
+}
+const char *sdf_article_text(uint32_t at, uint32_t n) {
+    if (at + n > last_len || n > sizeof text - 1) return 0;
+    if (!win_n || at < win_at || at + n > win_at + win_n) {
+        uint32_t m = last_len - at < sizeof text - 1 ? last_len - at : sizeof text - 1;
+        if (!read_at(last_text + at, text, m)) { win_n = 0; return 0; }
+        win_at = at; win_n = m; text[m] = 0;
+    }
+    return text + (at - win_at);
 }
 void sdf_forget(void) { last_ok = 0; }
 
@@ -104,6 +115,9 @@ int sdf_probe(uint32_t r, int article) {
     uint32_t hash = page[2 * ((r >> 12) % n)];
     static uint16_t ids[255] SD;
     if (!sdf_lookup(hash, ids, 255)) return 0;        /* a title of the index must be found */
-    if (article) { const char *t, *x; if (!sdf_article(&t, &x)) return 0; }
+    if (article) {                                    /* its first and last part, as Tell me more reads them */
+        const char *t; uint32_t n = (uint32_t)sdf_article(&t), k = n < 512 ? n : 512;
+        if (!n || !sdf_article_text(0, k) || !sdf_article_text(n - k, k)) return 0;
+    }
     return 1;
 }

@@ -43,8 +43,10 @@ void ui_reply_button(int stop);                 /* reply layout: "B: stop" (1) o
 void ui_reply_start(int mark);                   /* a new empty line for Koko; mark 1 = looked up, 2 = computed, 0 = the model */
 void ui_reply_text(const char *p, int n);        /* add text to Koko's line and draw it */
 /* kokoSD: an article to read ("Tell me more"). Wrap the text once, then draw from line `first`. */
-int ui_article_wrap(const char *t, int n);       /* lines in the text */
+/* kokoSD 2.3: a text to read comes from a source: n bytes of it from offset at (at most 300), 0 on an error */
+typedef const char *(*ui_src)(uint32_t at, uint32_t n);
+int ui_article_wrap(ui_src src, uint32_t n);     /* lines in the text */
 int ui_article_rows(void);                       /* lines on one page */
-void ui_article(const char *title, const char *t, int first);
+void ui_article(const char *title, int first);
 void ui_chat_again(void);                        /* back to the chat (reply layout) */
 #endif
