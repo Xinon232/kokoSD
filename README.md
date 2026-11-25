@@ -16,7 +16,16 @@ through [gbaSD](https://github.com/Xinon232/gbaSD). It adds:
 The model itself is Koko's, unchanged. GBA only (no browser version). kokoSD's changes are by
 Halim Jarrar; the original Koko README follows further down.
 
-Current version: **kokoSD 2.3** (test).
+Current version: **kokoSD 2.3**.
+
+## Install
+From the [Releases](../../releases) page:
+1. `kokoSD.gba`: copy it anywhere on the SD card and start it from the flash cart's menu.
+2. `koko.zip` (Simple English Wikipedia for Koko's facts, CC BY-SA 4.0): unzip it at the top of the card, so the
+   file is `/koko/facts.dat` (250 MB). Without it Koko still chats, but cannot look facts up or show articles.
+
+Works on SuperCard SD / SuperChis with SuperFW, EZ-Flash Omega (and Definitive Edition started from the SD card)
+and EverDrive GBA (exFAT and FAT32 cards). Saved chats go to `/koko/chats/`. Buttons: START+SELECT > How to type.
 
 ## How much Koko gains from the Wikipedia file
 Since 2.0 the cartridge has no fact table of its own: facts come only from the file on the SD card.
@@ -172,7 +181,7 @@ cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 a
 - Buttons are debounced (a bouncing contact is not a second press), and presses made
   while Koko works are kept in order.
 
-**Known issues:** see [KNOWN_ISSUES.md](KNOWN_ISSUES.md) (not tested on real hardware yet).
+**Known issues:** see [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
 
 ## Building kokoSD
 The weights are not in git. Take Koko's data block out of a released `koko.gba`,
@@ -195,7 +204,7 @@ per read and saves the results to `/koko-cardtest.txt`. Nothing else is written.
 ## Licence and credits (kokoSD)
 Koko the Chatbot (code, model, weights, fact table, artwork): **rdsilver**,
 https://rdsilver.itch.io/koko-the-chatbot ("The Koko authors" in LICENSE and LICENSE-MODEL).
-kokoSD's additions: Halim Jarrar, with gbaSD, gbawriter's typing engine, gbamp3's text drawing and
+kokoSD's additions: Halim Jarrar (halimj), with gbaSD, gbawriter's typing engine, gbamp3's text drawing and
 GBAVocab's accent folding (all Halim Jarrar, GPL-3.0-or-later) and the SuperFW font
 (David Guillen Fandos, GPL-3.0-or-later; UNSCII and GNU Unifont glyphs).
 
