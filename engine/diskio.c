@@ -11,7 +11,10 @@
 
 volatile uint16_t irq_ok;                     /* kokoSD 1.4.6: the freeze detector's interrupt is on (engine/watch.s) */
 static void sc_io(int on) {
-    if (on) *(volatile uint16_t *)0x04000208 = 0;   /* no interrupt while the card is being used */
+    /* no interrupt while an Omega's card is used (its kernel is mapped over the ROM then). kokoSD 1.4.10: on the
+     * other carts the freeze detector stays on, so a hang in the card driver shows up too (the SuperCard's card
+     * clock comes from the GBA's own reads: a short pause does not matter) */
+    if (on && cart_kind == CART_EZFO) *(volatile uint16_t *)0x04000208 = 0;
     /* kokoSD 1.4.7: write access stays on, as SuperFW and gbaSD always leave it (on a SuperChis that bit also
      * picks the save-memory bank); only the SD interface is switched */
     if (cart_kind == CART_SUPERCARD) set_supercard_mode(MAPPED_SDRAM, true, on);
