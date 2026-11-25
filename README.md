@@ -60,6 +60,31 @@ cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 a
 - **Credits in the cartridge:** the title screen and About kokoSD name Koko's author,
   rdsilver (https://rdsilver.itch.io/koko-the-chatbot).
 
+## How much Koko gains from the Wikipedia file
+Measured with `tools/measure_facts.py` (the cartridge's lookup code run natively, once with only the
+cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 articles):
+
+| Questions | Cartridge table only | With the SD file |
+|---|---|---|
+| 221 everyday questions ("what is a giraffe?", "who was Mozart?", "tell me about Japan", ...) | 208 (94.1%) | 215 (97.3%) |
+| 2,000 subjects picked at random from Simple English Wikipedia ("tell me about ...") | 260 (13.0%) | 1,992 (99.6%) |
+
+- Everyday subjects were mostly in the cartridge already; the file adds a few (cow, sheep, carrot, car,
+  Cleopatra, robot, mathematics) and gives newer, often longer opening sentences (212 of the 215 answers
+  now come from the file).
+- Beyond the everyday, the file is what makes Koko an encyclopedia: about 7.7 times as many subjects
+  (people, places, animals, events, science), and every answer can be followed by "tell me more" to read the
+  article. Without the card there are no articles at all.
+- Without a stored fact the model answers alone and makes things up, e.g. (native engine, same model):
+  "what is zircon?" -> "Zircon is a town in the north of England."; "what is a swallow?" -> "A swallow is a big
+  animal that lives in water, like a big sponge."; the Washington Capitals become "a football team in
+  Philadelphia". With the file: "Zircon is a silicate mineral...", "The swallows and martins are a group of
+  passerine birds...", "The Washington Capitals are an American ice hockey team in Washington, DC."
+- Still not answered: subjects whose opening sentence is too long for Koko (goat, iron, football, love) and
+  questions that do not match a title exactly (see KNOWN_ISSUES.md).
+
+
+
 ## What is new in 1.2
 - **Saved chats.** START+A saves the chat to the SD card (`/koko/chats/chatNNN.kch`, about
   50-250 KB each). START+SELECT > Saved chats lists them by their first message
