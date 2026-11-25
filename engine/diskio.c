@@ -9,7 +9,9 @@
 #include "cart_io.h"
 #include "supercard_driver.h"
 
+volatile uint16_t irq_ok;                     /* kokoSD 1.4.6: the freeze detector's interrupt is on (engine/watch.s) */
 static void sc_io(int on) {
+    if (on) *(volatile uint16_t *)0x04000208 = 0;   /* no interrupt while the card is being used */
     if (cart_kind == CART_SUPERCARD) set_supercard_mode(MAPPED_SDRAM, on, on);
     /* kokoSD 1.4: the same on an EverDrive GBA: gbaSD leaves its registers mapped at 0x09FC0000, where the end of
      * Koko's 32 MB ROM is (fonts, tables). Unlock (key 0xA5), then the configuration register: PSRAM mapped, with
@@ -18,7 +20,9 @@ static void sc_io(int on) {
         *(volatile uint16_t *)(0x09FC0000u + 0x5A * 2) = 0xA5;
         *(volatile uint16_t *)0x09FC0000u = (uint16_t)(on ? 3 : 2);
     }
+    if (!on) *(volatile uint16_t *)0x04000208 = irq_ok;
 }
+void sd_quiet(void) { sc_io(0); }              /* kokoSD 1.4.6: the cart back to plain ROM (freeze report) */
 
 #define CHUNK 16u
 unsigned sd_init_err;                         /* kokoSD 1.4.3: cart_sd_init's last result */

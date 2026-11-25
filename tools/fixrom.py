@@ -27,5 +27,18 @@ if len(sys.argv) > 2 and sys.argv[2] == '--sums':
     tab += [struct.pack('<II', o, int(w[o // 4])) for o in may]
     d += b''.join(tab)
     while len(d) % 4096: d.append(0xFF)
+    # kokoSD 1.4.6: the freeze report's function names (engine/game.c sym_name), on the next 4 KB boundary:
+    # "KSYM", the count, the start addresses (sorted), the name offsets, then the names (ending in 0)
+    if len(sys.argv) > 3:
+        nm = subprocess.run([os.path.join(os.environ.get('DEVKITARM', '/opt/devkitpro/devkitARM'), 'bin/arm-none-eabi-nm'), '-n', sys.argv[3]],
+                            capture_output=True, text=True, check=True).stdout.split('\n')
+        syms = {}
+        for l in nm:
+            f = l.split()
+            if len(f) == 3 and f[1] in 'tTwW' and not f[2].startswith('$'): syms.setdefault(int(f[0], 16) & ~1, f[2])
+        addrs = sorted(syms); names = b''; offs = []
+        for a in addrs: offs.append(len(names)); names += syms[a].encode()[:40] + b'\0'
+        d += b'KSYM' + struct.pack(f'<I{len(addrs)}I{len(addrs)}I', len(addrs), *addrs, *offs) + names
+        while len(d) % 4096: d.append(0xFF)
     open(sys.argv[1], 'wb').write(d)
 print(f'{sys.argv[1]}: {len(d)} bytes ({len(d) / 1024:.0f} KB)')

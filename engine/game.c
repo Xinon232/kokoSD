@@ -67,7 +67,9 @@ static uint32_t ticks(void);
 static uint16_t raw_prev;
 static uint32_t moved_at[10];
 static void life_note(void);                      /* kokoSD 1.3.1: restart detector (below) */
+extern volatile uint32_t watch[10];               /* kokoSD 1.4.6: freeze detector (engine/watch.s) */
 static void poll(void) {                          /* called often, also from inside the model's work and long redraws */
+    watch[0]++;
     uint16_t raw = (uint16_t)(~REG_KEYINPUT & 0x03FF), k = keys_prev;
     if (raw != keys_prev || raw != raw_prev) {
         uint32_t now = ticks();
@@ -749,6 +751,61 @@ static void exchange(void) {
     mlen = 0; msg[0] = 0; plen = 0; plain[0] = 0;
 }
 
+/* ---------------- kokoSD 1.4.6: freeze report ---------------- */
+/* engine/watch.s continues here when poll() has not run for 16 s or L+R+SELECT were held for 2 s. The function
+ * names come from the table tools/fixrom.py writes after the ROM sums ("KSYM": count, addresses, name offsets,
+ * names). */
+extern volatile uint16_t irq_ok;
+void sd_quiet(void);
+extern void watch_irq(void);
+static const char *sym_name(uint32_t a, uint32_t *off) {
+    const volatile uint32_t *t = (const volatile uint32_t *)(((uint32_t)__rom_end + 4095u) & ~4095u);
+    if (t[0] != 0x4D55534Bu) return 0;
+    const volatile uint32_t *m = t + 3 + 2 * t[2];
+    t = (const volatile uint32_t *)(((uint32_t)(m + 1 + 2 * m[0]) + 4095u) & ~4095u);
+    if (t[0] != 0x4D59534Bu) return 0;                /* "KSYM" */
+    uint32_t n = t[1], lo = 0, hi = n;
+    const volatile uint32_t *ad = t + 2;
+    while (hi - lo > 1) { uint32_t mid = (lo + hi) / 2; if (ad[mid] <= a) lo = mid; else hi = mid; }
+    if (!n || ad[lo] > a || a - ad[lo] > 0x10000) return 0;
+    *off = a - ad[lo];
+    return (const char *)(t + 2 + 2 * n) + ad[n + lo];
+}
+static char *put_s(char *p, const char *s) { while (*s) *p++ = *s++; *p = 0; return p; }
+static char *put_x(char *p, uint32_t v, int digits) { for (int sh = 4 * (digits - 1); sh >= 0; sh -= 4) *p++ = "0123456789ABCDEF"[(v >> sh) & 15]; *p = 0; return p; }
+static char *put_where(char *p, uint32_t a) {
+    uint32_t off; const char *nm = sym_name(a, &off);
+    if (nm) { int k = 0; while (nm[k] && k < 22) *p++ = nm[k++]; *p++ = '+'; p = put_x(p, off, off < 0x100 ? 2 : off < 0x1000 ? 3 : 4); }
+    else { p = put_s(p, "at "); p = put_x(p, a, 8); }
+    return p;
+}
+__attribute__((noreturn, used)) void watch_report(void) {
+    *(volatile uint16_t *)0x04000208 = 0;
+    sd_quiet();
+    REG_DISPCNT = 0x0404;
+    char q[40], d[64], e[64], h[64];         /* (on the report's own stack) */
+    uint32_t pc = watch[6], st = watch[7];
+    char *p = put_where(q, pc);
+    p = put_s(d, "at "); p = put_x(p, pc, 8); p = put_s(p, st & 0x20 ? " T" : " A");
+    p = put_s(p, " sp "); p = put_x(p, watch[8], 8); p = put_s(p, " st "); p = put_x(p, dbg.state, 2);
+    p = put_s(e, "from "); p = put_where(p, watch[9] & ~1u); p = put_s(p, " "); p = put_x(p, watch[9], 8);
+    p = put_s(h, watch[5] == 2 ? "L+R+SELECT. " : "No reply for 16 s. "); p = put_s(p, "Please send a photo.");
+    ui_ask("Koko got stuck", q, d, 0);
+    ui_lines(e, h);
+    for (;;) {}
+}
+static void watch_start(void) {                   /* the freeze detector on (video-frame interrupt) */
+    *(volatile uint16_t *)0x04000208 = 0;
+    watch[1] = watch[0]; watch[2] = 0; watch[3] = 0; watch[5] = 0;
+    void (*f)(void) = watch_irq;
+    __asm__ volatile("mov r1, #0x03000000\n\tadd r1, r1, #0x7F00\n\tstr %0, [r1, #0xFC]" :: "r"(f) : "r1", "memory");  /* (no 0x03007FFC constant: SuperFW would patch it) */
+    REG16(0x04000004) |= 8;                       /* video-frame interrupt */
+    REG16(0x04000200) = 1;
+    REG16(0x04000202) = 0xFFFF;
+    watch[4] = 1; irq_ok = 1;
+    *(volatile uint16_t *)0x04000208 = 1;
+}
+
 int main(void) {
     /* kokoSD 1.1.2: the cartridge timing stays as the loader left it until the cart is known. The fastest timing
      * (0x4317) is too fast for a SuperCard's SDRAM: there the first ROM read after it crashes the GBA (a blank
@@ -809,6 +866,7 @@ int main(void) {
         if ((f & 31) == 0) ui_title_prompt(!(f & 32));
         ui_title_tick();
     }
+    watch_start();                                /* kokoSD 1.4.6 */
     ui_init();
     ui_say(L_KOKO, "Woof! I'm Koko. Say something!", 30);
     while (keys_prev) { vsync(); poll(); }        /* kokoSD: the START that left the title types nothing */
