@@ -16,7 +16,7 @@ through [gbaSD](https://github.com/Xinon232/gbaSD). It adds:
 The model itself is Koko's, unchanged. GBA only (no browser version). kokoSD's changes are by
 Halim Jarrar; the original Koko README follows further down.
 
-Current version: **kokoSD 2.0**.
+Current version: **kokoSD 2.1** (test).
 
 ## How much Koko gains from the Wikipedia file
 Since 2.0 the cartridge has no fact table of its own: facts come only from the file on the SD card.
@@ -43,7 +43,20 @@ cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 a
   questions that do not match a title exactly (see KNOWN_ISSUES.md).
 
 
-## What is new in 2.0
+## What is new in 2.1
+- **Presses in the menu are no longer typing.** The buttons pressed in the menu (and in How to type, About,
+  Saved chats, Rename, the self test) were handed to the typing engine afterwards: B that closed the menu
+  deleted a letter, START sent the message. Now everything is let go and forgotten when the menu closes.
+- **Button timing guard.** The buttons' debounce and the typing engine's frames are timed by timers 2 and 3. If
+  they are stopped or their count stands still, a button can never change again: START stays "held", SELECT then
+  opens the menu, and nothing else answers (in the emulator, 2.0 with the timers stopped freezes exactly so). They
+  are started again at once; the self test log says how often ("timers started again").
+- **Damaged saved chats are refused** ("That chat could not be opened", a new chat) instead of loaded: every word
+  number, position and chat line is checked first. A damaged word number used to make kokoSD write outside its
+  table.
+- Tests for all three (engine/test_game.py 17 and 18).
+
+## What was new in 2.0
 - **A clean rebuild** after crash hunting on a SuperChis with SuperFW: the 1.4.x diagnostics are gone again
   (no interrupts, no start-up ROM check, no restart numbers) and the SuperCard uses gbaSD's own driver, as our
   other apps do.

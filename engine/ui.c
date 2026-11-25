@@ -140,7 +140,7 @@ void ui_title(void) {
 /* kokoSD 1.1: what the start is doing (finding the SD card and the fact file take a moment). */
 void ui_boot(const char *what, const char *detail) {
     fill(0, 0, 240, 160, C_WHITE);
-    small_centre(5, "kokoSD 2.0", C_BLACK);
+    small_centre(5, "kokoSD 2.1", C_BLACK);
     centre(64, what, C_BLACK);
     if (detail && *detail) small_centre(88, small_fit(detail, 228), C_GREY);
 }
@@ -287,7 +287,10 @@ int ui_log_io(int (*io)(void *p, unsigned n, void *ctx), void *ctx, int writing)
     uint32_t n = (uint32_t)nline;
     if (!io(&n, 4, ctx) || n > NLINE) return 0;
     if (!io(lines, n * sizeof lines[0], ctx)) return 0;
-    if (!writing) { nline = (int)n; scroll_back = 0; for (int i = 0; i < nline; i++) { lines[i].y = 0; lines[i].dn = 0; if (lines[i].n > LINE_MAX) lines[i].n = LINE_MAX; } }
+    if (!writing) {                                  /* kokoSD 2.1: a damaged file is refused */
+        for (uint32_t i = 0; i < n; i++) if (lines[i].n > LINE_MAX || lines[i].kind > L_NOTE || lines[i].mark > 2) { nline = 0; return 0; }
+        nline = (int)n; scroll_back = 0; for (int i = 0; i < nline; i++) { lines[i].y = 0; lines[i].dn = 0; }
+    }
     return 1;
 }
 void ui_say(int kind, const char *s, int n) { line_push(kind); line_add(s, n, kind == L_USER ? USER_W : KOKO_W); }

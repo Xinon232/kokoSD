@@ -517,6 +517,12 @@ int koko_state_io(int (*io)(void *p, unsigned n, void *ctx), void *ctx, int writ
         if (!io(vsh[a], used, ctx) || !io(vc[a], used * K_DV, ctx)) return 0;
         for (int h = 0; h < NH; h++) if (!io(kc[a][h], used * (HK / 4), ctx)) return 0;
     }
+    if (!writing) {   /* kokoSD 2.1: a damaged file is refused (a token id indexes the copy-vote table it writes to) */
+        if (hdr[1] > used || hdr[2] > K_TOPK) return 0;
+        for (unsigned i = 0; i < used; i++) if (toks[i] >= K_V) return 0;
+        for (int i = 0; i < a_n; i++) if (a_top[i] < 0 || a_top[i] >= T) return 0;
+        for (int a = 0; a < K_NATT; a++) for (unsigned i = 0; i < used; i++) if (vsh[a][i] > 31) return 0;
+    }
 #ifdef __arm__
     if (writing) {                                             /* the mixer state at the mark is in video memory */
         static int32_t row[256] EWRAM_DATA;

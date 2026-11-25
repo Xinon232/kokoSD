@@ -288,6 +288,7 @@ if RUNNER != 'build/runner':
     print('   conversation:', [(a, b.strip()) for a, b in t])
     files = subprocess.run(['mdir', '-b', '-i', 'out/save-card.img', '::/koko/chats'], capture_output=True, text=True).stdout.split()
     check(any(f.lower().endswith('chat000.kch') for f in files), f'START+A wrote the chat to the card: {files}')
+    shutil.copyfile('out/save-card.img', 'out/saved-chat-card.img')     # (for 18: a damaged copy of this chat)
     check(len(t) == 3 and t[0][0] == 'my name is sam' and t[1][0] == 'i like snow' and t[2][0] == 'what is my name',
           'the opened chat carries on: Koko still has the earlier turns')
     check(native_reply(r['hist'], r['seed']), 'the reply after opening is identical to the native engine reading the whole chat')
@@ -327,6 +328,45 @@ if RUNNER != 'build/runner' and os.path.exists('out/facts-card.img'):
     check(rounds >= 1 and errors == 0 and 'errors 0' in log, f'self test: {rounds} round(s), {errors} errors; log: {log.strip().splitlines()[-1] if log else None!r}')
     if RUNNER == 'build/runner-sc':                 # kokoSD 2.0: the SuperCard's 90 s idle check ran and found the ROM unchanged
         check('ROM after 90 s unread: ok' in log, 'self test: the ROM is unchanged after 90 s unread (keep-alive off)')
+# 17. kokoSD 2.1: presses made in the menu are not typing (B there deleted a letter, START sent the message); with
+#     timers 2 and 3 stopped (as a freeze report suggested) the buttons and typing still work
+def after(steps, name):
+    subprocess.run([RUNNER, ROM] + steps + ['f:120', f'dump:{DBG:#x}:{44 + 2 * HISTMAX + 24}:out/{name}.bin'], check=True)
+    d = open(f'out/{name}.bin', 'rb').read()
+    return dict(state=struct.unpack('I', d[4:8])[0], turns=struct.unpack('I', d[12:16])[0],
+                caret=struct.unpack('I', d[44 + 2 * HISTMAX + 16:44 + 2 * HISTMAX + 20])[0], ntok=struct.unpack('I', d[16:20])[0])
+pad = Pad()
+x = after(BOOT + pad.text('hello') + ['f:30'] + pad.menu() + [f'k:{DOWN}', f'k:{DOWN}', f'k:{B}'], 'menu_b')
+check(x['caret'] == 5 and x['turns'] == 0 and x['state'] in (0, 3), f'B closing the menu deletes nothing ({x})')
+pad = Pad()
+x = after(BOOT + pad.text('hello') + ['f:30'] + pad.menu() + [f'k:{START}'], 'menu_start')
+check(x['caret'] == 5 and x['turns'] == 0 and x['state'] in (0, 3), f'START closing the menu sends nothing ({x})')
+pad = Pad()
+x = after(BOOT + pad.text('hel') + ['f:30', 'poke:0x0400010A:0', 'poke:0x0400010E:0', 'f:30'] + pad.text('lo'), 'timers_off')
+check(x['caret'] == 5 and x['state'] in (0, 3), f'typing goes on after timers 2 and 3 were stopped ({x})')
+# 18. kokoSD 2.1: a damaged saved chat is refused ("could not be opened", a new chat), not loaded
+if RUNNER != 'build/runner' and os.path.exists('out/saved-chat-card.img'):
+    import shutil, re
+    KTOPK = int(re.search(r'#define K_TOPK (\d+)', open('gen/koko_layout.h').read()).group(1))
+    chat = subprocess.run(['mtype', '-i', 'out/saved-chat-card.img', '::/koko/chats/chat000.kch'], capture_output=True).stdout
+    if chat:
+        n = struct.unpack('<I', chat[84:88])[0]
+        lines_at = 88 + 2 * n
+        nl = struct.unpack('<I', chat[lines_at:lines_at + 4])[0]
+        toks_at = lines_at + 4 + 69 * nl + (4 + 2 * KTOPK) * 4
+        for what, at in (('a word number in the history', 88), ('a word number in the model state', toks_at)):
+            bad = bytearray(chat); bad[at:at + 2] = b'\xff\xff'
+            shutil.copyfile('out/saved-chat-card.img', 'out/damaged-card.img')
+            open('out/bad.kch', 'wb').write(bad)
+            subprocess.run(['mcopy', '-o', '-i', 'out/damaged-card.img', 'out/bad.kch', '::/koko/chats/chat000.kch'], check=True)
+            old = os.environ['SD_IMAGE']; os.environ['SD_IMAGE'] = 'out/damaged-card.img'
+            pad = Pad()
+            x = after(BOOT + pad.menu() + [f'k:{DOWN}', f'k:{A}', f'until:{DBG + 4:#x}:8:3000', 'f:10', f'k:{A}', IDLE, 'f:10']
+                      + pad.text('hi'), 'damaged')
+            os.environ['SD_IMAGE'] = old
+            check(x['state'] in (0, 3) and x['caret'] == 2 and x['ntok'] < 8,
+                  f'a chat with {what} damaged is refused (a new chat) and typing goes on ({x})')
+    check(len(chat) > 0, 'the saved chat for the damage test was found')
 # 12. kokoSD 1.1: accented letters are typed and shown as typed; Koko reads the plain-letter copy
 pad = Pad()
 r = run('koko_accents', pad.text('i like café in münchen') + [f'k:{START}'], 1)

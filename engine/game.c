@@ -91,7 +91,24 @@ static void keep_alive(void) {
     if (due > 4096) due = 4096;
     ka_row = ka_touch(ka_row, due, ((uint32_t)__rom_end - 0x08000000u) >> 9);
 }
+/* kokoSD 2.1: timers 2 and 3 time the buttons (debounce) and the typing engine's frames. If they were stopped,
+ * or their count stood still, a button could never change again (START stayed "held": SELECT then opened the
+ * menu, and nothing else answered). Started again here; the self test reports how often that happened. */
+static uint16_t timer_fix;
+static uint32_t tick_seen, tick_same;
+static void timers_start(void) {
+    REG_TM2CNT_H = 0; REG_TM3CNT_H = 0; REG_TM2CNT_L = 0; REG_TM3CNT_L = 0;
+    REG_TM3CNT_H = 0x0084; REG_TM2CNT_H = 0x0083;
+    timer_fix++; tick_same = 0;
+}
+static void timer_guard(void) {
+    if ((REG_TM2CNT_H & 0xC7) != 0x83 || (REG_TM3CNT_H & 0xC4) != 0x84) { timers_start(); return; }
+    uint32_t t = ticks();
+    if (t != tick_seen) { tick_seen = t; tick_same = 0; }
+    else if (++tick_same > 4000) timers_start();    /* thousands of polls with no tick: the count stands still */
+}
 static void poll(void) {                          /* called often, also from inside the model's work and long redraws */
+    timer_guard();
     keep_alive();
     uint16_t raw = (uint16_t)(~REG_KEYINPUT & 0x03FF), k = keys_prev;
     if (raw != keys_prev || raw != raw_prev) {
@@ -226,7 +243,7 @@ static const char HOW_TO_TYPE[] =
     "B while Koko writes: stop him.\n\n"
     "The same typing as gbawriter, gbamp3 and the other apps.";
 static const char ABOUT[] =
-    "kokoSD 2.0: Koko the Chatbot with an SD card.\n\n"
+    "kokoSD 2.1: Koko the Chatbot with an SD card.\n\n"
     "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
     "Game Boy Advance itself.\n"
     "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "
@@ -288,7 +305,8 @@ static int load_chat(int id) {
     int ok = chat_io(&sd_, 4, 0) && chat_io(&n, 4, 0) && n <= HISTMAX;
     if (ok) {
         ok = chat_io((void *)dbg.hist, n * 2, 0);
-        dbg.ntok = n;
+        for (uint32_t i = 0; ok && i < n; i++) if (dbg.hist[i] >= K_V) ok = 0;   /* kokoSD 2.1: a damaged file */
+        dbg.ntok = ok ? n : 0;
     }
     ok = ok && ui_log_io(chat_io, 0, 0) && koko_state_io(chat_io, 0, 0);
     ok = chat_end() && ok;
@@ -533,6 +551,7 @@ static void self_test(void) {
         for (int f = 0; f < 60; f++) vsync();
         if (b_pressed()) break;
     }
+    st_add("timers started again: "); st_num(timer_fix); st_add("\n");     /* kokoSD 2.1 */
     st_add("rounds "); st_num(round); st_add(", errors "); st_num(errors); st_add(", SD lookups "); st_num(sd_ok); st_add("/"); st_num(sd_all); st_add("\n");
     int saved = 0;
     if (sd_ready) {
@@ -670,6 +689,12 @@ static int edit(void) {
             int m = menu();
             if (m == 1) return 0;
             if (m >= 2) return m;
+            /* kokoSD 2.1: the presses made in the menu (and its pages, Saved chats, Rename) are not typing: B there
+             * deleted a letter here, START sent the message. Wait for every button to be let go, then forget them. */
+            while (keys_prev) { vsync(); poll(); }
+            hq_n = 0; kq_n = 0;
+            writer_reset_keys();
+            last = ticks();
             writer_set(msg);
             ui_header(0);
             ui_typing(msg, mlen, (int)writer_caret());

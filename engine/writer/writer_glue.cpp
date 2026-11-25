@@ -46,6 +46,9 @@ static void consume(void *,InputEvent e){
  }
  if(!ok){input->reject_edit();flags|=WRITER_FULL;}
 }
+/* kokoSD 2.1: forget the buttons (after the menu: its presses must not reach the message); the text and the
+ * cursor stay. */
+extern "C" void writer_reset_keys(void){ if(input){*input=InputState();provisional=false;} }
 extern "C" void writer_begin(const char *initial){
  /* (kokoSD 1.1.3: writer_frame's chord replay starts from no buttons held) */
  if(!input){input=new(input_mem) InputState();model=new(text_mem) TextModel();}
