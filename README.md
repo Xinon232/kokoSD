@@ -16,9 +16,10 @@ through [gbaSD](https://github.com/Xinon232/gbaSD). It adds:
 The model itself is Koko's, unchanged. GBA only (no browser version). kokoSD's changes are by
 Halim Jarrar; the original Koko README follows further down.
 
-Current version: **kokoSD 1.4** (test).
+Current version: **kokoSD 2.0**.
 
 ## How much Koko gains from the Wikipedia file
+Since 2.0 the cartridge has no fact table of its own: facts come only from the file on the SD card.
 Measured with `tools/measure_facts.py` (the cartridge's lookup code run natively, once with only the
 cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 articles):
 
@@ -42,7 +43,20 @@ cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 a
   questions that do not match a title exactly (see KNOWN_ISSUES.md).
 
 
-## What is new in 1.4 (test)
+## What is new in 2.0
+- **A clean rebuild** after crash hunting on a SuperChis with SuperFW: the 1.4.x diagnostics are gone again
+  (no interrupts, no start-up ROM check, no restart numbers) and the SuperCard uses gbaSD's own driver, as our
+  other apps do.
+- **31.5 MB ROM** instead of 33.4 MB: the cartridge's own fact table (1.9 MB) is gone, so the top 2 MB of the
+  32 MB cartridge space stay unused. The program, fonts and tables come first, the model data last.
+- **Keep-alive (SuperCard):** a SuperCard's "ROM" is SDRAM. Our other apps are a few MB that are read all the
+  time; Koko's 31 MB are mostly left alone while one types or waits. kokoSD now reads one word of every 512
+  bytes, the whole ROM about every two seconds (from fast RAM, about 4% of Koko's speed).
+- **Self test:** on a SuperCard it first leaves the ROM unread for 90 seconds, then checks it ("After 90 s
+  unread: ..."). B skips that step.
+- Slow RAM is set to its normal speed at start, in case SuperFW's "Fast EWRAM" is on.
+
+## What was new in 1.4 (test)
 - **Self test** (START+SELECT menu, last row) for crash hunting on a real cart: round after round, every
   1 MB of the ROM against sums written at build time (tools/fixrom.py), 24 lookups of real titles in the
   fact file (every fourth with its article), the ROM pieces the SuperCard's SD registers could overlay
@@ -59,31 +73,6 @@ cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 a
   new name, START+A saves, START+B cancels) or Delete ("Delete this chat?" A: yes, B: no).
 - **Credits in the cartridge:** the title screen and About kokoSD name Koko's author,
   rdsilver (https://rdsilver.itch.io/koko-the-chatbot).
-
-## How much Koko gains from the Wikipedia file
-Measured with `tools/measure_facts.py` (the cartridge's lookup code run natively, once with only the
-cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 articles):
-
-| Questions | Cartridge table only | With the SD file |
-|---|---|---|
-| 221 everyday questions ("what is a giraffe?", "who was Mozart?", "tell me about Japan", ...) | 208 (94.1%) | 215 (97.3%) |
-| 2,000 subjects picked at random from Simple English Wikipedia ("tell me about ...") | 260 (13.0%) | 1,992 (99.6%) |
-
-- Everyday subjects were mostly in the cartridge already; the file adds a few (cow, sheep, carrot, car,
-  Cleopatra, robot, mathematics) and gives newer, often longer opening sentences (212 of the 215 answers
-  now come from the file).
-- Beyond the everyday, the file is what makes Koko an encyclopedia: about 7.7 times as many subjects
-  (people, places, animals, events, science), and every answer can be followed by "tell me more" to read the
-  article. Without the card there are no articles at all.
-- Without a stored fact the model answers alone and makes things up, e.g. (native engine, same model):
-  "what is zircon?" -> "Zircon is a town in the north of England."; "what is a swallow?" -> "A swallow is a big
-  animal that lives in water, like a big sponge."; the Washington Capitals become "a football team in
-  Philadelphia". With the file: "Zircon is a silicate mineral...", "The swallows and martins are a group of
-  passerine birds...", "The Washington Capitals are an American ice hockey team in Washington, DC."
-- Still not answered: subjects whose opening sentence is too long for Koko (goat, iron, football, love) and
-  questions that do not match a title exactly (see KNOWN_ISSUES.md).
-
-
 
 ## What is new in 1.2
 - **Saved chats.** START+A saves the chat to the SD card (`/koko/chats/chatNNN.kch`, about
