@@ -243,7 +243,7 @@ static const char HOW_TO_TYPE[] =
     "B while Koko writes: stop him.\n\n"
     "The same typing as gbawriter, gbamp3 and the other apps.";
 static const char ABOUT[] =
-    "kokoSD 2.1: Koko the Chatbot with an SD card.\n\n"
+    "kokoSD 2.2: Koko the Chatbot with an SD card.\n\n"
     "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
     "Game Boy Advance itself.\n"
     "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "
@@ -251,7 +251,7 @@ static const char ABOUT[] =
     "After such an answer, \"tell me more\" shows the article. Sums are worked out by the game. "
     "Replies marked Fact or Sum come from these helpers; the menu turns them off.\n"
     "\nKoko the Chatbot (the model, its training, the engine and Koko himself) is by rdsilver: "
-    "rdsilver.itch.io/koko-the-chatbot. kokoSD (SD card, typing, saved chats, this look) is by Halim Jarrar.\n"
+    "rdsilver.itch.io/koko-the-chatbot. kokoSD (SD card, typing, saved chats, this look) is by halimj.\n"
     "\nCode: Koko (MIT), gbaSD and gbawriter typing by Halim Jarrar (GPL-3.0-or-later); the cartridge "
     "as a whole is GPL-3.0-or-later. Weights, fact file and artwork: CC BY-SA 4.0. "
     "Fonts: the SuperFW font by David Guillen Fandos (GPL-3.0-or-later; UNSCII and GNU Unifont glyphs) and "
@@ -645,7 +645,9 @@ static int edit(void) {
         int busy = work();
         dbg.state = busy ? ST_EDIT : ST_IDLE;
         int sig = SUG_SIG();
-        if (sig != shown_sug) { chips(); shown_sug = sig; }
+        /* kokoSD 2.2: while the suggestions are being worked out again (after each letter) the old ones stay on
+         * screen; before, the line was cleared for a moment and drawn again: it flickered at every letter */
+        if (sig != shown_sug && !sug_stale) { chips(); shown_sug = sig; }
         if (!busy) vsync();
         poll();
         uint32_t now = ticks();

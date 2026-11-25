@@ -99,7 +99,7 @@ static void header_line(const char *title, const char *right) {
     if (!helpers) small_draw(6, 5, "Facts off", C_GREY);
     if (right && *right) small_draw(234 - (int)small_width(right), 5, right, C_GREY);
 }
-void ui_header(const char *right) { header_line("Koko", right); }
+void ui_header(const char *right) { frame_start(); header_line("Koko", right); }   /* kokoSD 2.2: in the vertical blank (no half-drawn status) */
 void ui_rate(int made, uint32_t t) {
     char b[24]; int n = 0;
     if (made && t) {
@@ -132,7 +132,7 @@ void ui_title(void) {
     small_centre(5, "kokoSD", C_BLACK);
     centre(50, "Koko", C_BLACK);
     small_centre(72, "A chatbot on your Game Boy Advance", C_GREY);
-    small_centre(128, "Koko: rdsilver   kokoSD: Halim Jarrar", C_GREY);   /* kokoSD 1.3: credits */
+    small_centre(128, "Koko: rdsilver   kokoSD: halimj", C_GREY);   /* kokoSD 1.3: credits */
     ui_title_prompt(1);
     small_centre(146, "START+SELECT while typing: menu", C_GREY);
 }
@@ -140,7 +140,7 @@ void ui_title(void) {
 /* kokoSD 1.1: what the start is doing (finding the SD card and the fact file take a moment). */
 void ui_boot(const char *what, const char *detail) {
     fill(0, 0, 240, 160, C_WHITE);
-    small_centre(5, "kokoSD 2.1", C_BLACK);
+    small_centre(5, "kokoSD 2.2", C_BLACK);
     centre(64, what, C_BLACK);
     if (detail && *detail) small_centre(88, small_fit(detail, 228), C_GREY);
 }
@@ -194,20 +194,30 @@ static void draw_line(int i, int y) {
     }
     lines[i].y = (uint8_t)y; lines[i].dn = lines[i].n;
 }
+/* kokoSD 2.2: line by line, each one cleared just before it is drawn (and the gaps between them), not the whole
+ * chat blanked first: on a real screen the blank chat was seen for a frame or two when a message was sent. */
 static void chat_draw(void) {
     uint8_t ys[NLINE];
     int first = layout(ys);
-    fill(0, CHAT_TOP - 1, 240, chat_bot - CHAT_TOP + 1, C_WHITE);
     cur_y = -1; drawn_bot = CHAT_TOP + 1;
     for (int i = 0; i < first; i++) lines[i].y = 0;
     int last = nline - scroll_back;
     for (int i = last; i < nline; i++) lines[i].y = 0;
+    frame_start();
+    int y = CHAT_TOP - 1;
     for (int i = first; i < last; i++) {
-        YIELD();
+        if (ys[i] > y) fill(0, y, 240, ys[i] - y, C_WHITE);
+        {   /* the text is drawn opaque over its own width: only what is left and right of it is cleared */
+            int w = width_n(lines[i].t, lines[i].n), x0 = lines[i].kind == L_USER ? 234 - w : line_x(i), x1 = x0 + w;
+            if (x1 < 240) fill(x1, ys[i], 240 - x1, LH, C_WHITE);
+            if (x0 > 0) fill(0, ys[i], x0, LH, C_WHITE);
+        }
         draw_line(i, ys[i]);
         if (i == nline - 1) cur_y = ys[i];
-        drawn_bot = ys[i] + LH;
+        drawn_bot = y = ys[i] + LH;
+        YIELD();
     }
+    if (chat_bot > y) fill(0, y, 240, chat_bot - y, C_WHITE);
 }
 /* Lines from index `from` on are new or changed; the rest are on screen already. Instead of blanking the chat and
  * drawing it again (a visible flash on a real screen), slide the existing rows up and draw only what changed. */
@@ -323,6 +333,9 @@ void ui_input(const char *msg, int mlen, int caret) {
 static const char *idle_hint = "START+SELECT: menu    START+A: save chat";
 static int chips_n;
 static void hint_line(const char *t) {
+    /* kokoSD 2.2: cleared and written again in the vertical blank: done while the screen was drawing these rows,
+     * the empty line was seen for a frame (the suggestions flickered at every letter) */
+    frame_start();
     fill(0, HINT_Y - 1, 240, 10, C_WHITE);
     small_draw(6, HINT_Y, small_fit(t, 228), C_GREY);
 }

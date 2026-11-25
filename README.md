@@ -16,7 +16,7 @@ through [gbaSD](https://github.com/Xinon232/gbaSD). It adds:
 The model itself is Koko's, unchanged. GBA only (no browser version). kokoSD's changes are by
 Halim Jarrar; the original Koko README follows further down.
 
-Current version: **kokoSD 2.1** (test).
+Current version: **kokoSD 2.2** (test).
 
 ## How much Koko gains from the Wikipedia file
 Since 2.0 the cartridge has no fact table of its own: facts come only from the file on the SD card.
@@ -43,7 +43,16 @@ cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 a
   questions that do not match a title exactly (see KNOWN_ISSUES.md).
 
 
-## What is new in 2.1
+## What is new in 2.2
+- **No more flicker.** The suggestion line was cleared and written again after every letter, and the chat was
+  blanked and redrawn when a message was sent: on a real screen the empty line or chat showed for a frame. Now
+  the suggestions stay until the new ones are ready, the line and the header are redrawn in the vertical blank,
+  and a full chat redraw writes each line over the old one (only the space beside the text is cleared). Measured
+  frame by frame in the emulator while typing, sending and Koko answering: no frame where something vanishes and
+  comes back.
+- Credits: "kokoSD: halimj" on the title screen and in About.
+
+## What was new in 2.1
 - **Presses in the menu are no longer typing.** The buttons pressed in the menu (and in How to type, About,
   Saved chats, Rename, the self test) were handed to the typing engine afterwards: B that closed the menu
   deleted a letter, START sent the message. Now everything is let go and forgotten when the menu closes.
