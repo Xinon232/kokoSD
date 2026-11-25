@@ -65,6 +65,7 @@ static uint32_t ticks(void);
 #define DEBOUNCE 131u                             /* 8 ms in 1/16384 s */
 static uint16_t raw_prev;
 static uint32_t moved_at[10];
+static void life_note(void);                      /* kokoSD 1.3.1: restart detector (below) */
 static void poll(void) {                          /* called often, also from inside the model's work and long redraws */
     uint16_t raw = (uint16_t)(~REG_KEYINPUT & 0x03FF), k = keys_prev;
     if (raw != keys_prev || raw != raw_prev) {
@@ -79,7 +80,7 @@ static void poll(void) {                          /* called often, also from ins
     }
     uint16_t d = (uint16_t)(k & ~keys_prev);
     if (k != keys_prev && hq_n < 32) hq[hq_n++] = k;
-    keys_prev = k;
+    if (k != keys_prev) { keys_prev = k; life_note(); }
     if (d && kq_n < 16) { kq[(kq_head + kq_n) & 15] = d; kq_n++; }
 }
 /* kokoSD 1.1.3: while Koko answers, B must stop him even when other buttons were pressed first: every queued
@@ -91,6 +92,13 @@ static int b_pressed(void) {
     for (; kq_n; kq_n--, kq_head = (uint8_t)((kq_head + 1) & 15)) if (kq[kq_head] & BTN_B) b = 1;
     return b;
 }
+/* kokoSD 1.3.1: restart detector. This record in slow RAM is not cleared at start (start-up code only clears
+ * other sections), so after a crash that restarts the cartridge it still holds what Koko was doing; after a
+ * power-on (or a start from the flash cart's menu) it holds something else. The title then says so. */
+#define LIFE_MAGIC 0x4B4C4946u
+static struct { uint32_t magic, check, keys, state, ntok, count; } life __attribute__((section(".bss.ewram")));
+static uint32_t life_check(void) { return life.magic ^ life.keys * 31u ^ life.state * 977u ^ life.ntok * 7919u ^ life.count * 104729u ^ 0x9E3779B9u; }
+static void life_note(void) { life.keys = keys_prev; life.state = dbg.state; life.ntok = dbg.ntok; life.check = life_check(); }
 static uint16_t keys_down(void) {                 /* the next queued press (0 if none) */
     poll();
     if (!kq_n) return 0;
@@ -638,6 +646,17 @@ int main(void) {
     sdf_open();                                   /* and its fact file /koko/facts.dat (0 without one) */
     dbg.sd = (uint32_t)sd_ready | (uint32_t)sdf_ready << 1 | (uint32_t)cart_kind << 8;
     ui_title();                                   /* the title until START (or A) is pressed */
+    if (life.magic == LIFE_MAGIC && life.check == life_check()) {   /* kokoSD 1.3.1: it was running a moment ago */
+        static char t[48]; int k = 0;
+        const char *a = "Restarted unexpectedly: keys ";
+        while (*a) t[k++] = *a++;
+        for (int sh = 8; sh >= 0; sh -= 4) t[k++] = "0123456789ABCDEF"[(life.keys >> sh) & 15];
+        a = " state "; while (*a) t[k++] = *a++;
+        t[k++] = (char)('0' + life.state % 10); t[k] = 0;
+        ui_title_note(t);
+        life.count++;
+    } else life.count = 0;
+    life.magic = LIFE_MAGIC; life.state = ST_TITLE; life.keys = 0; life.ntok = 0; life.check = life_check();
     dbg.state = ST_TITLE; dbg.boot_ticks = ticks();   /* kokoSD: the title is up (tests wait for it); start-up time */
     for (int f = 0;; f++) {
         vsync();
