@@ -21,13 +21,17 @@ static void sc_io(int on) {
 }
 
 #define CHUNK 16u
+unsigned sd_init_err;                         /* kokoSD 1.4.3: cart_sd_init's last result */
 static DSTATUS state = STA_NOINIT;
 
 DSTATUS disk_status(BYTE d) { return d ? STA_NOINIT : state; }
 
 DSTATUS disk_initialize(BYTE d) {
     if (d) return STA_NOINIT;
-    state = cart_sd_init() ? STA_NOINIT : 0;
+    /* kokoSD 1.4.3: up to three tries; the last card-start error is kept for the title (SuperCard: the
+     * failed step, gbaSD's SD_ERR_* 1-6) */
+    for (int t = 0; t < 3; t++) { sd_init_err = cart_sd_init(); if (!sd_init_err) break; }
+    state = sd_init_err ? STA_NOINIT : 0;
     sc_io(0);
     return state;
 }

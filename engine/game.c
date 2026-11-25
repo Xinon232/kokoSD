@@ -773,7 +773,16 @@ int main(void) {
         static char t[56]; int k = 0, e = sdf_err & 15, fr = e == 1 ? sd_err : sdf_err >> 4;
         const char *a = why[e < 7 ? e : 0];
         while (*a) t[k++] = *a++;
-        if (e <= 2) { if (fr >= 10) t[k++] = (char)('0' + fr / 10); t[k++] = (char)('0' + fr % 10); t[k++] = ')'; }
+        if (e <= 2) {
+            if (fr >= 10) t[k++] = (char)('0' + fr / 10);
+            t[k++] = (char)('0' + fr % 10);
+            if (e == 1 && sd_init_err && sd_init_err < 100) {   /* kokoSD 1.4.3: which step of the card start failed */
+                const char *s2 = ", start step "; while (*s2) t[k++] = *s2++;
+                if (sd_init_err >= 10) t[k++] = (char)('0' + sd_init_err / 10);
+                t[k++] = (char)('0' + sd_init_err % 10);
+            }
+            t[k++] = ')';
+        }
         t[k] = 0;
         ui_title_note2(t);
     }

@@ -21,7 +21,7 @@ GBASD = ['-DGBASD_SC_FAST_FN=__attribute__((section(".ewram.sc"),target("arm"),n
          '-DGBASD_SC_CRC7_FN=__attribute__((section(".ewram.sc"),target("arm"),noinline,noclone))',
          '-DGBASD_SC_CRC16_FN=__attribute__((section(".ewram.sc"),target("arm"),noinline))',
          '-DGBASD_SC_WRITE_IN_EWRAM', '-DEZFO_SECTION=".ewram.ezfo"']
-SD_ARM = {'crc', 'supercard_driver', 'supercard_env', 'ezfo_driver'}
+SD_ARM = {'crc', 'supercard_driver', 'sc_driver', 'supercard_env', 'ezfo_driver'}
 
 
 def sh(*a):
@@ -47,11 +47,11 @@ def build(cardtest=False):
     obj(T/'fonts.S', [f'-Wa,-I{T}'], 'fonts')
     if not cardtest: obj(R/'bench'/'tern.s', KOKO)
     for n in ('sd.c', 'diskio.c') + (() if cardtest else ('facts_sd.c', 'chats.c')): obj(R/'engine'/n, SD + ['-marm', f'-I{R/"gen"}'], f'sd-{Path(n).stem}')
-    for s in [G/'fatfs'/'ff.c', G/'fatfs'/'ffunicode.c'] + [G/'src'/n for n in (
-            'cart_io.c', 'crc.c', 'supercard_driver.c', 'supercard_env.c', 'supercard_io.s',
+    for s in [G/'fatfs'/'ff.c', G/'fatfs'/'ffunicode.c'] + [R/'engine'/'sc_driver.c'] + [G/'src'/n for n in (   # kokoSD 1.4.3: its own SuperCard driver copy
+            'cart_io.c', 'crc.c', 'supercard_env.c', 'supercard_io.s',
             'supercard_write.s', 'ezfo_driver.c', 'edgba_driver.c')]:
         isa = '-marm' if s.stem in SD_ARM or s.suffix == '.s' else '-mthumb'
-        extra = GBASD if s.parent == G/'src' else ['-Wno-sign-compare', '-Wno-implicit-fallthrough']
+        extra = GBASD if s.parent == G/'src' or s.stem == 'sc_driver' else ['-Wno-sign-compare', '-Wno-implicit-fallthrough']
         obj(s, SD + [isa] + extra, f'sd-{s.stem}')
     if not cardtest:                           # gbawriter's typing engine (C++; its memory in slow RAM: ew-*.o)
         for n in ('writer_core.cpp', 'writer_glue.cpp'):
