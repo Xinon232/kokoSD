@@ -63,10 +63,24 @@ class Pad:
     def start_with(self, b): return self.h(START, 4) + self.h(START | b, 4) + self.h(START, 3) + self.h(0, 4)
     def menu(self): return self.start_with(SELECT) + [f'until:{DBG + 4:#x}:5:2000', 'f:4']   # START + SELECT: the menu (state 5)
     def new_chat(self): return self.menu() + [f'k:{A}']                  # its first row
-    def helpers_toggle(self): return self.menu() + [f'k:{DOWN}', f'k:{DOWN}', f'k:{A}', f'k:{B}', 'f:10']   # (1.2: Saved chats is the second row)
+    def settings(self, row, presses=1):         # kokoSD 2.4: menu row 3 Settings; A on its row (each redraw waited for)
+        return self.menu() + [f'k:{DOWN}', 'f:20', f'k:{DOWN}', 'f:20', f'k:{A}', 'f:40'] + [f'k:{DOWN}', 'f:30'] * row + [f'k:{A}', 'f:40'] * presses \
+            + [f'k:{B}', 'f:40'] + [f'k:{UP}', 'f:30'] * 2 + [f'k:{B}', 'f:30']   # back to the menu's first row, then typing
+    def helpers_toggle(self): return self.settings(0, 2)   # Read out -> As a hint -> Off
+    def helpers_hint(self): return self.settings(0, 1)
+    def memory_off(self): return self.settings(2)
+    def words_off(self): return self.settings(3)
 
 
-def run(name, steps, nturn):
+def forget(img=None):
+    """kokoSD 2.4: no /koko/memory.txt or settings.txt on the card (each test starts as a first meeting, default settings)"""
+    for f in ('memory.txt', 'settings.txt'): subprocess.run(['mdel', '-i', img or os.environ['SD_IMAGE'], '::/koko/' + f], capture_output=True)
+def card_file(path, img=None):
+    return subprocess.run(['mtype', '-i', img or os.environ['SD_IMAGE'], path], capture_output=True).stdout
+
+
+def run(name, steps, nturn, keep_memory=False):
+    if not keep_memory: forget()
     steps = BOOT + steps + [f'until:{DBG + 12:#x}:{nturn}:400000', 'f:5', f'shot:out/{name}.ppm', f'dump:{DBG:#x}:{44 + 2 * HISTMAX}:out/{name}.bin']
     subprocess.run([RUNNER, ROM] + steps, check=True)
     from PIL import Image
@@ -89,10 +103,12 @@ def turns_of(hist):
     return [tuple(p.split('<|koko|>')) for p in text.split('<|user|>')[1:] if '<|koko|>' in p]   # the editor may already have fed the next marker
 
 
-def native_reply(hist, seed):
-    """The reply the native engine gives after the same tokens (up to the last Koko marker) with the same seed."""
+def native_reply(hist, seed, words=None):
+    """The reply the native engine gives after the same tokens (up to the last Koko marker) with the same seed
+    (kokoSD 2.4: words = a fact file with word memory, mixed in as the game does)."""
     cut = len(hist) - 1 - hist[::-1].index(2)
-    out = subprocess.run(['build/koko_gen', 'build/koko.bin', str(seed), '512', '120', '1', '0', '1'],
+    out = subprocess.run(['build/koko_gen', 'build/koko.bin', str(seed), '512', '120', '1', '0', '1'] if not words else
+                         ['build/koko_gen2', 'build/koko.bin', str(seed), '512', '120', '1', '0', '1', words, '32'],
                          input=' '.join(map(str, hist[:cut + 1])).encode(), capture_output=True).stdout.split()
     out = [int(x) for x in out]
     rest = hist[cut + 1:]
@@ -182,11 +198,16 @@ check(t[0] == ('what is 17 + 25?', '17 + 25 = 42.'), 'the sum is exact')
 check(len(t) == 2 and t[1][0] == 'thanks', 'typing straight after a reply loses no key presses')
 check(native_reply(r['hist'], r['seed']), 'the reply after it is identical to the native engine')
 # 6. new chat: a turn, then the new-chat key, then another turn; the model must have forgotten the first
+#    (kokoSD 2.4: all but what he remembers about you: memory.txt is written, so the card model allows writes)
+os.environ['SD_ALLOW_INDEX_WRITES'] = '1'
 pad = Pad()
 r = run('koko_newchat', pad.text('my name is sam') + [f'k:{START}', f'until:{DBG + 12:#x}:1:400000', 'f:5'] + pad.new_chat() + ['f:10', 'shot:out/koko_newchat_fresh.ppm']
         + pad.text('hi') + [f'k:{START}'], 2)
 t = turns_of(r['hist'])
-check(r['newchats'] == 1 and len(t) == 1 and t[0][0] == 'hi', f"after new chat the model's history is only the new message: {t}")
+mem = card_file('::/koko/memory.txt')
+check(r['newchats'] == 1 and len(t) == 2 and t[0] == ('My name is Sam.', 'Got it! Your name is Sam.') and t[1][0] == 'hi',
+      f"after new chat Koko has only what he remembers about you, then the new message: {t}")
+check(mem == b'My name is Sam.\n', f'kokoSD 2.4: memory.txt on the card: {mem!r}')
 check(native_reply(r['hist'], r['seed']), 'reply after a new chat is identical to the native engine starting fresh')
 # 7. kokoSD 1.4.5: the cartridge has no fact table of its own, so without koko/facts.dat on the card the model answers
 #    (the facts from the card: below), then a follow-up
@@ -209,7 +230,7 @@ t = turns_of(r['hist'])
 check(t[0] == ('84 / 7', '84 / 7 = 12.'), f"division typed with the slash: {t[0]}")
 # 10. kokoSD: the menu's How to type page opens (state 6) and B goes back to typing
 pad = Pad()
-subprocess.run([RUNNER, ROM] + BOOT + pad.menu() + [f'k:{DOWN}', f'k:{DOWN}', f'k:{DOWN}', f'k:{A}', f'until:{DBG + 4:#x}:6:2000', 'f:10',
+subprocess.run([RUNNER, ROM] + BOOT + pad.menu() + [f'k:{DOWN}'] * 3 + [f'k:{A}', f'until:{DBG + 4:#x}:6:2000', 'f:10',
                f'dump:{DBG:#x}:{44 + 2 * HISTMAX + 20}:out/page.bin', f'k:{B}', 'f:20', f'k:{B}', 'f:30',
                f'dump:{DBG:#x}:8:out/page_back.bin'], check=True)
 d = open('out/page.bin', 'rb').read(); lines = struct.unpack('I', d[44 + 2 * HISTMAX + 4:44 + 2 * HISTMAX + 8])[0]
@@ -321,7 +342,7 @@ if RUNNER != 'build/runner' and os.path.exists('out/facts-card.img'):
     shutil.copyfile('out/facts-card.img', 'out/selftest-card.img')
     env = dict(os.environ, SD_IMAGE='out/selftest-card.img', SD_ALLOW_INDEX_WRITES='1')
     A0 = DBG + 44 + 2 * HISTMAX + 4
-    steps = BOOT + Pad().menu() + [f'k:{DOWN}'] * 5 + [f'k:{A}', 'f:10', f'k:{A}', f'until:{A0:#x}:1:200000', f'k:{B}', 'f:6000', f'k:{A}', f'until:{DBG + 4:#x}:3:200000', f'dump:{A0:#x}:8:out/st.bin']   # B: stop after the round; any button: back
+    steps = BOOT + Pad().menu() + [f'k:{DOWN}'] * 5 + [f'k:{A}', 'f:90', f'k:{A}', f'until:{A0:#x}:1:200000', f'k:{B}', 'f:6000', f'k:{A}', f'until:{DBG + 4:#x}:3:200000', f'dump:{A0:#x}:8:out/st.bin']   # B: stop after the round; any button: back
     subprocess.run([RUNNER, ROM] + steps, check=True, env=env)
     rounds, errors = struct.unpack('2I', open('out/st.bin', 'rb').read())
     log = subprocess.run(['mtype', '-i', 'out/selftest-card.img', '::/koko/selftest.txt'], capture_output=True, text=True).stdout
@@ -331,6 +352,7 @@ if RUNNER != 'build/runner' and os.path.exists('out/facts-card.img'):
 # 17. kokoSD 2.1: presses made in the menu are not typing (B there deleted a letter, START sent the message); with
 #     timers 2 and 3 stopped (as a freeze report suggested) the buttons and typing still work
 def after(steps, name):
+    forget()
     subprocess.run([RUNNER, ROM] + steps + ['f:120', f'dump:{DBG:#x}:{44 + 2 * HISTMAX + 24}:out/{name}.bin'], check=True)
     d = open(f'out/{name}.bin', 'rb').read()
     return dict(state=struct.unpack('I', d[4:8])[0], turns=struct.unpack('I', d[12:16])[0],
@@ -381,4 +403,67 @@ r = run('koko_accents', pad.text('i like café in münchen') + [f'k:{START}'], 1
 t = turns_of(r['hist'])
 check(t and t[0][0] == 'i like cafe in munchen', f"accents: Koko read {t[0][0] if t else None!r} for 'i like café in münchen'")
 check(native_reply(r['hist'], r['seed']), 'reply identical to the native engine')
+# 19. kokoSD 2.4: memory off (menu, Settings, Memory): nothing is noted and a new chat starts without it
+pad = Pad()
+r = run('koko_memoff', pad.memory_off() + pad.text('my name is sam') + [f'k:{START}', f'until:{DBG + 12:#x}:1:400000', 'f:5'] + pad.new_chat()
+        + ['f:10'] + pad.text('hi') + [f'k:{START}'], 2)
+t = turns_of(r['hist'])
+check(len(t) == 1 and t[0][0] == 'hi' and not card_file('::/koko/memory.txt'), f'memory off: no memory.txt, the new chat is only the new message: {t}')
+st = card_file('::/koko/settings.txt')
+check(st == b'facts=1\nmatching=1\nmemory=0\nwords=1\n', f'Settings are kept on the card: {st!r}')
+# 19b. what is on the card is told at the start (the file as a person might write it), and Koko uses it
+open('out/memory.txt', 'w').write('My name is Sam.\nI live in Berlin.\nMy favorite animal is the cat.\n')
+forget(); subprocess.run(['mmd', '-i', os.environ['SD_IMAGE'], '::/koko'], capture_output=True)
+subprocess.run(['mcopy', '-o', '-i', os.environ['SD_IMAGE'], 'out/memory.txt', '::/koko/memory.txt'], check=True)
+pad = Pad()
+r = run('koko_memory', pad.text('what is my name?') + [f'k:{START}'], 1, keep_memory=True)
+t = turns_of(r['hist'])
+print('   conversation:', [(a, b.strip()) for a, b in t])
+check(len(t) == 2 and t[0][0] == 'My name is Sam. I live in Berlin. My favorite animal is the cat.'
+      and t[0][1] == 'Got it! Your name is Sam. You live in Berlin. Your favorite animal is the cat.' and native_reply(r['hist'], r['seed']),
+      'memory.txt is told at the start of the chat; the reply is the native engine\'s')
+forget()
+if os.path.exists(FACTS) and RUNNER != 'build/runner':
+    # 20. kokoSD 2.4: Facts: As a hint: your turn is said again as "<fact> <your message>"; Koko answers in his own words
+    old = os.environ['SD_IMAGE']; os.environ['SD_IMAGE'] = 'out/facts-card.img'
+    pad = Pad()
+    r = run('koko_hint', pad.helpers_hint() + pad.text('what is a siberian husky?') + [f'k:{START}'], 1)
+    os.environ['SD_IMAGE'] = old
+    t = turns_of(r['hist']); want_s, _ = sd_fact(FACTS, 'siberian husky')
+    print('   conversation:', [(a, b.strip()) for a, b in t])
+    check(t and t[0][0] == want_s + ' what is a siberian husky?' and t[0][1].strip() != want_s and native_reply(r['hist'], r['seed']),
+          'As a hint: the fact is in your turn, the reply is the model\'s own (the native engine\'s)')
+    # 20b. kokoSD 2.4: Fact matching: Wide finds "can you tell me about the moon"; Strict (2.3's) does not
+    os.environ['SD_IMAGE'] = 'out/facts-card.img'
+    res = {}
+    for name, extra in (('wide', []), ('strict', Pad().settings(1))):
+        pad = Pad()
+        res[name] = turns_of(run(f'koko_match_{name}', extra + pad.text('can you tell me about the moon') + [f'k:{START}'], 1)['hist'])
+    os.environ['SD_IMAGE'] = old
+    moon = sd_fact(FACTS, 'moon')[0]
+    check(res['wide'][0][1] == moon and res['strict'][0][1] != moon, f"Fact matching Wide / Strict: {res['wide'][0][1][:40]!r} / {res['strict'][0][1][:40]!r}")
+# 21. kokoSD 2.4: word memory from the fact file: replies are the native engine's with the same table mixed in
+WFACTS = os.environ.get('KOKO_WORDS_FACTS', 'out/koko-v24/facts.dat')
+if os.path.exists(WFACTS) and RUNNER != 'build/runner' and open(WFACTS, 'rb').read(40)[36:40] == b'WRD1':
+    card = 'out/words-card.img'
+    if not os.path.exists(card) or os.path.getmtime(card) < os.path.getmtime(WFACTS):
+        size = (os.path.getsize(WFACTS) >> 20) + 64
+        with open(card, 'wb') as f: f.truncate(size << 20)
+        subprocess.run(['mformat', '-i', card, '-F', '-T', str(size * 2048), '-h', '64', '-s', '32', '::'], check=True)
+        subprocess.run(['mmd', '-i', card, '::/koko'], check=True)
+        subprocess.run(['mcopy', '-i', card, WFACTS, '::/koko/facts.dat'], check=True)
+    old = os.environ['SD_IMAGE']; os.environ['SD_IMAGE'] = card
+    res = {}
+    for name, extra in (('on', []), ('off', Pad().words_off())):
+        pad = Pad()
+        r = run(f'koko_words_{name}', extra + pad.text('tell me a story about a dragon') + [f'k:{START}'], 1)
+        res[name] = r
+    os.environ['SD_IMAGE'] = old
+    for name, r in res.items():
+        t = turns_of(r['hist'])
+        print(f'   word memory {name}: {t[0][1].strip()[:120]!r}  ({r["rate"]:.2f} words/s)')
+    check(native_reply(res['on']['hist'], res['on']['seed'], WFACTS), 'word memory on: the reply is the native engine\'s with the word table')
+    check(native_reply(res['off']['hist'], res['off']['seed']), 'word memory off (menu): the reply is the native engine\'s alone')
+else:
+    print('SKIP word memory: no fact file with word tables (python3 tools/words_sd.py out/koko-v24/facts.dat)')
 sys.exit(0 if ok else 1)

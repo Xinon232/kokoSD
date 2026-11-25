@@ -14,5 +14,8 @@ int sdf_lookup(uint32_t hash, uint16_t *ids, int max);
 int sdf_article(const char **title);
 const char *sdf_article_text(uint32_t at, uint32_t n);
 void sdf_forget(void);                      /* no article to tell more about */
+/* kokoSD 2.4: the word memory in the fact file (tools/words_sd.py): koko_words for engine/koko.c */
+int sdf_words_ready(void);
+int sdf_words(const uint16_t *ctx3, uint16_t *ids, uint8_t *share);
 int sdf_probe(uint32_t r, int article);     /* kokoSD 1.4 self test: a lookup of a real title (1 = ok) */
 #endif

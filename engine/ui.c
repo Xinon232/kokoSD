@@ -142,7 +142,7 @@ void ui_title(void) {
 /* kokoSD 1.1: what the start is doing (finding the SD card and the fact file take a moment). */
 void ui_boot(const char *what, const char *detail) {
     fill(0, 0, 240, 160, C_WHITE);
-    small_centre(5, "kokoSD 2.3", C_BLACK);
+    small_centre(5, "kokoSD 2.4 (test)", C_BLACK);
     centre(64, what, C_BLACK);
     if (detail && *detail) small_centre(88, small_fit(detail, 228), C_GREY);
 }
@@ -191,7 +191,7 @@ static int line_x(int i) { return 6 + (lines[i].mark ? MARK_W : 0); }
 static void draw_line(int i, int y) {
     if (lines[i].kind == L_USER) text_n(234 - width_n(lines[i].t, lines[i].n), y, lines[i].t, lines[i].n, C_GREY);
     else {
-        if (lines[i].mark) small_draw(6, y + 5, lines[i].mark == 1 ? "Fact" : "Sum", C_GREY);
+        if (lines[i].mark) small_draw(6, y + 5, lines[i].mark == 1 ? "Fact" : lines[i].mark == 3 ? "Hint" : "Sum", C_GREY);
         text_n(line_x(i), y, lines[i].t, lines[i].n, lines[i].kind == L_NOTE ? C_GREY : C_BLACK);
     }
     lines[i].y = (uint8_t)y; lines[i].dn = lines[i].n;
@@ -414,14 +414,15 @@ void ui_menu(const char *title, const char *const *items, int n, int sel) {
     frame_start();
     header_line(title, 0);
     YIELD();
+    int h = n > 7 ? 16 : 17;                                       /* kokoSD 2.4: 8 rows fit at 16 */
     for (int i = 0; i < n; i++) {                                  /* rows as gbamp3's lists: 17 rows each, the selection blue */
-        int y = HDR_H + i * 17;
+        int y = HDR_H + i * h;
         uint16_t bg = i == sel ? C_BLUE : C_WHITE;
-        fill(0, y, 6, 17, bg); fill(234, y, 6, 17, bg); fill(6, y, 228, 1, bg);
-        text_draw_bg(6, y + 1, 6, 234, items[i], 0, C_BLACK, bg);
+        fill(0, y, 6, h, bg); fill(234, y, 6, h, bg); fill(6, y, 228, h - 16, bg);
+        text_draw_bg(6, y + h - 16, 6, 234, items[i], 0, C_BLACK, bg);
         YIELD();
     }
-    fill(0, HDR_H + n * 17, 240, 160 - HDR_H - n * 17, C_WHITE);
+    fill(0, HDR_H + n * h, 240, 160 - HDR_H - n * h, C_WHITE);
     small_draw(6, 150, "A: choose    B: back", C_GREY);
 }
 

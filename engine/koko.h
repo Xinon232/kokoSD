@@ -35,6 +35,10 @@ int koko_topn(const uint16_t **ids, const int32_t **scores, int *scored);
 int koko_pick(uint32_t *rng, int inv_temp_q8);
 /* Repeated-phrase rule for koko_pick: on between these two calls, for the tokens fed after koko_reply_begin. */
 void koko_reply_begin(void);
+/* kokoSD 2.4: word memory (koko.c words_mix): the table's lookup and its weight (/256; 0 = off) */
+extern int (*koko_words)(const uint16_t *ctx3, uint16_t *ids, uint8_t *share);
+extern int koko_words_mix;
+int koko_dist(int inv_temp_q8, const uint16_t **ids, uint32_t *w);
 void koko_reply_end(void);
 /* Typing suggestions: up to 3 whole-word tokens that extend the typed prefix; returns how many. */
 int koko_suggest(const char *prefix, int plen, int at_start, uint16_t *out);

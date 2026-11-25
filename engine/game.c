@@ -10,8 +10,10 @@
 #include "text/text.h"
 #include "chats.h"
 #include "ff.h"
+#include "memory.h"
 int sum_reply(const char *s, int n, char *out);   /* engine/sums.c */
 int fact_reply(const char *msg, int n, uint16_t *ids, int max);   /* engine/facts.c */
+extern int fact_wide;                             /* kokoSD 2.4: the wider matching (engine/facts.c) */
 
 #define REG16(a) (*(volatile uint16_t *)(a))
 #define REG_DISPCNT  REG16(0x04000000)
@@ -172,7 +174,14 @@ static char chat_title[CHAT_TITLE];
 static uint32_t seed = 0x2545F491;
 static uint16_t fed[MSG_TOK], want[MSG_TOK], sug[3];      /* koko_suggest returns up to 3 */
 static int nfed, nwant, user_fed, stepping, dirty, nsug, sug_stale, mark_ntok;
-static int helpers = 1;                           /* fact table and calculator on; off = every word comes from the model */
+static int helpers = 1;                           /* fact table and calculator on; off = every word comes from the model;
+                                                   * kokoSD 2.4: 2 = facts as a hint (Koko is told the fact and answers) */
+static int words_on = 1;                          /* kokoSD 2.4: word memory from the fact file (when it has one) */
+/* kokoSD 2.4: what Koko remembers about you, told at the start of each new chat (engine/memory.c). Fed in the
+ * background while the first message is typed; the editor's mark moves past it when it is in. */
+#define PRE_MAX 200
+static uint16_t pre[PRE_MAX] EW;
+static int npre, pre_fed, pre_mark;
 
 static void feed_begin(int tok) {
     if (dbg.ntok < HISTMAX) dbg.hist[dbg.ntok] = (uint16_t)tok;
@@ -192,6 +201,8 @@ static void retarget(void) {                     /* the words that are finished:
 }
 static int work(void) {                           /* one slice of background work; 0 when there is none */
     if (stepping) { if (!koko_step_part()) stepping = 0; return 1; }
+    if (pre_fed < npre) { feed_begin(pre[pre_fed++]); pre_mark = pre_fed == npre; return 1; }
+    if (pre_mark) { koko_mark(); mark_ntok = (int)dbg.ntok; pre_mark = 0; return 1; }
     if (dirty) {
         koko_rewind(); dbg.ntok = (uint32_t)mark_ntok; dbg.rewinds++;
         nfed = 0; user_fed = 0; dirty = 0;
@@ -250,13 +261,18 @@ static const char HOW_TO_TYPE[] =
     "B while Koko writes: stop him.\n\n"
     "The same typing as gbawriter, gbamp3 and the other apps.";
 static const char ABOUT[] =
-    "kokoSD 2.3: Koko the Chatbot with an SD card.\n\n"
+    "kokoSD 2.4 (test): Koko the Chatbot with an SD card.\n\n"
     "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
     "Game Boy Advance itself.\n"
     "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "
     "(CC BY-SA 4.0): the file koko/facts.dat on the SD card. "
     "After such an answer, \"tell me more\" shows the article. Sums are worked out by the game. "
-    "Replies marked Fact or Sum come from these helpers; the menu turns them off.\n"
+    "Replies marked Fact or Sum come from these helpers; the menu turns them off. With Facts: As a hint, Koko is "
+    "told the fact and answers in his own words (marked Hint): friendlier, but he can get it wrong.\n"
+    "\nMemory: what you tell Koko about yourself (\"my name is ...\", \"I live in ...\", \"I like ...\") is kept in "
+    "koko/memory.txt and told to him at the start of each new chat. The menu shows it, turns it off or forgets it.\n"
+    "\nWord memory: which words follow which in the Wikipedia text on the card (in facts.dat) is mixed into Koko's "
+    "choice of the next word.\n"
     "\nKoko the Chatbot (the model, its training, the engine and Koko himself) is by rdsilver: "
     "rdsilver.itch.io/koko-the-chatbot. kokoSD (SD card, typing, saved chats, this look) is by halimj.\n"
     "\nCode: Koko (MIT), gbaSD and gbawriter typing by Halim Jarrar (GPL-3.0-or-later); the cartridge "
@@ -267,7 +283,7 @@ static const char ABOUT[] =
  * B (or A, START) goes back. */
 static const char *rom_text;                      /* kokoSD 2.3: How to type / About: the text in the cartridge */
 static const char *rom_src(uint32_t at, uint32_t n) { (void)n; return rom_text + at; }
-static void read_pages(const char *title, ui_src src, int n, int state) {
+static uint16_t read_pages(const char *title, ui_src src, int n, int state) {
     int lines = ui_article_wrap(src, (uint32_t)n), rows = ui_article_rows(), top = 0, last = lines > rows ? lines - rows : 0;
     kq_n = 0;                                     /* presses made before the page opened are not page turns */
     dbg.state = (uint32_t)state; dbg.article = (uint32_t)lines; dbg.article_top = 0;
@@ -281,7 +297,27 @@ static void read_pages(const char *title, ui_src src, int n, int state) {
         if (top > last) top = last;
         if (top < 0) top = 0;
         if (top != was) { ui_article(title, top); dbg.article_top = (uint32_t)top; }
-        if (d & (BTN_B | BTN_START | BTN_A)) break;
+        if (d & (BTN_B | BTN_START | BTN_A | BTN_SELECT)) return d;
+    }
+}
+/* kokoSD 2.4: the menu's Memory: what Koko remembers; A turns it on / off, SELECT forgets it all */
+static void memory_page(void) {
+    char *t = mem_buf;
+    for (;;) {
+        int k = 0;
+        const char *h = mem_on ? "Memory is on: Koko notes what you tell him about yourself and is told it at the start of each new chat.\n"
+                               : "Memory is off (Settings): nothing is noted and new chats start without it.\n";
+        while (*h) t[k++] = *h++;
+        h = "SELECT: forget everything.  B: back.\n"
+            "It is kept in koko/memory.txt on the SD card (one sentence a line: it can be changed on a computer).\n\n";
+        while (*h) t[k++] = *h++;
+        if (mem_count()) { h = "Koko remembers:\n"; while (*h) t[k++] = *h++; k += mem_text(2, t + k, MEM_BUF - k - 1); }
+        else { h = "Koko remembers nothing yet. Say \"My name is ...\", \"I live in ...\", \"I like ...\", \"My favorite ... is ...\"."; while (*h) t[k++] = *h++; }
+        t[k] = 0;
+        rom_text = t;
+        uint16_t d = read_pages("Memory", rom_src, k, ST_PAGE);
+        if (d & BTN_SELECT) { mem_forget(); mem_save(); continue; }
+        return;
     }
 }
 /* ---------------- kokoSD 1.2: saved chats ---------------- */
@@ -289,8 +325,22 @@ static void read_pages(const char *title, ui_src src, int n, int state) {
 static char list_title[LIST_MAX][CHAT_TITLE] __attribute__((section(".bss.ewram")));
 static int16_t list_id[LIST_MAX] __attribute__((section(".bss.ewram")));
 static const char *list_item[LIST_MAX] __attribute__((section(".bss.ewram")));
+static void memory_prefix(void) {               /* kokoSD 2.4: "My name is Sam. ..." / "Got it! Your name is Sam. ..." */
+    char *t = mem_buf;
+    npre = pre_fed = pre_mark = 0;
+    if (!mem_on || !mem_count()) return;
+    int n = mem_text(0, t, MEM_BUF);
+    pre[npre++] = TOK_USER;
+    npre += koko_encode(t, n, pre + npre, PRE_MAX / 2 - 2);
+    pre[npre++] = TOK_KOKO;
+    const char *g = "Got it! "; int k = 0;
+    while (g[k]) { t[k] = g[k]; k++; }
+    n = k + mem_text(1, t + k, MEM_BUF - k);
+    npre += koko_encode(t, n, pre + npre, PRE_MAX - npre);
+}
 static void new_chat_state(void) {
     koko_reset();
+    memory_prefix();
     ui_clear(); ui_say(L_KOKO, "Woof! I'm Koko. Say something!", 30);
     mlen = 0; msg[0] = 0; plen = 0; plain[0] = 0; dbg.ntok = 0;
     chat_id = -1; chat_turns = 0; chat_title[0] = 0;
@@ -322,6 +372,7 @@ static int load_chat(int id) {
     if (!ok) return 0;
     for (int i = 0; i < CHAT_TITLE; i++) chat_title[i] = title[i];
     chat_id = id; chat_turns = 1;
+    npre = pre_fed = pre_mark = 0;                /* kokoSD 2.4: a saved chat goes on as it was */
     mlen = 0; msg[0] = 0; plen = 0; plain[0] = 0;
     return 1;
 }
@@ -594,13 +645,85 @@ static void self_test(void) {
     kq_n = 0;
 }
 
+static void words_set(void) {                     /* kokoSD 2.4 */
+    koko_words = words_on && sdf_words_ready() ? sdf_words : 0;
+    koko_words_mix = 32;                          /* 64 was best on held-out article text; in chat it pulled Koko toward article wording */
+}
+/* kokoSD 2.4: the settings are kept in /koko/settings.txt ("facts=1" ...: 0 off, 1 read out, 2 as a hint) */
+static int set_val(const char *t, int n, const char *key, int dflt) {
+    for (int i = 0; i < n; i++) {
+        int k = 0; while (key[k] && i + k < n && t[i + k] == key[k]) k++;
+        if (!key[k] && (i == 0 || t[i - 1] == '\n') && i + k + 1 < n + 1 && t[i + k] == '=' && i + k + 1 < n) {
+            int c = t[i + k + 1] - '0'; return c >= 0 && c <= 2 ? c : dflt;
+        }
+    }
+    return dflt;
+}
+FIL *chat_fil(void);
+static void settings_load(void) {
+    UINT got = 0;
+    if (!sd_ready || f_open(chat_fil(), "/koko/settings.txt", FA_READ) != FR_OK) return;
+    int ok = f_read(chat_fil(), mem_buf, 200, &got) == FR_OK;
+    f_close(chat_fil());
+    if (!ok) return;
+    helpers = set_val(mem_buf, (int)got, "facts", 1); fact_wide = set_val(mem_buf, (int)got, "matching", 1) & 1;
+    mem_on = set_val(mem_buf, (int)got, "memory", 1) & 1; words_on = set_val(mem_buf, (int)got, "words", 1) & 1;
+    ui_helpers(helpers); dbg.pure = (uint16_t)!helpers;
+}
+static void settings_save(void) {
+    if (!sd_ready) return;
+    char *t = mem_buf; int n = 0;
+    const char *k[4] = { "facts=", "matching=", "memory=", "words=" }; int v[4] = { helpers, fact_wide, mem_on, words_on };
+    for (int i = 0; i < 4; i++) { for (const char *p = k[i]; *p; p++) t[n++] = *p; t[n++] = (char)('0' + v[i]); t[n++] = '\n'; }
+    UINT done; f_mkdir("/koko");
+    if (f_open(chat_fil(), "/koko/settings.txt", FA_WRITE | FA_CREATE_ALWAYS) != FR_OK) return;
+    f_write(chat_fil(), t, (UINT)n, &done);
+    f_close(chat_fil());
+}
+/* kokoSD 2.4: the menu's Settings: the four 2.4 features, each on or off (A changes the row) */
+static void settings(void) {
+    int sel = 0, changed = 0;
+    const char *items[5];
+    static char mem_item[32];
+    kq_n = 0;
+    for (;;) {
+        items[0] = helpers == 1 ? "Facts: Read out" : helpers == 2 ? "Facts: As a hint" : "Facts and sums: Off";
+        items[1] = fact_wide ? "Fact matching: Wide" : "Fact matching: Strict";
+        items[2] = mem_on ? "Memory: On" : "Memory: Off";
+        items[3] = !sdf_words_ready() ? "Word memory: none on card" : words_on ? "Word memory: On" : "Word memory: Off";
+        { const char *a = "What Koko remembers ("; int k = 0, c = mem_count();
+          while (*a) mem_item[k++] = *a++;
+          if (c >= 10) mem_item[k++] = (char)('0' + c / 10);
+          mem_item[k++] = (char)('0' + c % 10); mem_item[k++] = ')'; mem_item[k] = 0; }
+        items[4] = mem_item;
+        dbg.state = ST_MENU; dbg.menu = (uint32_t)(16 + sel);
+        ui_menu("Settings", items, 5, sel);
+        for (;;) {
+            vsync();
+            uint16_t d = keys_down();
+            if (!d) continue;
+            if (d & BTN_UP) { sel = (sel + 4) % 5; break; }
+            if (d & BTN_DOWN) { sel = (sel + 1) % 5; break; }
+            if (d & (BTN_B | BTN_START)) { if (changed) settings_save(); return; }
+            if (d & BTN_A) {
+                if (sel == 0) { helpers = (helpers + 1) % 3; ui_helpers(helpers); dbg.pure = (uint16_t)!helpers; }
+                if (sel == 1) fact_wide = !fact_wide;
+                if (sel == 2) mem_on = !mem_on;
+                if (sel == 3 && sdf_words_ready()) { words_on = !words_on; words_set(); }
+                if (sel == 4) memory_page();
+                changed |= sel < 4;
+                kq_n = 0;
+                break;
+            }
+        }
+    }
+}
 /* START + SELECT while typing. Returns 1 for a new chat, 2 when a saved chat was opened (3: it failed). */
 static int menu(void) {
     static int sel;
-    const char *items[6] = { "New chat", "Saved chats", 0, "How to type", "About kokoSD", "Self test" };
+    const char *items[6] = { "New chat", "Saved chats", "Settings", "How to type", "About kokoSD", "Self test" };
     kq_n = 0;                                     /* presses made while typing are not menu choices */
     for (;;) {
-        items[2] = helpers ? "Facts and sums: On" : "Facts and sums: Off";
         dbg.state = ST_MENU; dbg.menu = (uint32_t)sel;
         ui_menu("Menu", items, 6, sel);
         for (;;) {
@@ -613,7 +736,7 @@ static int menu(void) {
             if (d & BTN_A) {
                 if (sel == 0) return 1;
                 if (sel == 1) { int r = saved_chats(); if (r) return r + 1; }
-                if (sel == 2) { helpers = !helpers; ui_helpers(helpers); dbg.pure = (uint16_t)!helpers; }
+                if (sel == 2) settings();                /* kokoSD 2.4 */
                 if (sel == 3) { rom_text = HOW_TO_TYPE; read_pages("How to type", rom_src, (int)sizeof HOW_TO_TYPE - 1, ST_PAGE); }
                 if (sel == 4) { rom_text = ABOUT; read_pages("About kokoSD", rom_src, (int)sizeof ABOUT - 1, ST_PAGE); }
                 if (sel == 5) { self_test(); if (dbg.article) return 1; }   /* it ran: a new chat (the model was used) */
@@ -792,7 +915,7 @@ static void exchange(void) {
     for (int k = 0; k < nfed && k < nwant; k++) if (fed[k] != want[k]) dirty = 1;
     sug_stale = 0;
     while (work()) {}
-    feed(TOK_KOKO);
+    /* kokoSD 2.4: the helpers look first, then Koko's marker (a hint goes into your turn, before the question) */
     if (!seed) seed = 1;
     dbg.seed = seed;
     REG_TM2CNT_H = 0; REG_TM3CNT_H = 0; REG_TM2CNT_L = 0; REG_TM3CNT_L = 0;
@@ -827,7 +950,23 @@ static void exchange(void) {
         al = sum_reply(plain, plen, ans);                  /* a sum: the game works it out and Koko says it */
         if (al) { an = koko_encode(ans, al, want, MSG_TOK); mark = 2; }
         else { an = fact_reply(plain, plen, want, MSG_TOK); al = an; mark = an ? 1 : 0; }   /* a fact the cartridge has on file */
+        if (helpers == 2 && mark == 1) {
+            /* kokoSD 2.4: As a hint: your turn is said again as "<fact> <your message>" and Koko answers in his
+             * own words (the native engine used the fact best this way round: host/, kokoSD 2.4 notes) */
+            uint16_t *hint = fed; char *q = mem_buf;       /* (RAM is short: buffers not in use now) */
+            int hn = an;
+            for (int i = 0; i < hn; i++) hint[i] = want[i];
+            ui_header("reading the fact...");
+            koko_rewind(); dbg.ntok = (uint32_t)mark_ntok; dbg.rewinds++;
+            feed(TOK_USER);
+            for (int i = 0; i < hn && !b_pressed(); i++) feed(hint[i]);
+            q[0] = ' '; for (int i = 0; i < plen; i++) q[i + 1] = plain[i];
+            int qn = koko_encode(q, plen + 1, want, MSG_TOK);
+            for (int i = 0; i < qn; i++) feed(want[i]);
+            nfed = 0; al = an = 0; mark = 3;
+        }
     }
+    feed(TOK_KOKO);
     ui_header("B: stop");
     int stopped = b_pressed() || b_after_send;   /* kokoSD 2.2: also a B made between START and here */
     b_after_send = 0; sent_alone = 0;                           /* B while Koko was still reading: no reply */
@@ -851,6 +990,7 @@ static void exchange(void) {
     ui_reply_button(0);
     ui_rate(made, ticks() - t0);
     if (article && !stopped) read_article();             /* B also means: no article */
+    if (mem_on && !article && mem_learn(plain, plen)) mem_save();   /* kokoSD 2.4: what you said about yourself */
     dbg.turns++;
     dbg.state = ST_DONE;
     mlen = 0; msg[0] = 0; plen = 0; plain[0] = 0;
@@ -875,6 +1015,7 @@ int main(void) {
     if (cart_kind >= CART_EZFO) REG_WAITCNT = 0x4317;   /* Omega / EverDrive: fastest cartridge timing + prefetch */
     ui_boot(sd_ready ? "Opening the fact file..." : "No SD card found", sd_cart_name());
     sdf_open();                                   /* and its fact file /koko/facts.dat (0 without one) */
+    mem_load(); settings_load(); words_set();                      /* kokoSD 2.4: memory.txt; the fact file's word memory */
     dbg.sd = (uint32_t)sd_ready | (uint32_t)sdf_ready << 1 | (uint32_t)cart_kind << 8;
     ui_title();                                   /* the title until START (or A) is pressed */
     if (!sdf_ready) {                             /* kokoSD 1.4.2: why there are no facts from the card (FatFs codes) */
@@ -907,6 +1048,7 @@ int main(void) {
     }
     ui_init();
     ui_say(L_KOKO, "Woof! I'm Koko. Say something!", 30);
+    memory_prefix();
     while (keys_prev) { vsync(); poll(); }        /* kokoSD: the START that left the title types nothing */
     hq_n = 0;
     for (;;) {

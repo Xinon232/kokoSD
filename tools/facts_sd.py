@@ -131,11 +131,23 @@ def build(src, dst):
 
 
 def parse(src):
-    arts, redirects = {}, []
+    arts, redirects, paren, full = {}, [], {}, {}
     for n, (title, target, wt) in enumerate(pages(src)):
         if n % 20000 == 0: print(f'  {n} pages, {len(arts)} articles', flush=True)
         t = ascii_fold(title)
-        if '(' in t or ':' in t or any(ord(c) > 126 for c in t) or re.fullmatch(r'[\d ]+|.*\b(List of|Lists of)\b.*', t):
+        # kokoSD 2.4: "Mercury (planet)" is found as "mercury planet" ("the planet mercury"), and as "mercury"
+        # when there is no article (or redirect) called just that
+        base = t[:t.index('(')].strip() if '(' in t and target is None else None
+        if (('(' in t and not base) or ':' in t or any(ord(c) > 126 for c in t) or
+                re.fullmatch(r'[\d ]+|.*\b(List of|Lists of)\b.*', base or t)):
+            continue
+        if base:
+            key = norm(base)
+            if not key or key in STOP or len(key) < 2 or key.isdigit(): continue
+            text = plain(wt); s = first_sentence(text, base)
+            if s is None: continue
+            full[norm(t)] = (t, s, text)
+            if key not in paren or len(text) > len(paren[key][2]): paren[key] = (t, s, text)
             continue
         key = norm(t)
         if not key or key in STOP or len(key) < 2 or key.isdigit():
@@ -147,7 +159,14 @@ def parse(src):
         if s is None: continue
         if key not in arts or len(text) > len(arts[key][2]):
             arts[key] = (t, s, text)
-    print(f'{len(arts)} articles with an opening sentence, {len(redirects)} redirects', flush=True)
+    rkeys = {k for k, _ in redirects}
+    added = added_full = 0
+    for k, v in full.items():
+        if k not in arts: arts[k] = v; added_full += 1
+    for k, v in paren.items():                        # not over a redirect: "dolphins" goes to Dolphin, not a team
+        if k not in arts and k not in rkeys: arts[k] = v; added += 1
+    print(f'{len(arts)} articles with an opening sentence ({added_full} titles with "(...)", {added} of them also '
+          f'without it), {len(redirects)} redirects', flush=True)
     return arts, redirects
 
 

@@ -8,6 +8,7 @@
 
 #define SD __attribute__((section(".bss.sd")))
 static FIL cf SD;
+FIL *chat_fil(void) { return &cf; }            /* kokoSD 2.4: memory.txt uses it too (never at the same time) */
 static int writing, open_ok;
 
 static uint32_t weights_check(void) {

@@ -452,6 +452,39 @@ IWRAM_CODE int koko_topn(const uint16_t **ids, const int32_t **scores, int *scor
 static uint32_t reply_at = NO_REPLY;
 void koko_reply_begin(void) { reply_at = npos; }
 void koko_reply_end(void) { reply_at = NO_REPLY; }
+/* kokoSD 2.4: word memory. koko_words (set by the game: the SD card's table; by the native tools: a file) gives up
+ * to 4 tokens that followed the last 3 tokens (or 2) in Simple English Wikipedia and their shares (/255); they are
+ * mixed into the model's own choice among its top candidates: p = (1 - mix) p_model + mix p_words (mix /256). */
+int (*koko_words)(const uint16_t *ctx3, uint16_t *ids, uint8_t *share);
+int koko_words_mix;
+static void words_mix(const uint16_t *ids, uint32_t *w, int n, uint32_t *sum) {
+    if (!koko_words || !koko_words_mix || npos < 2) return;
+    uint16_t c[3] = { npos >= 3 ? toks[SLOT(npos - 3)] : 0xFFFF, toks[SLOT(npos - 2)], toks[SLOT(npos - 1)] }, wid[4];
+    uint8_t sh[4];
+    int m = koko_words(c, wid, sh);
+    uint32_t s0 = *sum;
+    for (int j = 0; j < m; j++)
+        for (int i = 0; i < n; i++)
+            if (ids[i] == wid[j]) {
+                uint32_t add = (uint32_t)(((uint64_t)s0 * (uint32_t)koko_words_mix * sh[j]) / ((uint32_t)(256 - koko_words_mix) * 255u));
+                w[i] += add; *sum += add;
+                break;
+            }
+}
+/* The weights koko_pick draws from (after the word memory; before the repeated-phrase rule): for tools. */
+int koko_dist(int inv_temp_q8, const uint16_t **ids_out, uint32_t *w) {
+    const uint16_t *ids; const int32_t *sc;
+    int n = koko_topn(&ids, &sc, 0);
+    uint32_t sum = 0;
+    for (int i = 0; i < n; i++) {
+        uint32_t d = (uint32_t)(((int64_t)(sc[0] - sc[i]) * inv_temp_q8) >> (8 + QB - K_EXP_BITS));
+        w[i] = d < K_EXP_N ? BU16(O_EXP)[d] : 0;
+        sum += w[i];
+    }
+    words_mix(ids, w, n, &sum);
+    *ids_out = ids;
+    return n;
+}
 int koko_pick(uint32_t *rng, int inv_temp_q8) {
     const uint16_t *ids; const int32_t *sc;
     int n = koko_topn(&ids, &sc, 0);
@@ -466,9 +499,12 @@ int koko_pick(uint32_t *rng, int inv_temp_q8) {
     for (int i = 0; i < n; i++) {
         uint32_t d = (uint32_t)(((int64_t)(sc[0] - sc[i]) * inv_temp_q8) >> (8 + QB - K_EXP_BITS));
         w[i] = d < K_EXP_N ? BU16(O_EXP)[d] : 0;
+        sum += w[i];
+    }
+    words_mix(ids, w, n, &sum);                                  /* kokoSD 2.4 */
+    for (int i = 0; i < n; i++) {
         isb[i] = 0;
         for (int k = 0; k < nb; k++) if (ban[k] == ids[i]) isb[i] = 1;
-        sum += w[i];
         if (!isb[i]) sumb += w[i];
     }
     uint32_t r = *rng;

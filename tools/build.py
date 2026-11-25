@@ -52,7 +52,7 @@ def build(cardtest=False):
     obj(T/'blit.c', KOKO, 'ew-blit')
     obj(T/'fonts.S', [f'-Wa,-I{T}'], 'fonts')
     if not cardtest: obj(R/'bench'/'tern.s', KOKO)
-    for n in ('sd.c', 'diskio.c') + (() if cardtest else ('facts_sd.c', 'chats.c')): obj(R/'engine'/n, SD + ['-marm', f'-I{R/"gen"}'], f'sd-{Path(n).stem}')
+    for n in ('sd.c', 'diskio.c') + (() if cardtest else ('facts_sd.c', 'chats.c', 'memory.c')): obj(R/'engine'/n, SD + ['-marm', f'-I{R/"gen"}'], f'sd-{Path(n).stem}')
     for s in [G/'fatfs'/'ff.c', G/'fatfs'/'ffunicode.c'] + [G/'src'/n for n in (
             'cart_io.c', 'supercard_driver.c', 'crc.c', 'supercard_env.c', 'supercard_io.s',
             'supercard_write.s', 'ezfo_driver.c', 'edgba_driver.c')]:
