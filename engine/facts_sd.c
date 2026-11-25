@@ -87,3 +87,17 @@ int sdf_article(const char **t, const char **x) {
     return (int)last_len;
 }
 void sdf_forget(void) { last_ok = 0; }
+
+/* kokoSD 1.4 self test: look up a title picked by r (a real entry of the index) and, when article is set, read its
+ * article as Tell me more does. 1: found and read back as it should be. */
+int sdf_probe(uint32_t r, int article) {
+    if (!sdf_ready) return 0;
+    uint32_t pages = (sdf_count + 63) / 64, pg = r % pages;
+    unsigned n = sdf_count - pg * 64 < 64 ? sdf_count - pg * 64 : 64;
+    if (!read_at(index_at + pg * 512, page, n * 8)) return 0;
+    uint32_t hash = page[2 * ((r >> 12) % n)];
+    static uint16_t ids[255] SD;
+    if (!sdf_lookup(hash, ids, 255)) return 0;        /* a title of the index must be found */
+    if (article) { const char *t, *x; if (!sdf_article(&t, &x)) return 0; }
+    return 1;
+}

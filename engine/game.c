@@ -9,6 +9,7 @@
 #include "writer/writer_glue.h"
 #include "text/text.h"
 #include "chats.h"
+#include "ff.h"
 int sum_reply(const char *s, int n, char *out);   /* engine/sums.c */
 int fact_reply(const char *msg, int n, uint16_t *ids, int max);   /* engine/facts.c */
 
@@ -44,7 +45,7 @@ struct Dbg {
     uint32_t menu, caret;               /* kokoSD: menu row; cursor in the message */
     uint32_t boot_ticks;                /* kokoSD: 1/16384 s from power-on to the title (card mounted, fact file opened) */
 };
-enum { ST_EDIT = 0, ST_RUNNING = 1, ST_DONE = 2, ST_IDLE = 3, ST_ARTICLE = 4, ST_MENU = 5, ST_PAGE = 6, ST_TITLE = 7, ST_LIST = 8, ST_OPTIONS = 9, ST_CONFIRM = 10, ST_RENAME = 11 };   /* kokoSD: an article, the menu, How to type / About */   /* IDLE: editing, model caught up, suggestions shown */
+enum { ST_EDIT = 0, ST_RUNNING = 1, ST_DONE = 2, ST_IDLE = 3, ST_ARTICLE = 4, ST_MENU = 5, ST_PAGE = 6, ST_TITLE = 7, ST_LIST = 8, ST_OPTIONS = 9, ST_CONFIRM = 10, ST_RENAME = 11, ST_SELFTEST = 12 };   /* kokoSD: an article, the menu, How to type / About */   /* IDLE: editing, model caught up, suggestions shown */
 volatile struct Dbg dbg __attribute__((section(".bss.dbg")));
 
 
@@ -207,7 +208,7 @@ static const char HOW_TO_TYPE[] =
     "B while Koko writes: stop him.\n\n"
     "The same typing as gbawriter, gbamp3 and the other apps.";
 static const char ABOUT[] =
-    "kokoSD 1.3: Koko the Chatbot with an SD card.\n\n"
+    "kokoSD 1.4: Koko the Chatbot with an SD card.\n\n"
     "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
     "Game Boy Advance itself.\n"
     "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "
@@ -395,21 +396,117 @@ reload:
         }
     }
 }
+/* ---------------- kokoSD 1.4: self test (crash hunting on the real cart) ----------------
+ * Round after round until B: (1) every 1 MB of the ROM against the sums tools/fixrom.py wrote after the image
+ * (a misread or overwritten cart memory shows here), (2) 24 lookups of real titles in the fact file, every
+ * fourth with its article (SD card reads), then the 1 MB pieces the SuperCard's SD registers could overlay are
+ * summed again, (3) a fixed sentence fed through Koko must give the state the native engine gives. The results
+ * go to /koko/selftest.txt. */
+extern char __rom_end[];
+#define MODEL_CHECK 0x0cdc9b2fu                    /* engine/selftest: koko_h after the sentence below (native twin) */
+static const uint16_t check_toks[] = { 1, 1546, 3021, 3, 7622, 384, 461, 1229, 14, 3049, 278, 266, 4582, 3972, 7952, 16, 2 };
+static int rom_piece(unsigned i, uint32_t *s1, uint32_t *s2) {   /* sums of 1 MB piece i; 0 when there is no table */
+    const volatile uint32_t *tab = (const volatile uint32_t *)(((uint32_t)__rom_end + 4095u) & ~4095u);
+    if (tab[0] != 0x4D55534Bu || i >= tab[2]) return 0;   /* "KSUM" */
+    uint32_t size = tab[1], at = i << 20, n = size - at < (1u << 20) ? (size - at) >> 2 : 1u << 18;
+    const volatile uint32_t *p = (const volatile uint32_t *)(0x08000000u + at);
+    uint32_t a = 0, b = 0;
+    for (uint32_t k = 0; k < n; k++) { uint32_t w = p[k]; a += w; b += w * (k + 1); if (!(k & 4095)) poll(); }
+    *s1 = a; *s2 = b;
+    return tab[3 + 2 * i] == a && tab[4 + 2 * i] == b ? 1 : -1;
+}
+static unsigned rom_pieces(void) {
+    const volatile uint32_t *tab = (const volatile uint32_t *)(((uint32_t)__rom_end + 4095u) & ~4095u);
+    return tab[0] == 0x4D55534Bu ? tab[2] : 0;
+}
+static uint32_t model_check(void) {
+    koko_reset();
+    for (unsigned i = 0; i < sizeof check_toks / sizeof check_toks[0]; i++) koko_step(check_toks[i]);
+    uint32_t c = 0;
+    for (int i = 0; i < K_D; i++) c = c * 31u + (uint32_t)koko_h[i];
+    return c;
+}
+#define st_log ((char *)list_title)                  /* (the Saved chats list's buffer: free during the test) */
+#define ST_LOG_MAX ((int)sizeof list_title)
+static int st_n;
+static void st_add(const char *t) { while (*t && st_n < ST_LOG_MAX - 1) st_log[st_n++] = *t++; st_log[st_n] = 0; }
+static void st_num(uint32_t v) { char b[12]; int k = 0; do { b[k++] = (char)('0' + v % 10); v /= 10; } while (v); while (k) { char c[2] = { b[--k], 0 }; st_add(c); } }
+static void self_test(void) {
+    ui_ask("Self test", "Run the self test?", "The chat on screen closes: save it first", "A: start    B: back");
+    dbg.state = ST_CONFIRM; kq_n = 0;
+    for (;;) { vsync(); uint16_t d = keys_down(); if (d & BTN_A) break; if (d & (BTN_B | BTN_START)) return; }
+    while (stepping) work();
+    st_n = 0; st_log[0] = 0;
+    st_add("kokoSD self test\n");
+    unsigned pieces = rom_pieces(), round = 0, errors = 0, sd_ok = 0, sd_all = 0;
+    uint32_t r = seed | 1;
+    static char line[64] __attribute__((section(".bss.ewram"))), det[96] __attribute__((section(".bss.ewram")));
+    if (!pieces) st_add("no ROM sums in this build\n");
+    dbg.state = ST_SELFTEST; dbg.article = 0; dbg.article_top = 0;
+    for (;;) {
+        round++;
+        int bad_rom = 0, bad_sd = 0, bad_model = 0; uint32_t a, b;
+        for (unsigned i = 0; i < pieces; i++) {                  /* (1) the whole ROM */
+            ui_ask("Self test", "Checking the ROM...", "", "B: stop (after this round)");
+            if (rom_piece(i, &a, &b) < 0) { bad_rom++; st_add("round "); st_num(round); st_add(": ROM MB "); st_num(i); st_add(" differs\n"); }
+        }
+        if (sdf_ready) {                                          /* (2) the SD card, then the overlay pieces again */
+            ui_ask("Self test", "Reading the SD card...", "", "B: stop (after this round)");
+            for (int k = 0; k < 24; k++) {
+                r = r * 1664525u + 1013904223u;
+                sd_all++;
+                if (sdf_probe(r >> 4, (k & 3) == 0)) sd_ok++; else { bad_sd++; st_add("round "); st_num(round); st_add(": SD lookup failed\n"); }
+            }
+            sdf_forget();
+            static const unsigned overlay[] = { 16, 17, 24 };     /* 0x09000000, 0x09100000, 0x09800000 */
+            for (unsigned j = 0; j < 3; j++)
+                if (overlay[j] < pieces && rom_piece(overlay[j], &a, &b) < 0) { bad_rom++; st_add("round "); st_num(round); st_add(": ROM MB "); st_num(overlay[j]); st_add(" differs after SD reads\n"); }
+        }
+        ui_ask("Self test", "Running Koko...", "", "B: stop (after this round)");
+        uint32_t m = model_check();                                /* (3) the model */
+        if (m != MODEL_CHECK) { bad_model = 1; st_add("round "); st_num(round); st_add(": model state differs\n"); }
+        errors += (unsigned)(bad_rom + bad_sd + bad_model);
+        dbg.article = round; dbg.article_top = errors;
+        int k = 0; const char *t = errors ? "Round " : "Round ";
+        while (*t) line[k++] = *t++;
+        { char b2[12]; int q = 0; unsigned v = round; do { b2[q++] = (char)('0' + v % 10); v /= 10; } while (v); while (q) line[k++] = b2[--q]; }
+        t = errors ? ": errors found" : ": all good"; while (*t) line[k++] = *t++; line[k] = 0;
+        k = 0;
+        t = bad_rom ? "ROM: differs   " : pieces ? "ROM: ok   " : "ROM: no sums   "; while (*t) det[k++] = *t++;
+        t = !sdf_ready ? "SD: no fact file   " : bad_sd ? "SD: failed   " : "SD: ok   "; while (*t) det[k++] = *t++;
+        t = bad_model ? "Koko: differs" : "Koko: ok"; while (*t) det[k++] = *t++; det[k] = 0;
+        ui_ask("Self test", line, det, "B: stop    (keeps going)");
+        for (int f = 0; f < 60; f++) vsync();
+        if (b_pressed()) break;
+    }
+    st_add("rounds "); st_num(round); st_add(", errors "); st_num(errors); st_add(", SD lookups "); st_num(sd_ok); st_add("/"); st_num(sd_all); st_add("\n");
+    int saved = 0;
+    if (sd_ready) {
+        FIL lf; UINT done;
+        f_mkdir("/koko");
+        if (f_open(&lf, "/koko/selftest.txt", FA_WRITE | FA_CREATE_ALWAYS) == FR_OK) { saved = f_write(&lf, st_log, (UINT)st_n, &done) == FR_OK && done == (UINT)st_n; f_close(&lf); }
+    }
+    ui_ask("Self test", errors ? "Errors found" : "No errors", saved ? "Saved to /koko/selftest.txt" : "(not saved: no SD card)", "Any button: back");
+    kq_n = 0;
+    while (!kq_n) { vsync(); poll(); }
+    kq_n = 0;
+}
+
 /* START + SELECT while typing. Returns 1 for a new chat, 2 when a saved chat was opened (3: it failed). */
 static int menu(void) {
     static int sel;
-    const char *items[5] = { "New chat", "Saved chats", 0, "How to type", "About kokoSD" };
+    const char *items[6] = { "New chat", "Saved chats", 0, "How to type", "About kokoSD", "Self test" };
     kq_n = 0;                                     /* presses made while typing are not menu choices */
     for (;;) {
         items[2] = helpers ? "Facts and sums: On" : "Facts and sums: Off";
         dbg.state = ST_MENU; dbg.menu = (uint32_t)sel;
-        ui_menu("Menu", items, 5, sel);
+        ui_menu("Menu", items, 6, sel);
         for (;;) {
             vsync();
             uint16_t d = keys_down();
             if (!d) continue;
-            if (d & BTN_UP) { sel = (sel + 4) % 5; break; }
-            if (d & BTN_DOWN) { sel = (sel + 1) % 5; break; }
+            if (d & BTN_UP) { sel = (sel + 5) % 6; break; }
+            if (d & BTN_DOWN) { sel = (sel + 1) % 6; break; }
             if (d & (BTN_B | BTN_START)) return 0;
             if (d & BTN_A) {
                 if (sel == 0) return 1;
@@ -417,6 +514,7 @@ static int menu(void) {
                 if (sel == 2) { helpers = !helpers; ui_helpers(helpers); dbg.pure = (uint16_t)!helpers; }
                 if (sel == 3) read_pages("How to type", HOW_TO_TYPE, (int)sizeof HOW_TO_TYPE - 1, ST_PAGE);
                 if (sel == 4) read_pages("About kokoSD", ABOUT, (int)sizeof ABOUT - 1, ST_PAGE);
+                if (sel == 5) { self_test(); if (dbg.article) return 1; }   /* it ran: a new chat (the model was used) */
                 kq_n = 0;
                 break;
             }

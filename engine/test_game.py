@@ -313,6 +313,17 @@ if RUNNER != 'build/runner':
     files = subprocess.run(['mdir', '-b', '-i', 'out/save-card.img', '::/koko/chats'], capture_output=True, text=True).stdout.split()
     left = struct.unpack('I', open('out/del.bin', 'rb').read()[44 + 2 * HISTMAX + 4:44 + 2 * HISTMAX + 8])[0]
     check(not any(f.lower().endswith('.kch') for f in files) and left == 0, f'Delete, A: yes: the chat file is gone ({files}), the list is empty ({left})')
+# 16. kokoSD 1.4: the self test (menu, last row): one round with the fact file, no errors, a log on the card
+if RUNNER != 'build/runner' and os.path.exists('out/facts-card.img'):
+    import shutil
+    shutil.copyfile('out/facts-card.img', 'out/selftest-card.img')
+    env = dict(os.environ, SD_IMAGE='out/selftest-card.img', SD_ALLOW_INDEX_WRITES='1')
+    A0 = DBG + 44 + 2 * HISTMAX + 4
+    steps = BOOT + Pad().menu() + [f'k:{DOWN}'] * 5 + [f'k:{A}', 'f:10', f'k:{A}', f'until:{A0:#x}:1:200000', f'k:{B}', 'f:6000', f'k:{A}', f'until:{DBG + 4:#x}:3:200000', f'dump:{A0:#x}:8:out/st.bin']   # B: stop after the round; any button: back
+    subprocess.run([RUNNER, ROM] + steps, check=True, env=env)
+    rounds, errors = struct.unpack('2I', open('out/st.bin', 'rb').read())
+    log = subprocess.run(['mtype', '-i', 'out/selftest-card.img', '::/koko/selftest.txt'], capture_output=True, text=True).stdout
+    check(rounds >= 1 and errors == 0 and 'errors 0' in log, f'self test: {rounds} round(s), {errors} errors; log: {log.strip().splitlines()[-1] if log else None!r}')
 # 12. kokoSD 1.1: accented letters are typed and shown as typed; Koko reads the plain-letter copy
 pad = Pad()
 r = run('koko_accents', pad.text('i like café in münchen') + [f'k:{START}'], 1)

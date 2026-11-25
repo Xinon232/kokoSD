@@ -63,7 +63,7 @@ def build(cardtest=False):
     sh(P + 'gcc', '-nostdlib', '-mcpu=arm7tdmi', '-Wl,-T,' + str(R/'engine/koko.ld'), '-Wl,--gc-sections',
        '-Wl,--no-warn-rwx-segments', f'-Wl,-Map,{B/(out + ".map")}', '-o', elf, *objs, '-lgcc')
     sh(P + 'objcopy', '-O', 'binary', elf, rom)
-    sh('python3', R/'tools/fixrom.py', rom)
+    sh('python3', R/'tools/fixrom.py', rom, *([] if cardtest else ['--sums']))
     print(sh('python3', G/'tests/check_ram_code.py', elf, 'ezfo_read', 'ezfo_write', 'ezfo_detect').strip())
     nm = {l.split()[-1]: int(l.split()[0], 16) for l in sh(P + 'nm', elf).splitlines() if len(l.split()) == 3}
     print(f'{rom}: {rom.stat().st_size} bytes; IWRAM end {nm["__bss_end"]:#x} (limit 0x3007800), '

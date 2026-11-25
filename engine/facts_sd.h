@@ -13,4 +13,5 @@ int sdf_lookup(uint32_t hash, uint16_t *ids, int max);
  * from the card into a buffer kept here). Returns the text length, 0 if none. */
 int sdf_article(const char **title, const char **text);
 void sdf_forget(void);                      /* no article to tell more about */
+int sdf_probe(uint32_t r, int article);     /* kokoSD 1.4 self test: a lookup of a real title (1 = ok) */
 #endif

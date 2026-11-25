@@ -39,6 +39,7 @@ SECTIONS {
         __ewram_sd_end = .;
     } > ewram AT> rom
     __ewram_sd_lma = LOADADDR(.ewram_sd);
+    __rom_end = __ewram_sd_lma + SIZEOF(.ewram_sd);   /* kokoSD 1.4: the ROM sums table follows (tools/fixrom.py) */
     .ewram_sd_bss (NOLOAD) : {                   /* cleared at start */
         __ewram_sd_bss_start = .;
         *(.bss.sd .bss.sd.*)

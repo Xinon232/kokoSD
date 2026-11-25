@@ -2,13 +2,23 @@
  * requests are split into commands of at most 16 sectors. GPL-3.0-or-later.
  * kokoSD 1.1: on a SuperCard the SD interface is mapped into the ROM space only during card access. While it is
  * mapped, the card's registers take the place of ROM at 0x09000000, 0x09100000 and 0x09800000, and Koko's 32 MB
- * ROM keeps model data there (gbaSD leaves the interface on, which suits ROMs below 16 MB). */
+ * ROM keeps model data there (gbaSD leaves the interface on, which suits ROMs below 16 MB). kokoSD 1.4: the
+ * EverDrive GBA's register window at 0x09FC0000 likewise. */
 #include "ff.h"
 #include "diskio.h"
 #include "cart_io.h"
 #include "supercard_driver.h"
 
-static void sc_io(int on) { if (cart_kind == CART_SUPERCARD) set_supercard_mode(MAPPED_SDRAM, on, on); }
+static void sc_io(int on) {
+    if (cart_kind == CART_SUPERCARD) set_supercard_mode(MAPPED_SDRAM, on, on);
+    /* kokoSD 1.4: the same on an EverDrive GBA: gbaSD leaves its registers mapped at 0x09FC0000, where the end of
+     * Koko's 32 MB ROM is (fonts, tables). Unlock (key 0xA5), then the configuration register: PSRAM mapped, with
+     * or without the register window (as gbaSD's edgba_detect does). */
+    if (cart_kind == CART_EDGBA) {
+        *(volatile uint16_t *)(0x09FC0000u + 0x5A * 2) = 0xA5;
+        *(volatile uint16_t *)0x09FC0000u = (uint16_t)(on ? 3 : 2);
+    }
+}
 
 #define CHUNK 16u
 static DSTATUS state = STA_NOINIT;

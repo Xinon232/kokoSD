@@ -16,7 +16,7 @@ through [gbaSD](https://github.com/Xinon232/gbaSD). It adds:
 The model itself is Koko's, unchanged. GBA only (no browser version). kokoSD's changes are by
 Halim Jarrar; the original Koko README follows further down.
 
-Current version: **kokoSD 1.3**.
+Current version: **kokoSD 1.4** (test).
 
 ## How much Koko gains from the Wikipedia file
 Measured with `tools/measure_facts.py` (the cartridge's lookup code run natively, once with only the
@@ -41,6 +41,18 @@ cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 a
 - Still not answered: subjects whose opening sentence is too long for Koko (goat, iron, football, love) and
   questions that do not match a title exactly (see KNOWN_ISSUES.md).
 
+
+## What is new in 1.4 (test)
+- **Self test** (START+SELECT menu, last row) for crash hunting on a real cart: round after round, every
+  1 MB of the ROM against sums written at build time (tools/fixrom.py), 24 lookups of real titles in the
+  fact file (every fourth with its article), the ROM pieces the SuperCard's SD registers could overlay
+  again, and a fixed sentence through Koko against the native engine's result. B stops; the results go to
+  /koko/selftest.txt.
+- **EverDrive GBA:** its register window at 0x09FC0000 (where the end of Koko's ROM is: fonts, tables) is
+  now mapped only during card access, as the SuperCard's SD interface since 1.1.
+- **Restart detector:** if the cartridge starts again by itself, the title says so (keys held, state).
+- `tools/crash_test.py`: random button sessions in the emulator (typing, chords, menu, facts, Tell me
+  more, saving and opening chats, scrolling); Koko must answer the buttons after each.
 
 ## What is new in 1.3
 - **Rename and delete saved chats:** START on a chat in Saved chats: Open, Rename (type the
