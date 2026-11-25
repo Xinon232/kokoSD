@@ -12,7 +12,9 @@
 volatile uint16_t irq_ok;                     /* kokoSD 1.4.6: the freeze detector's interrupt is on (engine/watch.s) */
 static void sc_io(int on) {
     if (on) *(volatile uint16_t *)0x04000208 = 0;   /* no interrupt while the card is being used */
-    if (cart_kind == CART_SUPERCARD) set_supercard_mode(MAPPED_SDRAM, on, on);
+    /* kokoSD 1.4.7: write access stays on, as SuperFW and gbaSD always leave it (on a SuperChis that bit also
+     * picks the save-memory bank); only the SD interface is switched */
+    if (cart_kind == CART_SUPERCARD) set_supercard_mode(MAPPED_SDRAM, true, on);
     /* kokoSD 1.4: the same on an EverDrive GBA: gbaSD leaves its registers mapped at 0x09FC0000, where the end of
      * Koko's 32 MB ROM is (fonts, tables). Unlock (key 0xA5), then the configuration register: PSRAM mapped, with
      * or without the register window (as gbaSD's edgba_detect does). */

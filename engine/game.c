@@ -100,6 +100,7 @@ static int b_pressed(void) {
  * power-on (or a start from the flash cart's menu) it holds something else. The title then says so. */
 #define LIFE_MAGIC 0x4B4C4946u
 static struct { uint32_t magic, check, keys, state, ntok, count; } life __attribute__((section(".bss.ewram")));
+uint32_t boot_regs[10] __attribute__((section(".bss.ewram")));   /* kokoSD 1.4.7: written by engine/crt0.s at start */
 static uint32_t life_check(void) { return life.magic ^ life.keys * 31u ^ life.state * 977u ^ life.ntok * 7919u ^ life.count * 104729u ^ 0x9E3779B9u; }
 static void life_note(void) { life.keys = keys_prev; life.state = dbg.state; life.ntok = dbg.ntok; life.check = life_check(); }
 static uint16_t keys_down(void) {                 /* the next queued press (0 if none) */
@@ -854,6 +855,15 @@ int main(void) {
         a = " state "; while (*a) t[k++] = *a++;
         t[k++] = (char)('0' + life.state % 10); t[k] = 0;
         ui_title_note(t);
+        char r1[48], r2[48];                       /* kokoSD 1.4.7: where it came from (lr of the modes, status) */
+        char *p = r1;
+        p = put_s(p, "u"); p = put_x(p, boot_regs[2], 8); p = put_s(p, " a"); p = put_x(p, boot_regs[4], 8);
+        p = put_s(p, " s"); p = put_x(p, boot_regs[6], 8); p = put_s(p, " l"); p = put_x(p, boot_regs[0], 8);
+        p = r2;
+        p = put_s(p, "i"); p = put_x(p, boot_regs[8], 8); p = put_s(p, " c"); p = put_x(p, boot_regs[1], 2);
+        p = put_s(p, " u"); p = put_x(p, boot_regs[3], 2); p = put_s(p, " a"); p = put_x(p, boot_regs[5], 2);
+        p = put_s(p, " s"); p = put_x(p, boot_regs[7], 2); p = put_s(p, " i"); p = put_x(p, boot_regs[9], 2);
+        ui_title_note3(r1, r2);
         life.count++;
     } else life.count = 0;
     life.magic = LIFE_MAGIC; life.state = ST_TITLE; life.keys = 0; life.ntok = 0; life.check = life_check();

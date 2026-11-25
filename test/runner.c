@@ -133,6 +133,10 @@ int main(int argc, char **argv) {
             FILE *f = fopen(e + 1, "wb");
             for (uint32_t a = 0; a < len; a++) fputc((int)(core->busRead8(core, addr + a) & 0xFF), f);
             fclose(f);
+        } else if (!strncmp(s, "poke:", 5)) {         /* kokoSD 1.4.7: poke:ADDR:WORD (a crash on purpose) */
+            char *e;
+            uint32_t addr = (uint32_t)strtoul(s + 5, &e, 0), val = (uint32_t)strtoul(e + 1, &e, 0);
+            for (int i = 0; i < 4; i++) core->busWrite8(core, addr + i, (val >> (8 * i)) & 0xFF);
         } else if (!strcmp(s, "frames")) {
             printf("%ld\n", frames);
         } else { fprintf(stderr, "bad step %s\n", s); return 1; }
