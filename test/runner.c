@@ -83,6 +83,14 @@ int main(int argc, char **argv) {
     core->setVideoBuffer(core, buf, w);
     if (!mCoreLoadFile(core, argv[1])) { fprintf(stderr, "load failed\n"); return 1; }
     core->reset(core);
+    if (getenv("KOKO_JUNK")) {                         /* kokoSD 1.4.5: memory as hardware leaves it (not zeros) */
+        uint32_t x = (uint32_t)strtoul(getenv("KOKO_JUNK"), 0, 0) | 1, mark = *getenv("KOKO_JUNK") == 'm';
+        if (mark) { for (uint32_t a = 0x03000000; a < 0x03007F00; a++) core->busWrite8(core, a, 0xA5); }
+        else {
+            for (uint32_t a = 0x02000000; a < 0x02040000; a++) { x ^= x << 13; x ^= x >> 17; x ^= x << 5; core->busWrite8(core, a, x >> 24); }
+            for (uint32_t a = 0x03000000; a < 0x03007F00; a++) { x ^= x << 13; x ^= x >> 17; x ^= x << 5; core->busWrite8(core, a, x >> 24); }
+        }
+    }
 #ifdef CART_MODEL
     model_install(core);
 #endif
@@ -128,6 +136,11 @@ int main(int argc, char **argv) {
         } else if (!strcmp(s, "frames")) {
             printf("%ld\n", frames);
         } else { fprintf(stderr, "bad step %s\n", s); return 1; }
+    }
+    if (getenv("KOKO_JUNK") && *getenv("KOKO_JUNK") == 'm') {   /* kokoSD 1.4.5: the deepest stack use */
+        uint32_t a = 0x03007764;
+        while (a < 0x03007F00 && (core->busRead8(core, a) & 0xFF) == 0xA5) a++;
+        FILE *f = fopen("/tmp/koko_stack.txt", "a"); if (f) { fprintf(f, "%#x\n", a); fclose(f); }
     }
     return 0;
 }

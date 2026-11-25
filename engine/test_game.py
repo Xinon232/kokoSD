@@ -188,12 +188,13 @@ r = run('koko_newchat', pad.text('my name is sam') + [f'k:{START}', f'until:{DBG
 t = turns_of(r['hist'])
 check(r['newchats'] == 1 and len(t) == 1 and t[0][0] == 'hi', f"after new chat the model's history is only the new message: {t}")
 check(native_reply(r['hist'], r['seed']), 'reply after a new chat is identical to the native engine starting fresh')
-# 7. a question the cartridge has a stored fact for, then a follow-up that the model answers
+# 7. kokoSD 1.4.5: the cartridge has no fact table of its own, so without koko/facts.dat on the card the model answers
+#    (the facts from the card: below), then a follow-up
 pad = Pad()
 r = run('koko_fact', pad.text('who was george washington?') + [f'k:{START}', f'until:{DBG + 12:#x}:1:400000', 'f:5'] + pad.text('was he nice?') + [f'k:{START}'], 2)
 t = turns_of(r['hist'])
 print('   conversation:', [(a, b.strip()) for a, b in t])
-check(t[0][1] == 'George Washington (February 22, 1732 - December 14, 1799) was the first president of the United States from 1789 to 1797.', 'the stored fact is said word for word')
+check(not t[0][1].startswith('George Washington (February'), 'without a fact file the reply is the model\'s own (no fact table in the cartridge)')
 check(len(t) == 2 and t[1][0] == 'was he nice?' and native_reply(r['hist'], r['seed']), 'the follow-up reply is identical to the native engine')
 # 8. helpers off: the same question is answered by the model alone
 pad = Pad()

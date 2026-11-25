@@ -2,4 +2,4 @@
     .balign 4
     .global koko_blob
 koko_blob:
-    .incbin "build/koko.bin"
+    .incbin "build/koko_rom.bin"

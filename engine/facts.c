@@ -13,8 +13,8 @@ static int lookup(const char *s, int n, uint16_t *ids, int max) {
     for (int i = 0; i < n; i++) h = (h ^ (uint8_t)s[i]) * 0x01000193u;
 #ifdef __arm__
     int r = sdf_lookup(h, ids, max);                         /* kokoSD: the SD card's file first (every article) */
-    if (r) return r;
-#endif
+    return r;     /* kokoSD 1.4.5: the cartridge has no fact table of its own any more (the ROM is 1.9 MB smaller) */
+#else
     const uint32_t *hs = BU32(O_FACT_HASH);
     int lo = 0, hi = K_NFACT - 1;
     while (lo <= hi) {
@@ -33,6 +33,7 @@ static int lookup(const char *s, int n, uint16_t *ids, int max) {
         if (hs[m] < h) lo = m + 1; else hi = m - 1;
     }
     return 0;
+#endif
 }
 static int starts(const char *s, int n, const char *w) {
     int i = 0;

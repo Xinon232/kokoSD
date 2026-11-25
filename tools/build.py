@@ -38,6 +38,12 @@ def build(cardtest=False):
         o = B/f'{name or src.stem}{"-ct" if cardtest else ""}.o'
         f = list(flags) + (['-x', 'assembler-with-cpp'] if src.suffix in ('.s', '.S') else [])
         sh(P + 'gcc', *f, '-c', src, '-o', o); objs.append(o)
+    if not cardtest:                           # kokoSD 1.4.5: the data block without the fact table (facts.dat on the card has them)
+        L = {m[1]: int(m[2]) for m in __import__('re').finditer(r'#define (O_\w+|KOKO_BLOB_BYTES) (\d+)u', (R/'gen/koko_layout.h').read_text())}
+        b = (B/'koko.bin').read_bytes()
+        assert len(b) == L['KOKO_BLOB_BYTES'] and L['O_LAYERS'] > L['O_FACT_TEXT'] > L['O_FACT_OFF'] > L['O_FACT_HASH']
+        assert all(v <= L['O_FACT_HASH'] for k, v in L.items() if k not in ('O_FACT_OFF', 'O_FACT_TEXT', 'O_LAYERS', 'KOKO_BLOB_BYTES'))
+        (B/'koko_rom.bin').write_bytes(b[:L['O_FACT_HASH']] + b[L['O_LAYERS']:])
     koko = ['crt0.s', 'ui.c', 'rt.c'] + (['cardtest.c'] if cardtest else
             ['game.c', 'koko.c', 'koko_tok.c', 'sums.c', 'facts.c', 'kernels.s', 'blob.s'])
     for n in koko: obj(R/'engine'/n, KOKO)

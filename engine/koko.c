@@ -25,7 +25,12 @@
 #define B16(o) ((const int16_t *)(koko_blob + (o)))
 #define BU16(o) ((const uint16_t *)(koko_blob + (o)))
 #define B32(o) ((const int32_t *)(koko_blob + (o)))
-#define LAY(l, f) (((const uint32_t *)(koko_blob + O_LAYERS))[(l) * LO_N + (f)])
+#ifdef __arm__        /* kokoSD 1.4.5: the cartridge's copy of the data block leaves out the fact table (tools/build.py), */
+#define O_LAYERS_AT O_FACT_HASH   /* so the layer table follows the word tables directly */
+#else
+#define O_LAYERS_AT O_LAYERS
+#endif
+#define LAY(l, f) (((const uint32_t *)(koko_blob + O_LAYERS_AT))[(l) * LO_N + (f)])
 
 int32_t koko_h[D] EWRAM_DATA;
 void (*koko_yield)(void);                                  /* optional: called every few milliseconds of work (button polling) */

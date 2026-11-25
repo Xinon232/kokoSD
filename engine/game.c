@@ -208,17 +208,17 @@ static const char HOW_TO_TYPE[] =
     "B while Koko writes: stop him.\n\n"
     "The same typing as gbawriter, gbamp3 and the other apps.";
 static const char ABOUT[] =
-    "kokoSD 1.4: Koko the Chatbot with an SD card.\n\n"
+    "kokoSD 1.4.5: Koko the Chatbot with an SD card.\n\n"
     "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
     "Game Boy Advance itself.\n"
     "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "
-    "(CC BY-SA 4.0): the file koko/facts.dat on the SD card, or the cartridge's own smaller table. "
+    "(CC BY-SA 4.0): the file koko/facts.dat on the SD card. "
     "After such an answer, \"tell me more\" shows the article. Sums are worked out by the game. "
     "Replies marked Fact or Sum come from these helpers; the menu turns them off.\n"
     "\nKoko the Chatbot (the model, its training, the engine and Koko himself) is by rdsilver: "
     "rdsilver.itch.io/koko-the-chatbot. kokoSD (SD card, typing, saved chats, this look) is by Halim Jarrar.\n"
     "\nCode: Koko (MIT), gbaSD and gbawriter typing by Halim Jarrar (GPL-3.0-or-later); the cartridge "
-    "as a whole is GPL-3.0-or-later. Weights, fact table and artwork: CC BY-SA 4.0. "
+    "as a whole is GPL-3.0-or-later. Weights, fact file and artwork: CC BY-SA 4.0. "
     "Fonts: the SuperFW font by David Guillen Fandos (GPL-3.0-or-later; UNSCII and GNU Unifont glyphs) and "
     "gbamp3's 5x7 font; accent folding from GBAVocab (Halim Jarrar, GPL-3.0-or-later).";
 /* A page of text to read (an article, How to type, About): Up / Down scroll, Left / Right / L / R turn a page,
@@ -753,6 +753,9 @@ int main(void) {
     /* kokoSD 1.1.2: the cartridge timing stays as the loader left it until the cart is known. The fastest timing
      * (0x4317) is too fast for a SuperCard's SDRAM: there the first ROM read after it crashes the GBA (a blank
      * screen), and SuperFW cannot patch the write out (it looks for the address as a constant). */
+    /* kokoSD 1.4.5: slow RAM at its normal speed. SuperFW can leave it overclocked ("Fast EWRAM"), which not
+     * every GBA takes: Koko keeps its working memory and the card code there. */
+    *(volatile uint32_t *)0x04000800 = 0x0D000020;
     REG_TM0CNT_L = 0; REG_TM0CNT_H = 0x0080;      /* free-running, feeds the random seed */
     REG_TM2CNT_H = 0; REG_TM3CNT_H = 0; REG_TM2CNT_L = 0; REG_TM3CNT_L = 0;
     REG_TM3CNT_H = 0x0084; REG_TM2CNT_H = 0x0083;  /* kokoSD: 1/16384 s from the start (debounce, editor frames) */
