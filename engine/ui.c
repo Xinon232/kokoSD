@@ -52,7 +52,9 @@ static void rows_up(int y0, int y1, int by) {                 /* move rows y0..y
 }
 static void frame_start(void) {                               /* wait for the screen to finish drawing, so a big change is not seen half done */
     volatile uint16_t *vc = (volatile uint16_t *)0x04000006;
-    while (*vc >= 160) {}
+    /* kokoSD 2.2: the buttons are read while waiting (a press and release within the waits were missed) */
+    while (*vc >= 160) YIELD();
+    while (*vc < 155) YIELD();
     while (*vc < 160) {}
 }
 #else

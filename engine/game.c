@@ -94,6 +94,7 @@ static void keep_alive(void) {
 /* kokoSD 2.1: timers 2 and 3 time the buttons (debounce) and the typing engine's frames. If they were stopped,
  * or their count stood still, a button could never change again (START stayed "held": SELECT then opened the
  * menu, and nothing else answered). Started again here; the self test reports how often that happened. */
+static uint8_t start_alone, sent_alone, b_after_send;   /* kokoSD 2.2: B pressed after START sent the message (poll) */
 static uint16_t timer_fix;
 static uint32_t tick_seen, tick_same;
 static void timers_start(void) {
@@ -122,6 +123,12 @@ static void poll(void) {                          /* called often, also from ins
         raw_prev = raw;
     }
     uint16_t d = (uint16_t)(k & ~keys_prev);
+    /* kokoSD 2.2: START let go with no other button pressed while it was held (a send), then B: that B stops the
+     * reply, whenever the reply starts (the typing loop may see both in one go when it was busy) */
+    if (d & BTN_START) { start_alone = 1; b_after_send = 0; }
+    else if (d && (k & BTN_START)) start_alone = 0;
+    if ((keys_prev & BTN_START) && !(k & BTN_START)) sent_alone = start_alone;
+    if ((d & BTN_B) && sent_alone && !(k & BTN_START)) b_after_send = 1;
     if (k != keys_prev && hq_n < 32) hq[hq_n++] = k;
     if (k != keys_prev) keys_prev = k;
     if (d && kq_n < 16) { kq[(kq_head + kq_n) & 15] = d; kq_n++; }
@@ -640,6 +647,7 @@ static int edit(void) {
     nfed = nwant = user_fed = stepping = dirty = nsug = 0; sug_stale = 1;
     dbg.state = ST_EDIT; dbg.nsug = 0;
     kq_n = 0;
+    sent_alone = 0; b_after_send = 0;            /* kokoSD 2.2: a send from before does not count */
     uint32_t last = ticks();
     for (;;) {
         int busy = work();
@@ -657,15 +665,33 @@ static int edit(void) {
         if (frames > 4) frames = 4;
         last = now;
         unsigned fl = 0, f = 0;
-        for (unsigned i = 0; i < hq_n; i++, f++) fl |= writer_frame(hq[i]);   /* every change, in order (also while busy) */
+        /* every change, in order (also while busy). kokoSD 2.2: up to START alone (send) only: what came after it
+         * is not typing (a B there deleted the message's last letter); a B among it stops the reply at once */
+        unsigned hi = 0;
+        static char before[MSG_MAX + 1] EW;              /* the text before the change that sent it */
+        for (; hi < hq_n && !(fl & WRITER_START_ALONE); hi++, f++) {
+            if (hq[hi] & BTN_B) { const char *t = writer_text(); int k = 0; for (; t[k] && k < MSG_MAX; k++) before[k] = t[k]; before[k] = 0; }
+            fl |= writer_frame(hq[hi]);
+        }
+        if (fl & WRITER_START_ALONE) {
+            /* START let go and B pressed seen in one change (the loop was busy a few frames): the B is not a
+             * backspace in the message being sent (poll() noted it: it stops the reply) */
+            if (hi && (hq[hi - 1] & BTN_B)) { writer_set(before); fl |= WRITER_TEXT; }
+        } else for (; f < frames; f++) {
+            unsigned g;
+            if (keys_prev & BTN_B) { const char *t = writer_text(); int k = 0; for (; t[k] && k < MSG_MAX; k++) before[k] = t[k]; before[k] = 0; }
+            fl |= g = writer_frame(keys_prev);
+            if ((g & WRITER_START_ALONE) && (keys_prev & BTN_B)) { writer_set(before); fl |= WRITER_TEXT; }
+            if (g & WRITER_START_ALONE) break;
+        }
         hq_n = 0;
-        for (; f < frames; f++) fl |= writer_frame(keys_prev);
         int changed = 0;
         if (fl & WRITER_TEXT) { msg_from_writer(); changed = 1; }
         if (fl & WRITER_PAGE_PREV) { if (nsug > 0) { accept(0); writer_set(msg); changed = 1; } }
         if (fl & WRITER_PAGE_NEXT) { if (nsug > 1) { accept(1); writer_set(msg); changed = 1; } }
         if (fl & WRITER_START_ALONE) {                /* kokoSD 1.2: nothing typed (or nothing Koko can read): nothing */
             if (readable()) return 1;
+            sent_alone = 0; b_after_send = 0;         /* (nothing sent: no reply to stop) */
             if (mlen) { ui_message("Koko cannot read that: type letters or numbers"); shown_sug = SUG_SIG(); }
         }
         if (fl & (WRITER_UP | WRITER_DOWN)) {         /* kokoSD 1.2: START+Up / Down scroll the chat */
@@ -801,7 +827,8 @@ static void exchange(void) {
         else { an = fact_reply(plain, plen, want, MSG_TOK); al = an; mark = an ? 1 : 0; }   /* a fact the cartridge has on file */
     }
     ui_header("B: stop");
-    int stopped = b_pressed();                           /* B while Koko was still reading: no reply */
+    int stopped = b_pressed() || b_after_send;   /* kokoSD 2.2: also a B made between START and here */
+    b_after_send = 0; sent_alone = 0;                           /* B while Koko was still reading: no reply */
     koko_reply_begin();                                  /* repeated-phrase rule on for this reply */
     ui_reply_start(mark);
     while (!stopped && made < REPLY_MAX) {

@@ -344,6 +344,14 @@ check(x['caret'] == 5 and x['turns'] == 0 and x['state'] in (0, 3), f'START clos
 pad = Pad()
 x = after(BOOT + pad.text('hel') + ['f:30', 'poke:0x0400010A:0', 'poke:0x0400010E:0', 'f:30'] + pad.text('lo'), 'timers_off')
 check(x['caret'] == 5 and x['state'] in (0, 3), f'typing goes on after timers 2 and 3 were stopped ({x})')
+# 17b. kokoSD 2.2: B pressed right after START (in the same few frames) stops the reply and the message is sent
+#      whole (the B is no backspace); a frame-by-frame check that nothing on screen flickers while typing
+for gap in ([], ['f:1']):
+    steps = BOOT + Pad().text('tell me a story about a fox') + [f'k:{START}'] + gap + [f'k:{B}', f'until:{DBG + 12:#x}:1:4000', 'f:5',
+                                                                                       f'dump:{DBG:#x}:{44 + 2 * HISTMAX}:out/bquick.bin']
+    subprocess.run([RUNNER, ROM] + steps, check=True)
+    r = parse('out/bquick.bin'); t = turns_of(r['hist'])
+    check(r['made'] == 0 and t and t[0][0] == 'tell me a story about a fox', f'B {len(gap)} frame(s) after START: no reply, the whole message sent ({r["made"]} words)')
 # 18. kokoSD 2.1: a damaged saved chat is refused ("could not be opened", a new chat), not loaded
 if RUNNER != 'build/runner' and os.path.exists('out/saved-chat-card.img'):
     import shutil, re
