@@ -16,7 +16,7 @@ through [gbaSD](https://github.com/Xinon232/gbaSD). It adds:
 The model itself is Koko's, unchanged. GBA only (no browser version). kokoSD's changes are by
 Halim Jarrar; the original Koko README follows further down.
 
-Current version: **kokoSD 2.2** (test).
+Current version: **kokoSD 2.3** (test).
 
 ## How much Koko gains from the Wikipedia file
 Since 2.0 the cartridge has no fact table of its own: facts come only from the file on the SD card.
@@ -43,7 +43,18 @@ cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 a
   questions that do not match a title exactly (see KNOWN_ISSUES.md).
 
 
-## What is new in 2.2
+## What is new in 2.3
+- **Whole articles for "tell me more".** The article is read from the card page by page instead of all at once
+  into memory, so it is no longer limited to 6,000 characters: `koko/facts.dat` (made again with
+  `tools/facts_sd.py`, 249.8 MB) keeps articles up to 64,000 characters, which is all of nearly every article
+  (19 of 244,024 are longer). Eminem's article, for example, was cut after a quarter; it is now 100 pages.
+- A cut article ends at a real sentence end, not after an abbreviation such as "Dr." or an initial; empty section
+  names ("Notes", "References") are no longer left at the end.
+- The reader keeps its line table in video memory the screen does not use (1.9 KB of RAM freed).
+- **Copy the new `koko/facts.dat`** to the card with this version (the old file still works, with its shorter
+  articles).
+
+## What was new in 2.2
 - **No more flicker.** The suggestion line was cleared and written again after every letter, and the chat was
   blanked and redrawn when a message was sent: on a real screen the empty line or chat showed for a frame. Now
   the suggestions stay until the new ones are ready, the line and the header are redrawn in the vertical blank,

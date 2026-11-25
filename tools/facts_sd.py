@@ -158,7 +158,9 @@ def write(arts, redirects, dst):
     for k, (ids, same) in zip(keys, toks):
         if not same or len(ids) > 60: continue
         title, s, body = arts[k]
-        tb = body.encode()
+        lines = body.split('\n')                      # kokoSD 2.3: no empty section names left at the end
+        while len(lines) > 1 and DROP_SECTIONS.match(lines[-1].strip()): lines.pop()
+        tb = '\n'.join(lines).rstrip().encode()
         e = bytearray(struct.pack('<IHB', text_at, len(tb), len(title.encode()[:60]))) + title.encode()[:60]
         e.append(len(ids)); acc = nb = 0
         for i in ids:
