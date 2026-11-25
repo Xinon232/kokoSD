@@ -174,9 +174,11 @@ def write(arts, redirects, dst):
     keys = sorted(arts)
     toks = tokenize([arts[k][1] for k in keys])
     entries, rows, text_parts, text_at, ent = bytearray(), [], [], 0, {}
+    seen = {}                                          # kokoSD 2.4: one article under two keys ("mercury", "mercury planet"): stored once
     for k, (ids, same) in zip(keys, toks):
         if not same or len(ids) > 60: continue
         title, s, body = arts[k]
+        if title in seen: ent[k] = seen[title]; continue
         lines = body.split('\n')                      # kokoSD 2.3: no empty section names left at the end
         while len(lines) > 1 and DROP_SECTIONS.match(lines[-1].strip()): lines.pop()
         tb = '\n'.join(lines).rstrip().encode()
@@ -186,7 +188,7 @@ def write(arts, redirects, dst):
             acc |= i << nb; nb += 14
             while nb >= 8: e.append(acc & 255); acc >>= 8; nb -= 8
         if nb: e.append(acc & 255)
-        ent[k] = len(entries); entries += e; text_parts.append(tb); text_at += len(tb)
+        ent[k] = seen[title] = len(entries); entries += e; text_parts.append(tb); text_at += len(tb)
     hashes = {}
     for k, off in ent.items(): hashes.setdefault(fnv(k), off)
     alias = 0
@@ -200,7 +202,7 @@ def write(arts, redirects, dst):
     head = b'KOKOFAC1' + struct.pack('<7I', len(hashes), len(ent), index_at, entry_at, tat, tokcheck(), len(text))
     dst.parent.mkdir(parents=True, exist_ok=True)
     dst.write_bytes(pad(head) + pad(index) + pad(bytes(entries)) + text)
-    print(f'{dst}: {len(ent)} articles + {alias} redirects = {len(hashes)} keys, {dst.stat().st_size / 1e6:.1f} MB '
+    print(f'{dst}: {len(set(ent.values()))} articles under {len(ent)} titles + {alias} redirects = {len(hashes)} keys, {dst.stat().st_size / 1e6:.1f} MB '
           f'(text {len(text) / 1e6:.1f} MB)')
     return arts, ent
 

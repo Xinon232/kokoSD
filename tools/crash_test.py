@@ -16,7 +16,8 @@ def read(tag):
     st = struct.unpack('I', d[4:8])[0]; caret = struct.unpack('I', d[44 + 2 * HISTMAX + 16:44 + 2 * HISTMAX + 20])[0]
     return st, caret
 WORDS = ['hi', 'who are you', 'what is a dog', 'tell me more', 'more', 'what is 3 + 4', 'café', 'münchen', 'i like ', 'what is the ', 'x',
-         'who is jennifer lopez', 'what is zircon', 'tell me about paris', 'who was mozart', 'tell me more about japan', 'what is a swallow']
+         'who is jennifer lopez', 'what is zircon', 'tell me about paris', 'who was mozart', 'tell me more about japan', 'what is a swallow',
+         'my name is sam', 'i live in berlin', 'i like pizza', 'my favorite color is blue', 'can you tell me about the moon']   # (kokoSD 2.4: memory, wider matching)
 def action(rng):
     k = rng.randrange(21)
     if k == 0: return pad.text(rng.choice(WORDS))
@@ -38,6 +39,7 @@ def action(rng):
     if k == 14: return pad.text('what is a husky?') + [f'k:{START}'] + [f'f:{rng.choice([0, 30, 300, 2000])}'] + pad.text('tell me more') + [f'k:{START}', f'f:{rng.choice([0, 100, 2000])}'] + [f'k:{rng.choice([DOWN, UP, R, L, B, A])}' for _ in range(rng.randint(0, 4))]
     if k == 15: return [f'k:{START}', f'f:{rng.choice([0, 5, 50, 500])}'] + [f'k:{rng.choice([A, B, START, UP, L, R, SELECT])}' for _ in range(rng.randint(0, 25))] + [f'k:{B}']   # send, mash, stop
     if k == 16: return h(rng.choice([UP, DOWN, LEFT, RIGHT]) | rng.choice([0, L]), 4) + h(rng.choice([UP, DOWN, LEFT, RIGHT]) | rng.choice([A, B, R]) | SELECT, rng.randint(1, 6)) + h(0, 3)
+    if k == 17: return pad.start_with(SELECT) + ['f:10', f'k:{DOWN}', f'k:{DOWN}', f'k:{A}', f'f:{rng.choice([5, 60])}'] + [f'k:{rng.choice([UP, DOWN, A, A, B, SELECT])}' for _ in range(rng.randint(0, 8))]   # kokoSD 2.4: Settings
     if k == 18: return pad.start_with(A) + [f'f:{rng.choice([0, 30, 300])}']                  # save
     if k == 19: return pad.start_with(SELECT) + ['f:10', f'k:{DOWN}', f'k:{A}', f'f:{rng.choice([5, 60])}'] + [f'k:{rng.choice([UP, DOWN, A, B, LEFT, RIGHT])}' for _ in range(rng.randint(0, 4))] + [f'k:{A}', 'f:60']   # Saved chats
     if k == 20: return pad.h(START, 3) + (pad.h(START | rng.choice([UP, DOWN]), rng.randint(1, 40)) + pad.h(START, 2)) * rng.randint(1, 4) + pad.h(0, 3)   # scroll
@@ -48,7 +50,7 @@ def run(seed, n):
     for _ in range(n): steps += action(rng)
     # Liveness: leave any reply / page / menu with B, wait for typing, then type and see the cursor move
     steps += ['f:5', f'k:{B}', 'f:60', f'k:{B}', 'f:60', f'k:{B}', 'f:60', f'k:{SELECT}', f'until:{DBG + 4:#x}:3:3000'] + dumps('a') + pad.text('zz') + ['f:40'] + dumps('b')
-    env = dict(os.environ, SD_IMAGE='out/facts-card.img')
+    env = dict(os.environ, SD_IMAGE=os.environ.get('CRASH_CARD', 'out/facts-card.img'), SD_ALLOW_INDEX_WRITES='1')
     try:
         r = subprocess.run([RUNNER, 'build/koko.gba'] + steps + [f'shot:{S}last-{seed}.ppm'], capture_output=True, text=True, timeout=900, env=env)
     except subprocess.TimeoutExpired:

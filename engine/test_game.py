@@ -404,6 +404,7 @@ t = turns_of(r['hist'])
 check(t and t[0][0] == 'i like cafe in munchen', f"accents: Koko read {t[0][0] if t else None!r} for 'i like café in münchen'")
 check(native_reply(r['hist'], r['seed']), 'reply identical to the native engine')
 # 19. kokoSD 2.4: memory off (menu, Settings, Memory): nothing is noted and a new chat starts without it
+os.environ['SD_ALLOW_INDEX_WRITES'] = '1'                # (memory.txt and settings.txt are written)
 pad = Pad()
 r = run('koko_memoff', pad.memory_off() + pad.text('my name is sam') + [f'k:{START}', f'until:{DBG + 12:#x}:1:400000', 'f:5'] + pad.new_chat()
         + ['f:10'] + pad.text('hi') + [f'k:{START}'], 2)
@@ -443,7 +444,7 @@ if os.path.exists(FACTS) and RUNNER != 'build/runner':
     moon = sd_fact(FACTS, 'moon')[0]
     check(res['wide'][0][1] == moon and res['strict'][0][1] != moon, f"Fact matching Wide / Strict: {res['wide'][0][1][:40]!r} / {res['strict'][0][1][:40]!r}")
 # 21. kokoSD 2.4: word memory from the fact file: replies are the native engine's with the same table mixed in
-WFACTS = os.environ.get('KOKO_WORDS_FACTS', 'out/koko-v24/facts.dat')
+WFACTS = os.environ.get('KOKO_WORDS_FACTS', 'out/koko-v24b/facts.dat')
 if os.path.exists(WFACTS) and RUNNER != 'build/runner' and open(WFACTS, 'rb').read(40)[36:40] == b'WRD1':
     card = 'out/words-card.img'
     if not os.path.exists(card) or os.path.getmtime(card) < os.path.getmtime(WFACTS):
@@ -465,5 +466,5 @@ if os.path.exists(WFACTS) and RUNNER != 'build/runner' and open(WFACTS, 'rb').re
     check(native_reply(res['on']['hist'], res['on']['seed'], WFACTS), 'word memory on: the reply is the native engine\'s with the word table')
     check(native_reply(res['off']['hist'], res['off']['seed']), 'word memory off (menu): the reply is the native engine\'s alone')
 else:
-    print('SKIP word memory: no fact file with word tables (python3 tools/words_sd.py out/koko-v24/facts.dat)')
+    print('SKIP word memory: no fact file with word tables (python3 tools/words_sd.py out/koko-v24b/facts.dat)')
 sys.exit(0 if ok else 1)

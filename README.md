@@ -16,7 +16,7 @@ through [gbaSD](https://github.com/Xinon232/gbaSD). It adds:
 The model itself is Koko's, unchanged. GBA only (no browser version). kokoSD's changes are by
 Halim Jarrar; the original Koko README follows further down.
 
-Current version: **kokoSD 2.3**.
+Current version: **kokoSD 2.3**. Test build: **kokoSD 2.4 (test)** (below).
 
 ## Install
 From the [Releases](../../releases) page:
@@ -51,6 +51,50 @@ cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 a
 - Still not answered: subjects whose opening sentence is too long for Koko (goat, iron, football, love) and
   questions that do not match a title exactly (see KNOWN_ISSUES.md).
 
+
+## What is new in 2.4 (test)
+Four additions, each with its own switch in **START+SELECT > Settings** (kept in `koko/settings.txt`):
+
+| Setting | Choices (default first) | What it does |
+|---|---|---|
+| Facts | Read out / As a hint / Off | Read out: the Wikipedia sentence is Koko's reply (marked Fact), as before. As a hint: the sentence is put into your message, before your question, and Koko answers in his own words (marked Hint). Off: no facts and no sums. |
+| Fact matching | Wide / Strict | Wide finds the article for more ways of asking; Strict is 2.3's matching. |
+| Memory | On / Off | What you tell Koko about yourself is kept and told to him at the start of each new chat. "What Koko remembers" shows it; SELECT there forgets it all. |
+| Word memory | On / Off | Which words follow which in the Wikipedia text is mixed into Koko's choice of the next word. |
+
+**More facts, better matched.** The fact file (`koko/facts.dat`, made again: 323 MB, of which 52 MB word memory) has 264,618
+articles (2.3: 244,015): titles such as "Mercury (planet)" are now in it, as "mercury planet" and, where no
+other article or redirect has the name, as "mercury". With Wide matching, Koko also understands "can you tell me
+about ...", "have you heard of ...", "do you know ...", "what does ... mean", "info about ...", "do you know
+anything about ...", "can you tell me who was ...", and subjects with extra words: "the singer Taylor Swift",
+"Napoleon from France", "the planet Mercury" (the planet, not the metal). Measured with `tools/measure_match.py`:
+50 questions in other wordings, **19 answered with 2.3, 41 with 2.4**, no wrong article among them; the 221
+everyday questions of `tools/measure_facts.py`: 212 -> 216.
+
+**Facts as a hint.** Native tests (same model, same seeds) on ten subjects: as a hint, the answers are in Koko's
+friendly style and often use the fact ("A volcano is a big, strong volcano that can be very hot...", "Plants use
+sunlight to make food through photosynthesis..."), better than with no fact ("The giraffe is the tallest mountain
+in the world"), but still wrong at times ("Giuseppe Amadeus Mozart", Einstein "born in Dresden"). Read out is
+always right, so it stays the default. The hint costs time: the fact and your message are read again (about 0.4 s
+a word: 10 s for a short fact, up to 25 s for a long one).
+
+**Memory.** After each message Koko notes sentences such as "my name is ...", "call me ...", "I am 12 years
+old", "I live in ..." / "I'm from ...", "I like / love / enjoy ..." (the last two), "my favorite X is ..." (the
+last two), "I have a ...". They are kept in `koko/memory.txt`, one sentence a line, so the file can be read and
+changed on a computer. At a new chat Koko is told them while you type the first message (in the background), in
+the form that worked best in native tests: your turn "My name is Sam. I live in Berlin." and Koko's "Got it! Your
+name is Sam. You live in Berlin." Then "what is my name?" -> "Your name is Sam." and "hi" -> "Hi Sam!"; the
+name and favourites are used most reliably, the town and food less so. Saved chats go on without it (they already
+have their history). Koko sees about 256 words back, so in a long chat what he was told fades.
+
+**Word memory.** `tools/words_sd.py` counts, in all the article text, which word follows each pair and each
+triple of words (seen at least 4 times; the 4 most common next words each) and appends the tables to
+`facts.dat` (52 MB: 2.1 million three-word and 1.1 million two-word contexts). For each word Koko writes, the card is asked what follows his
+last three words (or two), and that is mixed into his own choice (32/256). On 1.2 million words of held-out
+Wikipedia text it makes Koko's guess of the next word slightly better (top-1: 31.1% -> 31.5%). In chat the
+effect is small and mixed: replies sound a bit more like an encyclopedia ("about 384,000 km to the moon",
+"Paris is the third-largest city in France") without being more often right (it also adds made-up dates).
+No speed cost measured in the emulator (2.74 against 2.79 words/s).
 
 ## What is new in 2.3
 - **Whole articles for "tell me more".** The article is read from the card page by page instead of all at once
