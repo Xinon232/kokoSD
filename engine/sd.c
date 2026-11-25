@@ -6,10 +6,11 @@
 #include "cart_io.h"
 
 FATFS sd_fs __attribute__((section(".bss.sd")));
-int sd_ready;
+int sd_ready, sd_err;                             /* kokoSD 1.4.2: f_mount's result (FatFs FRESULT) */
 
 int sd_mount(void) {
-    sd_ready = f_mount(&sd_fs, "", 1) == FR_OK;
+    sd_err = f_mount(&sd_fs, "", 1);
+    sd_ready = sd_err == FR_OK;
     return sd_ready;
 }
 

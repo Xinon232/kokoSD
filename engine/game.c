@@ -767,6 +767,16 @@ int main(void) {
     sdf_open();                                   /* and its fact file /koko/facts.dat (0 without one) */
     dbg.sd = (uint32_t)sd_ready | (uint32_t)sdf_ready << 1 | (uint32_t)cart_kind << 8;
     ui_title();                                   /* the title until START (or A) is pressed */
+    if (!sdf_ready) {                             /* kokoSD 1.4.2: why there are no facts from the card (FatFs codes) */
+        static const char *const why[] = { "", "No SD card (FatFs error ", "No /koko/facts.dat (FatFs error ", "facts.dat could not be read",
+                                           "koko/facts.dat is not a fact file", "facts.dat is for other weights", "facts.dat is empty" };
+        static char t[56]; int k = 0, e = sdf_err & 15, fr = e == 1 ? sd_err : sdf_err >> 4;
+        const char *a = why[e < 7 ? e : 0];
+        while (*a) t[k++] = *a++;
+        if (e <= 2) { if (fr >= 10) t[k++] = (char)('0' + fr / 10); t[k++] = (char)('0' + fr % 10); t[k++] = ')'; }
+        t[k] = 0;
+        ui_title_note2(t);
+    }
     if (life.magic == LIFE_MAGIC && life.check == life_check()) {   /* kokoSD 1.3.1: it was running a moment ago */
         static char t[48]; int k = 0;
         const char *a = "Restarted unexpectedly: keys ";

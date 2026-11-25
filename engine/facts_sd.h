@@ -4,7 +4,7 @@
 #include <stdint.h>
 /* Opens /koko/facts.dat after sd_mount(): 1 ready, 0 none (or made for other weights). */
 int sdf_open(void);
-extern int sdf_ready;
+extern int sdf_ready, sdf_err;                /* kokoSD 1.4.2: sdf_err: why not (facts_sd.c) */
 extern uint32_t sdf_count;                  /* titles (with redirects) in the file */
 /* The opening sentence for a title hash (engine/facts.c's FNV-1a of the key):
  * token ids (at most max), or 0. Remembers the article for sdf_article(). */

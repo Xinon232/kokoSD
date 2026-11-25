@@ -25,22 +25,28 @@ static int read_at(uint32_t at, void *buf, unsigned n) {
 }
 static uint32_t u32(const uint8_t *p) { return p[0] | p[1] << 8 | p[2] << 16 | (uint32_t)p[3] << 24; }
 
+int sdf_err;   /* kokoSD 1.4.2: why the fact file is not used: 0 it is, 1 no card, 2 f_open (+ 16 * FRESULT),
+               * 3 the header could not be read, 4 not a fact file, 5 made for other weights, 6 empty */
 int sdf_open(void) {
-    sdf_ready = 0;
-    if (!sd_ready || f_open(&f, "/koko/facts.dat", FA_READ) != FR_OK) return 0;
+    sdf_ready = 0; sdf_err = 1;
+    if (!sd_ready) return 0;
+    FRESULT r = f_open(&f, "/koko/facts.dat", FA_READ);
+    if (r != FR_OK) { sdf_err = 2 + 16 * (int)r; return 0; }
     clmt[0] = sizeof clmt / sizeof clmt[0];
     f.cltbl = clmt;
     if (f_lseek(&f, CREATE_LINKMAP) != FR_OK) f.cltbl = 0;      /* very fragmented: ordinary seeks */
     uint8_t *h = (uint8_t *)page;
-    if (!read_at(0, h, 36) || h[0] != 'K' || h[1] != 'O' || h[2] != 'K' || h[3] != 'O' || h[4] != 'F' || h[5] != 'A' || h[6] != 'C' || h[7] != '1')
-        return 0;
+    if (!read_at(0, h, 36)) { sdf_err = 3; return 0; }
+    if (h[0] != 'K' || h[1] != 'O' || h[2] != 'K' || h[3] != 'O' || h[4] != 'F' || h[5] != 'A' || h[6] != 'C' || h[7] != '1') { sdf_err = 4; return 0; }
     sdf_count = u32(h + 8); n_entries = u32(h + 12); index_at = u32(h + 16); entry_at = u32(h + 20); text_at = u32(h + 24);
     uint32_t check = u32(h + 28), x = 0x811C9DC5u;                 /* made for these weights' tokenizer? */
     for (int id = 3; id < 1024; id++) {
         const char *p; int l = koko_token_text(id, &p);
         for (int i = 0; i < l; i++) x = (x ^ (uint8_t)p[i]) * 0x01000193u;
     }
-    if (x != check || !sdf_count) return 0;
+    if (x != check) { sdf_err = 5; return 0; }
+    if (!sdf_count) { sdf_err = 6; return 0; }
+    sdf_err = 0;
     return sdf_ready = 1;
 }
 

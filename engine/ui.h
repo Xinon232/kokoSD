@@ -17,7 +17,8 @@ void ui_boot(const char *what, const char *detail);   /* kokoSD 1.1: a start-up 
 void ui_helpers(int on);                         /* off: "Facts off" in the header (every word from the model) */
 void ui_title(void);                             /* title screen: the name, "Press START" */
 void ui_title_prompt(int on);
-void ui_title_note(const char *t);               /* kokoSD 1.3.1: a line under the subtitle (restart detector) */                    /* blink the prompt */
+void ui_title_note(const char *t);
+void ui_title_note2(const char *t);              /* kokoSD 1.4.2: why the fact file is not used */               /* kokoSD 1.3.1: a line under the subtitle (restart detector) */                    /* blink the prompt */
 void ui_title_tick(void);                        /* one title frame (nothing moves any more) */
 void ui_redraw(void);                            /* draw the whole chat again (tests compare this with the incremental drawing) */
 void ui_clear(void);                             /* forget the chat lines (new chat) */
