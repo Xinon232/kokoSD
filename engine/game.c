@@ -66,17 +66,27 @@ static uint32_t ticks(void);
 #define DEBOUNCE 131u                             /* 8 ms in 1/16384 s */
 static uint16_t raw_prev;
 static uint32_t moved_at[10];
-static void life_note(void);                      /* kokoSD 1.3.1: restart detector (below) */
-extern volatile uint32_t watch[10];               /* kokoSD 1.4.6: freeze detector (engine/watch.s) */
-static uint16_t timer_fix;                        /* kokoSD 1.4.8: how often the timers had stopped (freeze report) */
+/* kokoSD 2.0: keep-alive. A SuperCard's "ROM" is SDRAM, which only keeps what is read often enough on some carts:
+ * our other apps are a few MB that are read all the time, Koko's 31 MB are mostly left alone while one types or
+ * waits, and the model then reads all of it. So one word of every 512 bytes is read, the whole ROM about once a
+ * second, spread over the calls of poll() (about 3% of the time). Off during the self test's idle check. */
+extern char __rom_end[];
+extern unsigned cart_kind;
+static uint32_t ka_row, ka_last;
+static int ka_off;
+static void keep_alive(void) {
+    if (ka_off || cart_kind != CART_SUPERCARD) return;
+    uint32_t now = ticks(), rows = ((uint32_t)__rom_end - 0x08000000u) >> 9;
+    if (now < ka_last) ka_last = now;              /* the timers were started again */
+    uint32_t due = (now - ka_last) * 4u;           /* 16384 ticks a second, ~64000 rows: 4 a tick */
+    if (!due) return;
+    ka_last = now;
+    if (due > 4096) due = 4096;
+    const volatile uint16_t *r = (const volatile uint16_t *)0x08000000u;
+    for (; due; due--) { (void)r[ka_row << 8]; if (++ka_row >= rows) ka_row = 0; }
+}
 static void poll(void) {                          /* called often, also from inside the model's work and long redraws */
-    watch[0]++;
-    /* kokoSD 1.4.8: the button timing (debounce, the editor's frames) needs timers 2 and 3 running. A freeze
-     * report on a SuperChis showed the menu waiting for a press that never came: if they stopped, start them. */
-    if ((REG_TM2CNT_H & 0xC7) != 0x83 || (REG_TM3CNT_H & 0xC4) != 0x84) {
-        timer_fix++;
-        REG_TM3CNT_H = 0x0084; REG_TM2CNT_H = 0x0083;
-    }
+    keep_alive();
     uint16_t raw = (uint16_t)(~REG_KEYINPUT & 0x03FF), k = keys_prev;
     if (raw != keys_prev || raw != raw_prev) {
         uint32_t now = ticks();
@@ -90,7 +100,7 @@ static void poll(void) {                          /* called often, also from ins
     }
     uint16_t d = (uint16_t)(k & ~keys_prev);
     if (k != keys_prev && hq_n < 32) hq[hq_n++] = k;
-    if (k != keys_prev) { keys_prev = k; life_note(); }
+    if (k != keys_prev) keys_prev = k;
     if (d && kq_n < 16) { kq[(kq_head + kq_n) & 15] = d; kq_n++; }
 }
 /* kokoSD 1.1.3: while Koko answers, B must stop him even when other buttons were pressed first: every queued
@@ -102,14 +112,6 @@ static int b_pressed(void) {
     for (; kq_n; kq_n--, kq_head = (uint8_t)((kq_head + 1) & 15)) if (kq[kq_head] & BTN_B) b = 1;
     return b;
 }
-/* kokoSD 1.3.1: restart detector. This record in slow RAM is not cleared at start (start-up code only clears
- * other sections), so after a crash that restarts the cartridge it still holds what Koko was doing; after a
- * power-on (or a start from the flash cart's menu) it holds something else. The title then says so. */
-#define LIFE_MAGIC 0x4B4C4946u
-static struct { uint32_t magic, check, keys, state, ntok, count; } life __attribute__((section(".bss.ewram")));
-uint32_t boot_regs[10] __attribute__((section(".bss.ewram")));   /* kokoSD 1.4.7: written by engine/crt0.s at start */
-static uint32_t life_check(void) { return life.magic ^ life.keys * 31u ^ life.state * 977u ^ life.ntok * 7919u ^ life.count * 104729u ^ 0x9E3779B9u; }
-static void life_note(void) { life.keys = keys_prev; life.state = dbg.state; life.ntok = dbg.ntok; life.check = life_check(); }
 static uint16_t keys_down(void) {                 /* the next queued press (0 if none) */
     poll();
     if (!kq_n) return 0;
@@ -218,7 +220,7 @@ static const char HOW_TO_TYPE[] =
     "B while Koko writes: stop him.\n\n"
     "The same typing as gbawriter, gbamp3 and the other apps.";
 static const char ABOUT[] =
-    "kokoSD 1.4.5: Koko the Chatbot with an SD card.\n\n"
+    "kokoSD 2.0: Koko the Chatbot with an SD card.\n\n"
     "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
     "Game Boy Advance itself.\n"
     "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "
@@ -438,13 +440,6 @@ static void range_sums(const volatile uint32_t *tab, uint32_t at, uint32_t n, ui
     }
     *s1 = a; *s2 = b;
 }
-static const volatile uint32_t *rom_blk_tab(void) {  /* kokoSD 1.4.9: "KBLK" after the KSUM table (tools/fixrom.py) */
-    const volatile uint32_t *t = (const volatile uint32_t *)(((uint32_t)__rom_end + 4095u) & ~4095u);
-    if (t[0] != 0x4D55534Bu) return 0;
-    const volatile uint32_t *m = t + 3 + 2 * t[2];
-    t = (const volatile uint32_t *)(((uint32_t)(m + 1 + 2 * m[0]) + 4095u) & ~4095u);
-    return t[0] == 0x4B4C424Bu ? t : 0;
-}
 static unsigned rom_pieces(void) {
     const volatile uint32_t *tab = (const volatile uint32_t *)(((uint32_t)__rom_end + 4095u) & ~4095u);
     return tab[0] == 0x4D55534Bu ? tab[2] : 0;
@@ -475,6 +470,27 @@ static void self_test(void) {
     static char line[64] __attribute__((section(".bss.ewram"))), det[96] __attribute__((section(".bss.ewram")));
     if (!pieces) st_add("no ROM sums in this build\n");
     dbg.state = ST_SELFTEST; dbg.article = 0; dbg.article_top = 0;
+    /* kokoSD 2.0: on a SuperCard, does the cart keep what is not read? The ROM is left alone for 90 s (keep-alive
+     * off, only the few KB of this loop are read), then every 1 MB is summed again. */
+    uint32_t idle_mb = 0; int idle_run = 0;
+    if (pieces && cart_kind == CART_SUPERCARD) {
+        uint32_t a0, b0;
+        ka_off = 1; idle_run = 1;
+        for (int left = 90; left > 0 && idle_run; left--) {
+            char t[40]; int k = 0; const char *q = "ROM left unread: ";
+            while (*q) t[k++] = *q++;
+            if (left >= 10) t[k++] = (char)('0' + left / 10);
+            t[k++] = (char)('0' + left % 10); t[k++] = ' '; t[k++] = 's'; t[k] = 0;
+            ui_ask("Self test", t, "Does the cart keep data that is not read?", "B: skip this step");
+            for (int f = 0; f < 60; f++) { vsync(); if (b_pressed()) { idle_run = 0; break; } }
+        }
+        if (idle_run) {
+            ui_ask("Self test", "Checking the ROM...", "after 90 s unread", "");
+            for (unsigned i = 0; i < pieces; i++) if (rom_piece(i, &a0, &b0) < 0) idle_mb |= 1u << (i & 31);
+            st_add(idle_mb ? "ROM after 90 s unread: differs\n" : "ROM after 90 s unread: ok\n");
+        }
+        ka_off = 0;
+    }
     for (;;) {
         round++;
         int bad_rom = 0, bad_sd = 0, bad_model = 0; uint32_t a, b;
@@ -530,8 +546,15 @@ static void self_test(void) {
     t = !sd_ready ? "No SD card at start (" : !sdf_ready ? "SD card, no fact file (" : "SD card and fact file ("; while (*t) d2[k++] = *t++;
     t = sd_cart_name(); while (*t && k < 60) d2[k++] = *t++;
     d2[k++] = ')'; d2[k] = 0;
-    ui_ask("Self test", errors ? "Errors found" : "No errors", d1, "");
+    ui_ask("Self test", errors || idle_mb ? "Errors found" : "No errors", d1, "");
     small_note(d2, saved ? "Saved: koko/selftest.txt   (any button)" : "Not saved (no SD card)   (any button)");
+    if (idle_run) {                                             /* kokoSD 2.0 */
+        static char d3[64] __attribute__((section(".bss.ewram")));
+        int j = 0; t = idle_mb ? "After 90 s unread, MB:" : "After 90 s unread: ROM ok"; while (*t) d3[j++] = *t++;
+        for (int i = 0; i < 32 && j < 58; i++) if (idle_mb >> i & 1) { d3[j++] = ' '; if (i >= 10) d3[j++] = (char)('0' + i / 10); d3[j++] = (char)('0' + i % 10); }
+        d3[j] = 0;
+        ui_title_note2(d3);
+    }
     kq_n = 0;
     while (!kq_n) { vsync(); poll(); }
     kq_n = 0;
@@ -771,108 +794,6 @@ static void exchange(void) {
     mlen = 0; msg[0] = 0; plen = 0; plain[0] = 0;
 }
 
-/* ---------------- kokoSD 1.4.6: freeze report ---------------- */
-/* engine/watch.s continues here when poll() has not run for 16 s or L+R+SELECT were held for 2 s. The function
- * names come from the table tools/fixrom.py writes after the ROM sums ("KSYM": count, addresses, name offsets,
- * names). */
-extern volatile uint16_t irq_ok;
-void sd_quiet(void);
-extern void watch_irq(void);
-static const char *sym_name(uint32_t a, uint32_t *off) {
-    const volatile uint32_t *t = (const volatile uint32_t *)(((uint32_t)__rom_end + 4095u) & ~4095u);
-    if (t[0] != 0x4D55534Bu) return 0;
-    if (!(t = rom_blk_tab())) return 0;
-    t = (const volatile uint32_t *)(((uint32_t)(t + 2 + 2 * t[1]) + 4095u) & ~4095u);
-    if (t[0] != 0x4D59534Bu) return 0;                /* "KSYM" */
-    uint32_t n = t[1], lo = 0, hi = n;
-    const volatile uint32_t *ad = t + 2;
-    while (hi - lo > 1) { uint32_t mid = (lo + hi) / 2; if (ad[mid] <= a) lo = mid; else hi = mid; }
-    if (!n || ad[lo] > a || a - ad[lo] > 0x10000) return 0;
-    *off = a - ad[lo];
-    return (const char *)(t + 2 + 2 * n) + ad[n + lo];
-}
-static char *put_s(char *p, const char *s) { while (*s) *p++ = *s++; *p = 0; return p; }
-static char *put_x(char *p, uint32_t v, int digits) { for (int sh = 4 * (digits - 1); sh >= 0; sh -= 4) *p++ = "0123456789ABCDEF"[(v >> sh) & 15]; *p = 0; return p; }
-static char *put_where(char *p, uint32_t a) {
-    uint32_t off; const char *nm = sym_name(a, &off);
-    if (nm) { int k = 0; while (nm[k] && k < 22) *p++ = nm[k++]; *p++ = '+'; p = put_x(p, off, off < 0x100 ? 2 : off < 0x1000 ? 3 : 4); }
-    else { p = put_s(p, "at "); p = put_x(p, a, 8); }
-    return p;
-}
-__attribute__((noreturn, used)) void watch_report(void) {
-    *(volatile uint16_t *)0x04000208 = 0;
-    sd_quiet();
-    REG_DISPCNT = 0x0404;
-    char q[40], d[64], e[64], h[64];         /* (on the report's own stack) */
-    uint32_t pc = watch[6], st = watch[7];
-    char *p = put_where(q, pc);
-    p = put_s(d, "at "); p = put_x(p, pc, 8); p = put_s(p, st & 0x20 ? " T" : " A");
-    p = put_s(p, " sp "); p = put_x(p, watch[8], 8); p = put_s(p, " st "); p = put_x(p, dbg.state, 2);
-    p = put_s(e, "from "); p = put_where(p, watch[9] & ~1u); p = put_s(p, " "); p = put_x(p, watch[9], 8);
-    p = put_s(h, watch[5] == 2 ? "L+R+SELECT. " : "No reply for 16 s. "); p = put_s(p, "Please send a photo.");
-    ui_ask("Koko got stuck", q, d, 0);
-    ui_lines(e, h);
-    /* kokoSD 1.4.8: are the timers running, what the buttons were, what was queued */
-    uint16_t c2 = REG_TM2CNT_H, c3 = REG_TM3CNT_H;
-    uint32_t t0 = ticks();
-    for (int f = 0; f < 10; f++) { while (REG_VCOUNT >= 160) {} while (REG_VCOUNT < 160) {} }
-    uint32_t t1 = ticks();
-    p = put_s(q, "t "); p = put_x(p, c2, 4); p = put_s(p, " "); p = put_x(p, c3, 4); p = put_s(p, " +"); p = put_x(p, t1 - t0, 4);
-    p = put_s(p, " fix "); p = put_x(p, timer_fix, 4);
-    ui_small(110, q);
-    p = put_s(d, "k "); p = put_x(p, keys_prev, 3); p = put_s(p, " raw "); p = put_x(p, raw_prev, 3);
-    p = put_s(p, " now "); p = put_x(p, ~REG_KEYINPUT & 0x3FF, 3); p = put_s(p, " q "); p = put_x(p, kq_n, 2);
-    p = put_s(p, " h "); p = put_x(p, hq_n, 2);
-    ui_small(122, d);
-    for (;;) {}
-}
-/* kokoSD 1.4.9 (test builds): the ROM as the cart gives it back, before anything else uses it. Every 1 MB and
- * every 4 KB of the first 256 KB (the program) against the sums tools/fixrom.py wrote, and the first 256 KB
- * read twice word by word, four times over (a read that gives different values). Errors stay on the screen. */
-static char *put_d(char *p, uint32_t v) { char b[12]; int k = 0; do { b[k++] = (char)('0' + v % 10); v /= 10; } while (v); while (k) *p++ = b[--k]; *p = 0; return p; }
-static void rom_check(void) {
-    const volatile uint32_t *t = (const volatile uint32_t *)(((uint32_t)__rom_end + 4095u) & ~4095u), *bt = rom_blk_tab();
-    if (!bt) return;
-    ui_boot("Checking the ROM (test build)...", "");
-    char l1[64], l2[64], l3[64];
-    char *p1 = put_s(l1, "Bad MB:"), *p2 = put_s(l2, "Bad 4 KB:"), *p3;
-    int n1 = 0, n2 = 0;
-    uint32_t s1, s2, unstable = 0, first = 0;
-    for (unsigned i = 0; i < t[2]; i++)
-        if (rom_piece(i, &s1, &s2) < 0 && n1++ < 10) { p1 = put_s(p1, " "); p1 = put_d(p1, i); }
-    for (unsigned i = 0; i < bt[1]; i++) {
-        range_sums(t, i << 12, 1024, &s1, &s2);
-        if ((s1 != bt[2 + 2 * i] || s2 != bt[3 + 2 * i]) && n2++ < 3) { p2 = put_s(p2, " "); p2 = put_x(p2, 0x08000000u + (i << 12), 8); }
-    }
-    const volatile uint32_t *r = (const volatile uint32_t *)0x08000000u;
-    for (int pass = 0; pass < 4; pass++)
-        for (uint32_t k = 0; k < (bt[1] << 10); k++) {
-            uint32_t a = r[k], b = r[k];
-            if (a != b) { if (!unstable) first = 0x08000000u + 4 * k; unstable++; }
-            if (!(k & 4095)) poll();
-        }
-    p3 = put_s(l3, "Unstable reads: "); p3 = put_d(p3, unstable);
-    if (unstable) { p3 = put_s(p3, " first "); p3 = put_x(p3, first, 8); }
-    if (!n1 && !n2 && !unstable) { ui_boot("ROM check: all OK", "(test build)"); for (int f = 0; f < 45; f++) vsync(); return; }
-    if (!n1) put_s(p1, " none");
-    if (!n2) put_s(p2, " none");
-    ui_ask("ROM check: errors", "Please send a photo", l1, 0);
-    ui_lines(l2, "A: continue");
-    ui_small(110, l3);
-    for (;;) { vsync(); if (keys_down() & BTN_A) break; }
-}
-static void watch_start(void) {                   /* the freeze detector on (video-frame interrupt) */
-    *(volatile uint16_t *)0x04000208 = 0;
-    watch[1] = watch[0]; watch[2] = 0; watch[3] = 0; watch[5] = 0;
-    void (*f)(void) = watch_irq;
-    __asm__ volatile("mov r1, #0x03000000\n\tadd r1, r1, #0x7F00\n\tstr %0, [r1, #0xFC]" :: "r"(f) : "r1", "memory");  /* (no 0x03007FFC constant: SuperFW would patch it) */
-    REG16(0x04000004) |= 8;                       /* video-frame interrupt */
-    REG16(0x04000200) = 1;
-    REG16(0x04000202) = 0xFFFF;
-    watch[4] = 1; irq_ok = 1;
-    *(volatile uint16_t *)0x04000208 = 1;
-}
-
 int main(void) {
     /* kokoSD 1.1.2: the cartridge timing stays as the loader left it until the cart is known. The fastest timing
      * (0x4317) is too fast for a SuperCard's SDRAM: there the first ROM read after it crashes the GBA (a blank
@@ -887,7 +808,6 @@ int main(void) {
     koko_yield = poll; ui_yield = poll;
     dbg.magic = 0x4B4F4B4F; dbg.turns = 0; dbg.ntok = 0; dbg.made = 0; dbg.rewinds = 0; dbg.newchats = 0; dbg.pure = 0;
     koko_reset();
-    rom_check();                                  /* kokoSD 1.4.9 (test build) */
     ui_boot("Looking for the SD card...", "");    /* kokoSD 1.1: each step is shown (a hang tells where) */
     sd_mount();                                   /* kokoSD: the SD card (0 without a card) */
     if (cart_kind >= CART_EZFO) REG_WAITCNT = 0x4317;   /* Omega / EverDrive: fastest cartridge timing + prefetch */
@@ -914,26 +834,6 @@ int main(void) {
         t[k] = 0;
         ui_title_note2(t);
     }
-    if (life.magic == LIFE_MAGIC && life.check == life_check()) {   /* kokoSD 1.3.1: it was running a moment ago */
-        static char t[48]; int k = 0;
-        const char *a = "Restarted unexpectedly: keys ";
-        while (*a) t[k++] = *a++;
-        for (int sh = 8; sh >= 0; sh -= 4) t[k++] = "0123456789ABCDEF"[(life.keys >> sh) & 15];
-        a = " state "; while (*a) t[k++] = *a++;
-        t[k++] = (char)('0' + life.state % 10); t[k] = 0;
-        ui_title_note(t);
-        char r1[48], r2[48];                       /* kokoSD 1.4.7: where it came from (lr of the modes, status) */
-        char *p = r1;
-        p = put_s(p, "u"); p = put_x(p, boot_regs[2], 8); p = put_s(p, " a"); p = put_x(p, boot_regs[4], 8);
-        p = put_s(p, " s"); p = put_x(p, boot_regs[6], 8); p = put_s(p, " l"); p = put_x(p, boot_regs[0], 8);
-        p = r2;
-        p = put_s(p, "i"); p = put_x(p, boot_regs[8], 8); p = put_s(p, " c"); p = put_x(p, boot_regs[1], 2);
-        p = put_s(p, " u"); p = put_x(p, boot_regs[3], 2); p = put_s(p, " a"); p = put_x(p, boot_regs[5], 2);
-        p = put_s(p, " s"); p = put_x(p, boot_regs[7], 2); p = put_s(p, " i"); p = put_x(p, boot_regs[9], 2);
-        ui_title_note3(r1, r2);
-        life.count++;
-    } else life.count = 0;
-    life.magic = LIFE_MAGIC; life.state = ST_TITLE; life.keys = 0; life.ntok = 0; life.check = life_check();
     dbg.state = ST_TITLE; dbg.boot_ticks = ticks();   /* kokoSD: the title is up (tests wait for it); start-up time */
     for (int f = 0;; f++) {
         vsync();
@@ -943,7 +843,6 @@ int main(void) {
         if ((f & 31) == 0) ui_title_prompt(!(f & 32));
         ui_title_tick();
     }
-    watch_start();                                /* kokoSD 1.4.6 */
     ui_init();
     ui_say(L_KOKO, "Woof! I'm Koko. Say something!", 30);
     while (keys_prev) { vsync(); poll(); }        /* kokoSD: the START that left the title types nothing */

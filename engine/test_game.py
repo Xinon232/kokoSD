@@ -325,6 +325,8 @@ if RUNNER != 'build/runner' and os.path.exists('out/facts-card.img'):
     rounds, errors = struct.unpack('2I', open('out/st.bin', 'rb').read())
     log = subprocess.run(['mtype', '-i', 'out/selftest-card.img', '::/koko/selftest.txt'], capture_output=True, text=True).stdout
     check(rounds >= 1 and errors == 0 and 'errors 0' in log, f'self test: {rounds} round(s), {errors} errors; log: {log.strip().splitlines()[-1] if log else None!r}')
+    if RUNNER == 'build/runner-sc':                 # kokoSD 2.0: the SuperCard's 90 s idle check ran and found the ROM unchanged
+        check('ROM after 90 s unread: ok' in log, 'self test: the ROM is unchanged after 90 s unread (keep-alive off)')
 # 12. kokoSD 1.1: accented letters are typed and shown as typed; Koko reads the plain-letter copy
 pad = Pad()
 r = run('koko_accents', pad.text('i like café in münchen') + [f'k:{START}'], 1)

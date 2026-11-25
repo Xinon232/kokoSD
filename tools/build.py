@@ -21,7 +21,7 @@ GBASD = ['-DGBASD_SC_FAST_FN=__attribute__((section(".ewram.sc"),target("arm"),n
          '-DGBASD_SC_CRC7_FN=__attribute__((section(".ewram.sc"),target("arm"),noinline,noclone))',
          '-DGBASD_SC_CRC16_FN=__attribute__((section(".ewram.sc"),target("arm"),noinline))',
          '-DGBASD_SC_WRITE_IN_EWRAM', '-DEZFO_SECTION=".ewram.ezfo"']
-SD_ARM = {'crc', 'supercard_driver', 'sc_driver', 'supercard_env', 'ezfo_driver'}
+SD_ARM = {'crc', 'supercard_driver', 'supercard_env', 'ezfo_driver'}
 
 
 def sh(*a):
@@ -45,7 +45,7 @@ def build(cardtest=False):
         assert all(v <= L['O_FACT_HASH'] for k, v in L.items() if k not in ('O_FACT_OFF', 'O_FACT_TEXT', 'O_LAYERS', 'KOKO_BLOB_BYTES'))
         (B/'koko_rom.bin').write_bytes(b[:L['O_FACT_HASH']] + b[L['O_LAYERS']:])
     koko = ['crt0.s', 'ui.c', 'rt.c'] + (['cardtest.c'] if cardtest else
-            ['game.c', 'koko.c', 'koko_tok.c', 'sums.c', 'facts.c', 'kernels.s', 'watch.s', 'blob.s'])
+            ['game.c', 'koko.c', 'koko_tok.c', 'sums.c', 'facts.c', 'kernels.s', 'blob.s'])
     for n in koko: obj(R/'engine'/n, KOKO)
     T = R/'engine'/'text'                      # kokoSD 1.1: our apps' two fonts (gbamp3's text drawing; its data in slow RAM)
     obj(T/'text.c', KOKO + [f'-I{T}', '-Wno-unused-function'], 'ew-text')
@@ -53,11 +53,11 @@ def build(cardtest=False):
     obj(T/'fonts.S', [f'-Wa,-I{T}'], 'fonts')
     if not cardtest: obj(R/'bench'/'tern.s', KOKO)
     for n in ('sd.c', 'diskio.c') + (() if cardtest else ('facts_sd.c', 'chats.c')): obj(R/'engine'/n, SD + ['-marm', f'-I{R/"gen"}'], f'sd-{Path(n).stem}')
-    for s in [G/'fatfs'/'ff.c', G/'fatfs'/'ffunicode.c'] + [R/'engine'/'sc_driver.c'] + [G/'src'/n for n in (   # kokoSD 1.4.3: its own SuperCard driver copy
-            'cart_io.c', 'crc.c', 'supercard_env.c', 'supercard_io.s',
+    for s in [G/'fatfs'/'ff.c', G/'fatfs'/'ffunicode.c'] + [G/'src'/n for n in (
+            'cart_io.c', 'supercard_driver.c', 'crc.c', 'supercard_env.c', 'supercard_io.s',
             'supercard_write.s', 'ezfo_driver.c', 'edgba_driver.c')]:
         isa = '-marm' if s.stem in SD_ARM or s.suffix == '.s' else '-mthumb'
-        extra = GBASD if s.parent == G/'src' or s.stem == 'sc_driver' else ['-Wno-sign-compare', '-Wno-implicit-fallthrough']
+        extra = GBASD if s.parent == G/'src' else ['-Wno-sign-compare', '-Wno-implicit-fallthrough']
         obj(s, SD + [isa] + extra, f'sd-{s.stem}')
     if not cardtest:                           # gbawriter's typing engine (C++; its memory in slow RAM: ew-*.o)
         for n in ('writer_core.cpp', 'writer_glue.cpp'):
@@ -69,7 +69,7 @@ def build(cardtest=False):
     sh(P + 'gcc', '-nostdlib', '-mcpu=arm7tdmi', '-Wl,-T,' + str(R/'engine/koko.ld'), '-Wl,--gc-sections',
        '-Wl,--no-warn-rwx-segments', f'-Wl,-Map,{B/(out + ".map")}', '-o', elf, *objs, '-lgcc')
     sh(P + 'objcopy', '-O', 'binary', elf, rom)
-    sh('python3', R/'tools/fixrom.py', rom, *([] if cardtest else ['--sums', elf]))
+    sh('python3', R/'tools/fixrom.py', rom, *([] if cardtest else ['--sums']))
     print(sh('python3', G/'tests/check_ram_code.py', elf, 'ezfo_read', 'ezfo_write', 'ezfo_detect').strip())
     nm = {l.split()[-1]: int(l.split()[0], 16) for l in sh(P + 'nm', elf).splitlines() if len(l.split()) == 3}
     print(f'{rom}: {rom.stat().st_size} bytes; IWRAM end {nm["__bss_end"]:#x} (limit 0x3007800), '

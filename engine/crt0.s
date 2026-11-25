@@ -15,33 +15,6 @@ _start:
     .byte   0                       @ 0xBD header checksum (tools/fixrom.py)
     .byte   0, 0
 rom_start:
-    @ kokoSD 1.4.7: first the registers a restart leaves behind (engine/game.c shows them on the title when
-    @ Koko restarted by itself): the lr and status of the mode it starts in, then lr and saved status of the
-    @ undefined-instruction, abort, supervisor and IRQ modes (a crash into the BIOS leaves its address there)
-    ldr     r1, =boot_regs          @ (in slow RAM, not cleared below)
-    str     lr, [r1, #0]
-    mrs     r0, cpsr
-    str     r0, [r1, #4]
-    msr     cpsr_c, #0x9B           @ undefined-instruction mode, interrupts off
-    mov     r2, lr
-    mrs     r3, spsr
-    msr     cpsr_c, #0x97           @ abort
-    mov     r4, lr
-    mrs     r5, spsr
-    msr     cpsr_c, #0x93           @ supervisor
-    mov     r6, lr
-    mrs     r7, spsr
-    msr     cpsr_c, #0x92           @ IRQ
-    mov     r8, lr
-    mrs     r9, spsr
-    msr     cpsr_c, #0x9F           @ system
-    add     r1, r1, #8
-    stmia   r1, {r2-r9}
-    mov     r0, #0x04000000         @ kokoSD 1.4.7: no interrupt until the game asks (a restart can leave the
-    str     r0, [r0, #0x208]        @ freeze detector's on, and its code in slow RAM is copied below): IME off
-    mov     r1, #0
-    strh    r1, [r0, #4]            @ no video-frame interrupt
-    str     r1, [r0, #0x200]        @ IE off
     mov     r0, #0x12               @ IRQ mode stack
     msr     cpsr_c, r0
     ldr     sp, =0x03007FA0

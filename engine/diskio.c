@@ -1,33 +1,16 @@
 /* kokoSD: FatFs disk glue for gbaSD's cart_io, after gbavideo's diskio.c:
  * requests are split into commands of at most 16 sectors. GPL-3.0-or-later.
- * kokoSD 1.1: on a SuperCard the SD interface is mapped into the ROM space only during card access. While it is
- * mapped, the card's registers take the place of ROM at 0x09000000, 0x09100000 and 0x09800000, and Koko's 32 MB
- * ROM keeps model data there (gbaSD leaves the interface on, which suits ROMs below 16 MB). kokoSD 1.4: the
- * EverDrive GBA's register window at 0x09FC0000 likewise. */
+ * On a SuperCard the SD interface is mapped into the ROM space only during card access: while it is mapped, the
+ * card's registers take the place of ROM in the upper 16 MB, where Koko keeps model data (gbaSD leaves the
+ * interface on, which suits ROMs below 16 MB). Write access stays on, as SuperFW and gbaSD leave it. */
 #include "ff.h"
 #include "diskio.h"
 #include "cart_io.h"
 #include "supercard_driver.h"
 
-volatile uint16_t irq_ok;                     /* kokoSD 1.4.6: the freeze detector's interrupt is on (engine/watch.s) */
 static void sc_io(int on) {
-    /* no interrupt while an Omega's card is used (its kernel is mapped over the ROM then). kokoSD 1.4.10: on the
-     * other carts the freeze detector stays on, so a hang in the card driver shows up too (the SuperCard's card
-     * clock comes from the GBA's own reads: a short pause does not matter) */
-    if (on && cart_kind == CART_EZFO) *(volatile uint16_t *)0x04000208 = 0;
-    /* kokoSD 1.4.7: write access stays on, as SuperFW and gbaSD always leave it (on a SuperChis that bit also
-     * picks the save-memory bank); only the SD interface is switched */
     if (cart_kind == CART_SUPERCARD) set_supercard_mode(MAPPED_SDRAM, true, on);
-    /* kokoSD 1.4: the same on an EverDrive GBA: gbaSD leaves its registers mapped at 0x09FC0000, where the end of
-     * Koko's 32 MB ROM is (fonts, tables). Unlock (key 0xA5), then the configuration register: PSRAM mapped, with
-     * or without the register window (as gbaSD's edgba_detect does). */
-    if (cart_kind == CART_EDGBA) {
-        *(volatile uint16_t *)(0x09FC0000u + 0x5A * 2) = 0xA5;
-        *(volatile uint16_t *)0x09FC0000u = (uint16_t)(on ? 3 : 2);
-    }
-    if (!on) *(volatile uint16_t *)0x04000208 = irq_ok;
 }
-void sd_quiet(void) { sc_io(0); }              /* kokoSD 1.4.6: the cart back to plain ROM (freeze report) */
 
 #define CHUNK 16u
 unsigned sd_init_err;                         /* kokoSD 1.4.3: cart_sd_init's last result */
