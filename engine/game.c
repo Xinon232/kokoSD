@@ -412,6 +412,14 @@ static int rom_piece(unsigned i, uint32_t *s1, uint32_t *s2) {   /* sums of 1 MB
     const volatile uint32_t *p = (const volatile uint32_t *)(0x08000000u + at);
     uint32_t a = 0, b = 0;
     for (uint32_t k = 0; k < n; k++) { uint32_t w = p[k]; a += w; b += w * (k + 1); if (!(k & 4095)) poll(); }
+    /* kokoSD 1.4.1: words the loader may have patched (SuperFW: header, WAITCNT constants) count as their originals */
+    const volatile uint32_t *may = tab + 3 + 2 * tab[2];
+    for (uint32_t j = 0; j < may[0] && j < 255; j++) {
+        uint32_t o = may[1 + 2 * j], k = (o - at) >> 2;
+        if (o < at || k >= n) continue;
+        uint32_t d = may[2 + 2 * j] - p[k];
+        a += d; b += d * (k + 1);
+    }
     *s1 = a; *s2 = b;
     return tab[3 + 2 * i] == a && tab[4 + 2 * i] == b ? 1 : -1;
 }
@@ -431,6 +439,7 @@ static uint32_t model_check(void) {
 static int st_n;
 static void st_add(const char *t) { while (*t && st_n < ST_LOG_MAX - 1) st_log[st_n++] = *t++; st_log[st_n] = 0; }
 static void st_num(uint32_t v) { char b[12]; int k = 0; do { b[k++] = (char)('0' + v % 10); v /= 10; } while (v); while (k) { char c[2] = { b[--k], 0 }; st_add(c); } }
+static void small_note(const char *a, const char *b) { ui_lines(a, b); }
 static void self_test(void) {
     ui_ask("Self test", "Run the self test?", "The chat on screen closes: save it first", "A: start    B: back");
     dbg.state = ST_CONFIRM; kq_n = 0;
@@ -438,7 +447,8 @@ static void self_test(void) {
     while (stepping) work();
     st_n = 0; st_log[0] = 0;
     st_add("kokoSD self test\n");
-    unsigned pieces = rom_pieces(), round = 0, errors = 0, sd_ok = 0, sd_all = 0;
+    unsigned pieces = rom_pieces(), round = 0, errors = 0, sd_ok = 0, sd_all = 0, model_bad = 0;
+    uint32_t bad_mb = 0;                                         /* which 1 MB pieces ever differed */
     uint32_t r = seed | 1;
     static char line[64] __attribute__((section(".bss.ewram"))), det[96] __attribute__((section(".bss.ewram")));
     if (!pieces) st_add("no ROM sums in this build\n");
@@ -448,7 +458,7 @@ static void self_test(void) {
         int bad_rom = 0, bad_sd = 0, bad_model = 0; uint32_t a, b;
         for (unsigned i = 0; i < pieces; i++) {                  /* (1) the whole ROM */
             ui_ask("Self test", "Checking the ROM...", "", "B: stop (after this round)");
-            if (rom_piece(i, &a, &b) < 0) { bad_rom++; st_add("round "); st_num(round); st_add(": ROM MB "); st_num(i); st_add(" differs\n"); }
+            if (rom_piece(i, &a, &b) < 0) { bad_rom++; bad_mb |= 1u << (i & 31); st_add("round "); st_num(round); st_add(": ROM MB "); st_num(i); st_add(" differs\n"); }
         }
         if (sdf_ready) {                                          /* (2) the SD card, then the overlay pieces again */
             ui_ask("Self test", "Reading the SD card...", "", "B: stop (after this round)");
@@ -460,11 +470,11 @@ static void self_test(void) {
             sdf_forget();
             static const unsigned overlay[] = { 16, 17, 24 };     /* 0x09000000, 0x09100000, 0x09800000 */
             for (unsigned j = 0; j < 3; j++)
-                if (overlay[j] < pieces && rom_piece(overlay[j], &a, &b) < 0) { bad_rom++; st_add("round "); st_num(round); st_add(": ROM MB "); st_num(overlay[j]); st_add(" differs after SD reads\n"); }
+                if (overlay[j] < pieces && rom_piece(overlay[j], &a, &b) < 0) { bad_rom++; bad_mb |= 1u << overlay[j]; st_add("round "); st_num(round); st_add(": ROM MB "); st_num(overlay[j]); st_add(" differs after SD reads\n"); }
         }
         ui_ask("Self test", "Running Koko...", "", "B: stop (after this round)");
         uint32_t m = model_check();                                /* (3) the model */
-        if (m != MODEL_CHECK) { bad_model = 1; st_add("round "); st_num(round); st_add(": model state differs\n"); }
+        if (m != MODEL_CHECK) { bad_model = 1; model_bad++; st_add("round "); st_num(round); st_add(": model state differs\n"); }
         errors += (unsigned)(bad_rom + bad_sd + bad_model);
         dbg.article = round; dbg.article_top = errors;
         int k = 0; const char *t = errors ? "Round " : "Round ";
@@ -486,7 +496,20 @@ static void self_test(void) {
         f_mkdir("/koko");
         if (f_open(&lf, "/koko/selftest.txt", FA_WRITE | FA_CREATE_ALWAYS) == FR_OK) { saved = f_write(&lf, st_log, (UINT)st_n, &done) == FR_OK && done == (UINT)st_n; f_close(&lf); }
     }
-    ui_ask("Self test", errors ? "Errors found" : "No errors", saved ? "Saved to /koko/selftest.txt" : "(not saved: no SD card)", "Any button: back");
+    /* kokoSD 1.4.1: the details on screen too (with no card there is no log) */
+    static char d1[64] __attribute__((section(".bss.ewram"))), d2[64] __attribute__((section(".bss.ewram")));
+    int k = 0; const char *t;
+    if (bad_mb) {
+        t = "ROM differs in MB:"; while (*t) d1[k++] = *t++;
+        for (int i = 0; i < 32 && k < 58; i++) if (bad_mb >> i & 1) { d1[k++] = ' '; if (i >= 10) d1[k++] = (char)('0' + i / 10); d1[k++] = (char)('0' + i % 10); }
+    } else { t = pieces ? "ROM: ok" : "ROM: no sums"; while (*t) d1[k++] = *t++; }
+    t = model_bad ? "   Koko: differs" : "   Koko: ok"; while (*t && k < 63) d1[k++] = *t++;
+    d1[k] = 0; k = 0;
+    t = !sd_ready ? "No SD card at start (" : !sdf_ready ? "SD card, no fact file (" : "SD card and fact file ("; while (*t) d2[k++] = *t++;
+    t = sd_cart_name(); while (*t && k < 60) d2[k++] = *t++;
+    d2[k++] = ')'; d2[k] = 0;
+    ui_ask("Self test", errors ? "Errors found" : "No errors", d1, "");
+    small_note(d2, saved ? "Saved: koko/selftest.txt   (any button)" : "Not saved (no SD card)   (any button)");
     kq_n = 0;
     while (!kq_n) { vsync(); poll(); }
     kq_n = 0;

@@ -19,6 +19,12 @@ if len(sys.argv) > 2 and sys.argv[2] == '--sums':
     for i in range(0, len(w), piece):
         c = w[i:i + piece]
         tab.append(struct.pack('<II', int(c.sum()) & 0xFFFFFFFF, int((c * np.arange(1, len(c) + 1, dtype=np.uint64)).sum()) & 0xFFFFFFFF))
+    # kokoSD 1.4.1: the words a loader may change when it starts the game (SuperFW: the header's fixed fields and
+    # checksum, and every 0x04000204 constant, its WAITCNT patch): their offsets and original values, so the self
+    # test can put the originals back before comparing (at most 255).
+    may = sorted(set(list(range(0xA0, 0xC0, 4)) + [4 * int(k) for k in np.nonzero(w == 0x04000204)[0]]))[:255]
+    tab.append(struct.pack('<I', len(may)))
+    tab += [struct.pack('<II', o, int(w[o // 4])) for o in may]
     d += b''.join(tab)
     while len(d) % 4096: d.append(0xFF)
     open(sys.argv[1], 'wb').write(d)

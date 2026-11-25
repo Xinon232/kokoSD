@@ -140,7 +140,7 @@ void ui_title(void) {
 /* kokoSD 1.1: what the start is doing (finding the SD card and the fact file take a moment). */
 void ui_boot(const char *what, const char *detail) {
     fill(0, 0, 240, 160, C_WHITE);
-    small_centre(5, "kokoSD 1.4", C_BLACK);
+    small_centre(5, "kokoSD 1.4.1", C_BLACK);
     centre(64, what, C_BLACK);
     if (detail && *detail) small_centre(88, small_fit(detail, 228), C_GREY);
 }
@@ -344,6 +344,7 @@ void ui_chips(int n, const char *a, int alen, const char *b, int blen) {
     hint_line(s);
 }
 void ui_message(const char *t) { hint_line(t); }
+void ui_lines(const char *a, const char *b) { small_centre(96, small_fit(a, 228), C_GREY); small_draw(6, 150, small_fit(b, 228), C_GREY); }   /* kokoSD 1.4.1 */
 /* kokoSD 1.3: a question on its own screen (Delete this chat? A: yes B: no), or a page to type on (Rename). */
 void ui_ask(const char *title, const char *question, const char *detail, const char *hint) {
     frame_start();
