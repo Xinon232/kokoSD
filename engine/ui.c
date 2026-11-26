@@ -129,20 +129,20 @@ void ui_title_prompt(int on) {
     fill(0, 108, 240, 16, C_WHITE);
     if (on) centre(108, "Press START", C_BLACK);
 }
-void ui_title(void) {
+void ui_title(const char *menu_hint) {
     fill(0, 0, 240, 160, C_WHITE);
     small_centre(5, "kokoSD", C_BLACK);
     centre(50, "Koko", C_BLACK);
     small_centre(72, "A chatbot on your Game Boy Advance", C_GREY);
     small_centre(128, "Koko: rdsilver   kokoSD: halimj", C_GREY);   /* kokoSD 1.3: credits */
     ui_title_prompt(1);
-    small_centre(146, "START+SELECT while typing: menu", C_GREY);
+    small_centre(146, menu_hint, C_GREY);
 }
 
 /* kokoSD 1.1: what the start is doing (finding the SD card and the fact file take a moment). */
 void ui_boot(const char *what, const char *detail) {
     fill(0, 0, 240, 160, C_WHITE);
-    small_centre(5, "kokoSD 2.5", C_BLACK);
+    small_centre(5, "kokoSD 2.6", C_BLACK);
     centre(64, what, C_BLACK);
     if (detail && *detail) small_centre(88, small_fit(detail, 228), C_GREY);
 }
@@ -340,7 +340,7 @@ void ui_input(const char *msg, int mlen, int caret) {
     text_draw_bg(6, FIELD_Y + 1, 6, 234, t, (unsigned)skip, C_BLACK, C_LIGHT);
     fill(6 + cx - skip, FIELD_Y + 1, 1, 15, C_BLACK);
 }
-static const char *idle_hint = "START+SELECT: menu    START+A: save chat";
+static const char *idle_hint = "START+B: menu    START+A: save chat";
 static int chips_n;
 static void hint_line(const char *t) {
     /* kokoSD 2.2: cleared and written again in the vertical blank: done while the screen was drawing these rows,
@@ -351,7 +351,7 @@ static void hint_line(const char *t) {
 }
 void ui_hint(int has_text) {
     const char *h = kb_on ? (has_text ? "START: send    SELECT: menu" : "START: ideas    SELECT: menu")
-                          : has_text ? "START: send    START+A: save chat" : "START+SELECT: menu    START+A: save chat";
+                          : has_text ? "START: send    START+A: save chat" : "START+B: menu    START+A: save chat";
     if (h == idle_hint) return;
     idle_hint = h;
     if (!chips_n) hint_line(h);
@@ -413,7 +413,7 @@ void ui_list(const char *title, const char *const *items, int n, int sel, int to
     }
 }
 void ui_typing(const char *msg, int mlen, int caret) {
-    kb_on = 0; field_y = FIELD_BOTTOM; hint_y = HINT_BOTTOM; idle_hint = "START+SELECT: menu    START+A: save chat";
+    kb_on = 0; field_y = FIELD_BOTTOM; hint_y = HINT_BOTTOM; idle_hint = "START+B: menu    START+A: save chat";
     chat_bot = CHAT_BOT_TYPING;
     chat_draw();
     fill(0, chat_bot, 240, FIELD_Y - chat_bot, C_WHITE);

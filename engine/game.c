@@ -254,11 +254,11 @@ static const char HOW_TO_TYPE[] =
     "SELECT alone types a dot. Keep SELECT held and press Up / Down for digits, R / L for , ' \" : ! ? "
     "and Right / Left for ( ) / ; @ # % & _ + = -.\n\n"
     "START: send (with nothing typed, or nothing Koko can read, START does nothing).\n\n"
-    "START+A: save the chat on the SD card. START+SELECT, Saved chats: open a saved chat and carry on where you "
+    "START+A: save the chat on the SD card. START+B, Saved chats: open a saved chat and carry on where you "
     "left off (listed by their first message); START on a chat in the list: Open, Rename or Delete. "
     "Hold START and press Up / Down: scroll the chat.\n\n"
     "START with L or R (in either order): the first or second suggested word. Hold START and press Left / Right: "
-    "move the cursor. START + SELECT: this menu.\n\n"
+    "move the cursor. START + B: this menu.\n\n"
     "Accents: keep the letter's buttons held and press SELECT; SELECT again gives the next one (e: é è ë ê). "
     "They are shown as typed; Koko reads them as plain letters (é as e).\n\n"
     "B while Koko writes: stop him.\n\n"
@@ -271,11 +271,11 @@ static const char HOW_TO_TYPE_KB[] =                /* kokoSD 2.5 */
     "L / R: the first or second suggested word (shown above the keyboard).\n\n"
     "START: send. On an empty line, START offers a ready-made message; START again sends it (delete it and press START for the next one).\n\n"
     "SELECT: the menu (New chat, Saved chats, Settings ...).\n\n"
-    "Hold START and press A: save the chat. Hold START and press Up / Down: scroll the chat.\n\n"
+    "Hold START and press A: save the chat. Hold START and press Up / Down: scroll the chat. START+B: the menu too.\n\n"
     "B while Koko writes: stop him.\n\n"
     "Settings > Typing: Button chords switches to the typing of gbawriter, gbamp3 and the other apps.";
 static const char ABOUT[] =
-    "kokoSD 2.5: Koko the Chatbot with an SD card.\n\n"
+    "kokoSD 2.6: Koko the Chatbot with an SD card.\n\n"
     "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
     "Game Boy Advance itself.\n"
     "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "
@@ -693,7 +693,7 @@ static const char SETTINGS_HELP[] =
     "Keyboard: the original Koko's on-screen keyboard. D-pad: move, A: type the key, B: delete, L / R: the "
     "suggested words, START: send (on an empty line: a ready-made message), SELECT: the menu. The arrow key turns capitals on and "
     "off, the e-acute key puts an accent on the last letter (again: the next accent).\n"
-    "Button chords: the typing of gbawriter and the other apps (How to type).\n\n"
+    "Button chords: the typing of gbawriter and the other apps (How to type); START+B opens the menu.\n\n"
     "Settings are kept in koko/settings.txt.";
 /* kokoSD 2.4: the settings are kept in /koko/settings.txt ("facts=1" ...: 0 off, 1 read out, 2 as a hint) */
 static int set_val(const char *t, int n, const char *key, int dflt) {
@@ -768,7 +768,7 @@ static void settings(void) {
         }
     }
 }
-/* START + SELECT while typing. Returns 1 for a new chat, 2 when a saved chat was opened (3: it failed). */
+/* The menu (keyboard: SELECT; button chords: START + B, kokoSD 2.6). Returns 1 for a new chat, 2 when a saved chat was opened (3: it failed). */
 static int menu(void) {
     static int sel;
     const char *items[6] = { "New chat", "Saved chats", "Settings", "How to type", "About kokoSD", "Self test" };
@@ -885,11 +885,11 @@ __attribute__((noinline)) static int edit(void) {
                 ui_header("saving...");
                 int ok = save_chat();
                 ui_header(0); shown_hint = -1;
-                ui_message(ok ? "Chat saved (START+SELECT: Saved chats)" : "Could not save the chat");
+                ui_message(ok ? "Chat saved (START+B: Saved chats)" : "Could not save the chat");
             }
             shown_sug = SUG_SIG();
         }
-        if (fl & WRITER_START_SELECT) {
+        if (fl & WRITER_START_B) {                    /* kokoSD 2.6: START+B opens the menu (was START+SELECT) */
             while (stepping) work();
             int m = menu();
             if (m == 1) return 0;
@@ -1018,7 +1018,7 @@ __attribute__((noinline)) static int edit_kb(void) {   /* (not inlined into main
                     if (ui_scrolled()) ui_message("Older lines    START+Down: newer"); else chips();
                     shown_sug = -2;
                 }
-                if (dn & BTN_SELECT) act = 2;
+                if (dn & (BTN_SELECT | BTN_B)) act = 2;          /* START+SELECT or START+B: the menu, as with the chords */
                 continue;
             }
             if (dn & BTN_SELECT) { act = 2; break; }                 /* SELECT: the menu */
@@ -1217,7 +1217,7 @@ int main(void) {
     sdf_open();                                   /* and its fact file /koko/facts.dat (0 without one) */
     kb_mode = 1; mem_load(); settings_load(); words_set();                      /* kokoSD 2.4: memory.txt; the fact file's word memory */
     dbg.sd = (uint32_t)sd_ready | (uint32_t)sdf_ready << 1 | (uint32_t)cart_kind << 8;
-    ui_title();                                   /* the title until START (or A) is pressed */
+    ui_title(kb_mode ? "SELECT while typing: menu" : "START+B while typing: menu");   /* the title until START (or A) is pressed */
     if (!sdf_ready) {                             /* kokoSD 1.4.2: why there are no facts from the card (FatFs codes) */
         static const char *const why[] = { "", "No SD card (FatFs error ", "No /koko/facts.dat (FatFs error ", "facts.dat could not be read",
                                            "koko/facts.dat is not a fact file", "facts.dat is for other weights", "facts.dat is empty" };

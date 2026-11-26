@@ -1,4 +1,4 @@
-# kokoSD 2.5
+# kokoSD 2.6
 
 ## Instruction manual
 
@@ -25,7 +25,7 @@ For everyone who wants to start chatting right away, here are the basics:
    Japan". Then say "tell me more" to read the whole article.
 6. **SELECT** opens the menu: New chat, Saved chats, Settings, How to type,
    About, Self test. (Settings > Typing switches to the button chords of
-   gbawriter and the other apps; then START + SELECT opens the menu.)
+   gbawriter and the other apps; then START + B opens the menu.)
 
 It is highly recommended to read the rest of this manual: it explains the
 typing, the facts, memory, the settings and saved chats.
@@ -63,7 +63,8 @@ way of typing (Settings > Typing: Keyboard).
 - **START**: send. On an empty line, START offers a ready-made message; START
   again sends it (delete it and press START for the next one).
 - **SELECT**: the menu.
-- **Hold START** and press **A** to save the chat, **Up / Down** to scroll it.
+- **Hold START** and press **A** to save the chat, **Up / Down** to scroll it,
+  **B** for the menu.
 - The keyboard always types at the end of the message.
 
 ```screens
@@ -97,7 +98,7 @@ letter of it. Hold L as well for the second layer.
 - **Suggestions**: Koko reads your words while you type and suggests the next word
   at the bottom. START + L takes the first, START + R the second.
 - **START + Left / Right** move the cursor in the message.
-- **START + SELECT** opens the menu; **START + A** saves the chat.
+- **START + B** opens the menu; **START + A** saves the chat.
 
 ## Chatting
 
@@ -141,7 +142,7 @@ hint.png Facts: As a hint
 
 ## The menu
 
-SELECT while typing on the keyboard (START + SELECT with the button chords) opens
+SELECT while typing on the keyboard (START + B with the button chords) opens
 the menu. Up / Down choose, A opens, B goes back.
 
 | Row | What it does |

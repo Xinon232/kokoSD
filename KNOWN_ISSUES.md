@@ -1,6 +1,6 @@
-# kokoSD 2.5: known issues and open points
+# kokoSD 2.6: known issues and open points
 
-kokoSD 2.5 passes its emulator checks on the SuperCard SD model (engine/test_game.py, with the 2.4 checks for
+kokoSD 2.6 passes its emulator checks on the SuperCard SD model (engine/test_game.py, with the 2.4 checks for
 Settings, memory, hints, matching and word memory) and the random button sessions of
 tools/crash_test.py. On real hardware it runs on a SuperChis Prime with SuperFW (stable since 2.1: chats, facts,
 tell me more, saved chats); the other carts are not tested on hardware yet. These are known and not fixed yet:
@@ -48,7 +48,6 @@ tell me more, saved chats); the other carts are not tested on hardware yet. Thes
 - **Typing while Koko reads in the background:** gbawriter's engine is updated once per
   video frame; while the model works, up to 4 frames are given at once, so holding B
   (delete) can repeat a little unevenly during that time. No presses are lost.
-- **START+B** does nothing in Koko.
 - **Saved chats:** the list shows at most 48 chats. The chat's last 64 screen lines are kept (Koko himself keeps his
   usual 256-token memory).
 - **B while Koko reads a message** takes effect when the reading is done (each word not yet

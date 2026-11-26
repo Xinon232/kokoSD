@@ -15,7 +15,7 @@ extern void (*ui_yield)(void);                   /* optional hook called during 
 void ui_init(void);                              /* palette values and a cleared screen */
 void ui_boot(const char *what, const char *detail);   /* kokoSD 1.1: a start-up step on the screen */
 void ui_helpers(int on);                         /* off: "Facts off" in the header (every word from the model) */
-void ui_title(void);                             /* title screen: the name, "Press START" */
+void ui_title(const char *menu_hint);            /* title screen: the name, "Press START", how to open the menu */
 void ui_title_prompt(int on);
 void ui_title_note2(const char *t);
 void ui_title_tick(void);                        /* one title frame (nothing moves any more) */
@@ -42,7 +42,7 @@ int ui_key_move(int *kx, int *ky, int dx, int dy);
 void ui_keycap(int r, int c, int sel, int upper);
 void ui_keyboard(int kx, int ky, int upper);
 void ui_typing_kb(const char *msg, int mlen, int kx, int ky, int upper);
-void ui_menu(const char *title, const char *const *items, int n, int sel);   /* kokoSD: START+SELECT menu */
+void ui_menu(const char *title, const char *const *items, int n, int sel);   /* kokoSD: the menu */
 void ui_chips(int n, const char *a, int alen, const char *b, int blen); /* the suggestions (START+L, START+R), or the hint */
 void ui_hint(int has_text);                      /* kokoSD 1.1: the hint shown without suggestions (START: send / ideas) */
 void ui_writer_status(const char *group, const char *mode);   /* kokoSD 1.1: gbawriter's letter group and Shift / Caps */

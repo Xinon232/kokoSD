@@ -17,7 +17,7 @@ through [gbaSD](https://github.com/Xinon232/gbaSD). It adds:
 The model itself is Koko's, unchanged. GBA only (no browser version). kokoSD's changes are by
 Halim Jarrar; the original Koko README follows further down.
 
-Current version: **kokoSD 2.5**.
+Current version: **kokoSD 2.6**.
 
 ## Install
 From the [Releases](../../releases) page:
@@ -26,7 +26,7 @@ From the [Releases](../../releases) page:
    card, so the file is `/koko/facts.dat` (323 MB; 2.4 needs this file for word memory, older files still work). Without it Koko still chats, but cannot look facts up or show articles.
 
 Works on SuperCard SD / SuperChis with SuperFW, EZ-Flash Omega (and Definitive Edition started from the SD card)
-and EverDrive GBA (exFAT and FAT32 cards). Saved chats go to `/koko/chats/`. Buttons: SELECT (keyboard) or START+SELECT (button chords) > How to type.
+and EverDrive GBA (exFAT and FAT32 cards). Saved chats go to `/koko/chats/`. Buttons: SELECT (keyboard) or START+B (button chords) > How to type.
 
 ## How much Koko gains from the Wikipedia file
 Since 2.0 the cartridge has no fact table of its own: facts come only from the file on the SD card.
@@ -53,7 +53,11 @@ cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 a
   questions that do not match a title exactly (see KNOWN_ISSUES.md).
 
 
-## What is new in 2.5
+## What is new in 2.6
+- **Button chords: START+B opens the menu** (was START+SELECT). On the keyboard SELECT stays the menu, and
+  START+B opens it there too. The title screen shows the menu button of the chosen typing.
+
+## What was new in 2.5
 - **The original Koko's on-screen keyboard is back, and it is the default.** Settings > **Typing: Keyboard /
   Button chords** chooses between it and gbawriter's button chords; the choice is kept in `koko/settings.txt`.
 - The keyboard has the original's 13 x 4 keys, drawn in kokoSD's look: D-pad moves (held: repeats), A types,
@@ -61,14 +65,14 @@ cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 a
   offers a ready-made message (as in the original).
 - **SELECT opens the menu.** The original's two icon keys are now **capitals** (an arrow, instead of SELECT) and
   **accent** (é: puts an accent on the last letter; again: the next one).
-- kokoSD's START chords work on the keyboard too: START+A saves the chat, START+Up / Down scroll it, START+SELECT
-  is the menu as well.
+- kokoSD's START chords work on the keyboard too: START+A saves the chat, START+Up / Down scroll it, START+B (and
+  START+SELECT) is the menu as well.
 - The self test no longer keeps a 550-byte file object on the stack (it now borrows the saved chats' one): with
   the keyboard's loop below it, Koko's check in the self test ran out of stack and hung in the emulator.
 - If you used 2.4 with the button chords, delete `koko/settings.txt` or choose Settings > Typing to switch.
 
 ## What was new in 2.4
-Four additions, each with its own switch in **START+SELECT > Settings** (kept in `koko/settings.txt`); the
+Four additions, each with its own switch in **menu > Settings** (kept in `koko/settings.txt`); the
 last row there, **What these settings do**, explains them on the GBA:
 
 | Setting | Choices (default first) | What it does |

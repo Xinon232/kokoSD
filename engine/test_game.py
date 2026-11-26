@@ -61,7 +61,7 @@ class Pad:
                     return out + self.h(d | layer, 3) + self.h(0, 4)
     def text(self, s): return [st for ch in s for st in (self.accent(ch) if ch in self.ACCENTS else self.key(ch))]
     def start_with(self, b): return self.h(START, 4) + self.h(START | b, 4) + self.h(START, 3) + self.h(0, 4)
-    def menu(self): return self.start_with(SELECT) + [f'until:{DBG + 4:#x}:5:2000', 'f:4']   # START + SELECT: the menu (state 5)
+    def menu(self): return self.start_with(B) + [f'until:{DBG + 4:#x}:5:2000', 'f:4']   # START + B: the menu (state 5; kokoSD 2.6, was START + SELECT)
     def new_chat(self): return self.menu() + [f'k:{A}']                  # its first row
     def settings(self, row, presses=1):         # kokoSD 2.4: menu row 3 Settings; A on its row (each redraw waited for)
         return self.menu() + [f'k:{DOWN}', 'f:20', f'k:{DOWN}', 'f:20', f'k:{A}', 'f:40'] + [f'k:{DOWN}', 'f:30'] * row + [f'k:{A}', 'f:40'] * presses \
@@ -555,4 +555,11 @@ r = run('koko_kb_save', kb.text('hi') + [f'k:{START}', f'until:{DBG + 12:#x}:1:4
 files = subprocess.run(['mdir', '-i', os.environ['SD_IMAGE'], '-b', '::/koko/chats'], capture_output=True, text=True).stdout.split()
 check(any(f.lower().endswith('.kch') for f in files), f'keyboard: START+A saved the chat ({files})')
 subprocess.run(['mdeltree', '-i', os.environ['SD_IMAGE'], '::/koko/chats'], capture_output=True)
+# 23. kokoSD 2.6: with the button chords START+B opens the menu and deletes nothing; START+SELECT no longer does
+pad = Pad()
+x = after(BOOT + pad.text('hello') + ['f:30'] + pad.start_with(B) + ['f:60', f'dump:{DBG:#x}:8:out/sb.bin', f'k:{B}', 'f:60'], 'start_b')
+check(struct.unpack('2I', open('out/sb.bin', 'rb').read())[1] == 5 and x['caret'] == 5, f"START+B: the menu, then back with nothing deleted ({x})")
+pad = Pad()
+x = after(BOOT + pad.text('hello') + ['f:30'] + pad.start_with(SELECT) + ['f:60'], 'start_select')
+check(x['state'] in (0, 3) and x['caret'] == 5, f"START+SELECT: no menu any more, still typing ({x})")
 sys.exit(0 if ok else 1)

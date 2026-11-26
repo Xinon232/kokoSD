@@ -27,7 +27,7 @@ def action(rng):
     if k == 4: return pad.start_with(rng.choice([L, R, LEFT, RIGHT, A, B]))
     if k == 5:
         b = rng.choice([L, R]); return h(b, rng.randint(1, 6)) + h(b | START, rng.randint(1, 6)) + h(rng.choice([b, START, 0]), rng.randint(1, 4)) + h(0, 3)
-    if k == 6: return pad.start_with(SELECT) + ['f:10'] + [f'k:{rng.choice([UP, DOWN, A, B, START, LEFT])}' for _ in range(rng.randint(1, 5))]
+    if k == 6: return pad.start_with(B) + ['f:10'] + [f'k:{rng.choice([UP, DOWN, A, B, START, LEFT])}' for _ in range(rng.randint(1, 5))]
     if k == 7: return [f'f:{rng.choice([1, 10, 60, 300])}']
     if k == 8:                                                             # random chord
         m = rng.randrange(1, 1024); return h(m, rng.choice([1, 3, 10, 40])) + h(0, rng.choice([1, 3]))
@@ -39,9 +39,9 @@ def action(rng):
     if k == 14: return pad.text('what is a husky?') + [f'k:{START}'] + [f'f:{rng.choice([0, 30, 300, 2000])}'] + pad.text('tell me more') + [f'k:{START}', f'f:{rng.choice([0, 100, 2000])}'] + [f'k:{rng.choice([DOWN, UP, R, L, B, A])}' for _ in range(rng.randint(0, 4))]
     if k == 15: return [f'k:{START}', f'f:{rng.choice([0, 5, 50, 500])}'] + [f'k:{rng.choice([A, B, START, UP, L, R, SELECT])}' for _ in range(rng.randint(0, 25))] + [f'k:{B}']   # send, mash, stop
     if k == 16: return h(rng.choice([UP, DOWN, LEFT, RIGHT]) | rng.choice([0, L]), 4) + h(rng.choice([UP, DOWN, LEFT, RIGHT]) | rng.choice([A, B, R]) | SELECT, rng.randint(1, 6)) + h(0, 3)
-    if k == 17: return pad.start_with(SELECT) + ['f:10', f'k:{DOWN}', f'k:{DOWN}', f'k:{A}', f'f:{rng.choice([5, 60])}'] + [f'k:{rng.choice([UP, DOWN, A, A, B, SELECT])}' for _ in range(rng.randint(0, 8))]   # kokoSD 2.4: Settings
+    if k == 17: return pad.start_with(B) + ['f:10', f'k:{DOWN}', f'k:{DOWN}', f'k:{A}', f'f:{rng.choice([5, 60])}'] + [f'k:{rng.choice([UP, DOWN, A, A, B, SELECT])}' for _ in range(rng.randint(0, 8))]   # kokoSD 2.4: Settings
     if k == 18: return pad.start_with(A) + [f'f:{rng.choice([0, 30, 300])}']                  # save
-    if k == 19: return pad.start_with(SELECT) + ['f:10', f'k:{DOWN}', f'k:{A}', f'f:{rng.choice([5, 60])}'] + [f'k:{rng.choice([UP, DOWN, A, B, LEFT, RIGHT])}' for _ in range(rng.randint(0, 4))] + [f'k:{A}', 'f:60']   # Saved chats
+    if k == 19: return pad.start_with(B) + ['f:10', f'k:{DOWN}', f'k:{A}', f'f:{rng.choice([5, 60])}'] + [f'k:{rng.choice([UP, DOWN, A, B, LEFT, RIGHT])}' for _ in range(rng.randint(0, 4))] + [f'k:{A}', 'f:60']   # Saved chats
     if k == 20: return pad.h(START, 3) + (pad.h(START | rng.choice([UP, DOWN]), rng.randint(1, 40)) + pad.h(START, 2)) * rng.randint(1, 4) + pad.h(0, 3)   # scroll
     return pad.text(''.join(rng.choice('abcdefghijklmnopqrstuvwxyz ') for _ in range(rng.randint(1, 20))))
 def run(seed, n):
