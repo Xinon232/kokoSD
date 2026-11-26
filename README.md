@@ -1,23 +1,97 @@
 # kokoSD: Koko the Chatbot with an SD card
 
-**Koko the Chatbot** is a language model that runs on an unmodified Game Boy Advance:
-72 million two-bit weights in a 32 MB cartridge, writing about three words a second. Koko
-was made by **rdsilver** ([Koko the Chatbot on itch.io](https://rdsilver.itch.io/koko-the-chatbot)).
-All credit for the model, its training, the engine and Koko himself goes to them.
-
-**kokoSD** is a modified version of Koko for SD-card flash carts (SuperCard SD / SuperChis
-with SuperFW, EZ-Flash Omega and Definitive Edition started from the SD card, EverDrive GBA),
-through [gbaSD](https://github.com/Xinon232/gbaSD). It adds:
-- facts from all of Simple English Wikipedia on the SD card, and "tell me more" to read the article;
-- two ways of typing: the original Koko's on-screen keyboard (the default) or gbawriter's button chords (as in
-  gbamp3, gbawriter and the other apps), with accented letters;
-- saved chats that carry on exactly where they were, scrolling, a menu and settings;
-- the look of our other apps (gbamp3, gbawriter, gbavocab) and their two fonts.
-
-The model itself is Koko's, unchanged. GBA only (no browser version). kokoSD's changes are by
-Halim Jarrar; the original Koko README follows further down.
+**kokoSD** is made by **halimj** ([halimj.itch.io](https://halimj.itch.io)): a modified version of
+**Koko the Chatbot** by **rdsilver** ([rdsilver.itch.io/koko-the-chatbot](https://rdsilver.itch.io/koko-the-chatbot)),
+the language model that runs on an unmodified Game Boy Advance (72 million two-bit weights in a 32 MB cartridge,
+about three words a second). All credit for the model, its training, the engine and Koko himself goes to rdsilver.
+This repository is a fork of Koko; the original README follows further down.
 
 Current version: **kokoSD 2.6.1**.
+
+## How kokoSD differs from the original Koko
+The model is Koko's, unchanged: same weights, same engine, same replies for the same words. What changes is
+everything around it:
+
+| | Original Koko | kokoSD |
+|---|---|---|
+| Runs on | any flash cart with 32 MB ROMs, emulators, the browser | SD-card flash carts: SuperCard SD / SuperChis (SuperFW), EZ-Flash Omega (and Definitive Edition from the SD card), EverDrive GBA, through [gbaSD](https://github.com/Xinon232/gbaSD). GBA only |
+| Facts | 34,000 opening sentences from Simple English Wikipedia, in the ROM | 264,618 articles on the SD card (`koko/facts.dat`): the opening sentence as the answer, and **"tell me more"** opens the whole article to read |
+| Asking for facts | "who is", "what is", "tell me about" | also "can you tell me about", "have you heard of", "do you know", "what does ... mean" and subjects with extra words ("the singer Taylor Swift", "the planet Mercury") |
+| Typing | on-screen keyboard | the original's on-screen keyboard (default), or the button chords of gbawriter / gbamp3 (faster once learnt, with a cursor); accented letters |
+| Chats | one chat, gone when switched off | saved chats on the SD card that carry on exactly where they were, scrolling, a menu |
+| Memory | none | Koko remembers what you tell him about yourself ("my name is ...", "I live in ...") across chats |
+| Settings | facts on / off | Facts (read out / as a hint / off), fact matching, memory, word memory, typing, kept on the card |
+| Look | blue, Inter font | white, the look and fonts of halimj's other GBA apps (gbamp3, gbawriter, gbavocab) |
+| Checks | | a self test (ROM, SD card and model) for real hardware |
+
+## What kokoSD adds
+- **Wikipedia on the SD card.** All of Simple English Wikipedia that Koko can say: 264,618 articles with their
+  first sentence as Koko's answer (marked Fact) and the article itself, up to 64,000 characters, to read with
+  "tell me more". The cartridge has no fact table of its own any more: the card's file is 7.7 times as many
+  subjects, and without it Koko makes things up ("what is zircon?" -> "a town in the north of England").
+- **Better matching** (2.4): 41 of 50 questions asked in other words find their article (19 before).
+- **Facts as a hint** (2.4, optional): the fact is given to Koko and he answers in his own words.
+- **Memory** (2.4): what you tell Koko about yourself, kept in `koko/memory.txt` and told to him at each new chat.
+- **Word memory** (2.4, optional): which words follow which in Wikipedia, mixed into Koko's choice of words.
+- **Two ways of typing** (2.5): the original keyboard, or button chords. SELECT (keyboard) or START+B (chords)
+  opens the menu.
+- **Saved chats, scrolling, a menu and Settings** with an explanation of each setting on the GBA.
+- **Stability work for real carts** (2.0-2.6.1): the SD card is only mapped during card access, a keep-alive for
+  the SuperCard, button timers that restart themselves, damaged saved chats refused, no stray memory writes.
+
+## The default settings and why
+The defaults were chosen from tests with the native engine (host/, the cartridge's own code on a PC: same model,
+same seeds, so the replies are the GBA's) and in the emulator. Examples are real replies.
+
+**Facts: Read out (on).** The Wikipedia sentence is always right; Koko on his own is often wrong. "As a hint"
+sounds friendlier and usually keeps the main point, but still invents details and takes 10-25 s longer, so it is
+offered, not the default.
+
+| Question | Read out | As a hint | No fact (Off) |
+|---|---|---|---|
+| who was Julius Caesar | "Gaius Julius Caesar (12 July 100 BC - 15 March 44 BC) was a military commander, politician and author..." | "He was the ruler of the Roman Republic." | "Julius Caesar was a Roman emperor who was killed by Poseidon." |
+| what is a penguin | "Penguins are seabirds in the family Spheniscidae..." | "A penguin is a bird that lives in the sea." | "...with a funny-like creature called a polar bear. They live in the Arctic..." |
+| what is a tornado | "...fast spinning winds made by a strong rotating thunderstorm..." | "...like a big spinning spinning in the sky. It dances with the wind..." | "...a long, thin, round thing that can be very wild..." |
+| who was Leonardo da Vinci | "...an Italian polymath who lived during the Renaissance." | "...a very important person in the Roman Catholic Church. He was born in Rome in 1530." (wrong) | "He was a politician." |
+
+**Fact matching: Wide (on).** The clearest gain and no cost: 41 of 50 questions asked in other words found their
+article (Strict, 2.3's matching: 19), none of them the wrong one. Without a match Koko makes things up:
+
+| Question | Strict (2.3) | Wide (2.4) |
+|---|---|---|
+| have you heard of the beatles | "Yes, I can imagine those! It's so exciting to hear them." | "The Beatles were an English pop/rock band, started in Liverpool, England in 1960." |
+| who was the scientist marie curie | "He was a scientist." | "...was a Polish-born French physicist and chemist." |
+| what is the planet venus | "...a big red star in the sky... about 50 light years away" | "Venus is the second planet from the Sun..." |
+| i want to know about the titanic | "A titanicCristan is a common name, like a sponge." | "The RMS Titanic was a British steam ship..." |
+| do you know pikachu | "Pikachu is super cool. It's like a giant playground!" | "Pikachu is a yellow mouse Pokemon... created by Satoshi Tajiri." |
+
+**Memory: On.** Your name is used reliably and makes Koko feel personal; the rest is hit and miss, and a miss does
+no harm. It is told to Koko while you type the first message, so normally there is no wait. Told "My name is Lena.
+I am 10 years old. I live in Vienna. My favorite food is pancakes. I like horses. I have a cat named Mimi.":
+
+| You say | With memory | Without |
+|---|---|---|
+| hi koko! | "Hi Lena! What's your favorite food?" | "Hello there! How can I help you today?" |
+| what is my name? | "Your name is Lena." (every time) | "Your name is Alex, Alex." |
+| what is my cat called? | "It's called Mimi. She's a big cat with a big, fluffy tail." (one seed of two) | "His cat is called the cat." |
+| how old am i? | "You are a puppy, Lena." (age is not used) | "You're a good person, I guess." |
+
+**Word memory: Off.** It changes about half of the replies, but makes them sound like an encyclopedia rather than
+more often right, and on a slow card it may slow Koko down. Try it if you like:
+
+| Question | Off | On |
+|---|---|---|
+| who was the first president of america? | "The first president was John F. Kennedy." | "The first president was George Washington." |
+| how do plants grow? | "...They use their wings to make their own food..." | "Plants grow from tiny plants with little seeds inside them." |
+| what do you know about germany? | "Germany was a country in Europe." | "Germany was founded in the 17th century, but it was called Einsatzgruppen." |
+| what is the biggest animal? | "The biggest animal is the lions." | (the same) |
+
+**Typing: Keyboard (kokoSD 2.5).** The original Koko's on-screen keyboard needs nothing learnt: you see every key.
+The button chords (gbawriter's) are faster once learnt and have a cursor, so they stay one setting away. With the
+keyboard, SELECT opens the menu.
+
+Settings are changed in the menu (SELECT, or START+B with the button chords) > Settings and kept in
+`koko/settings.txt`; the last row there, **What these settings do**, explains them on the GBA.
 
 ## Install
 From the [Releases](../../releases) page:
@@ -92,57 +166,6 @@ last row there, **What these settings do**, explains them on the GBA:
 | Fact matching | Wide / Strict | Wide finds the article for more ways of asking; Strict is 2.3's matching. |
 | Memory | On / Off | What you tell Koko about yourself is kept and told to him at the start of each new chat. "What Koko remembers" shows it; SELECT there forgets it all. |
 | Word memory | Off / On | Which words follow which in the Wikipedia text is mixed into Koko's choice of the next word. Off by default: it made replies sound like Wikipedia without being more often right. |
-
-### The default settings and why
-The defaults were chosen from tests with the native engine (host/, the cartridge's own code on a PC: same model,
-same seeds, so the replies are the GBA's) and in the emulator. Examples are real replies.
-
-**Facts: Read out (on).** The Wikipedia sentence is always right; Koko on his own is often wrong. "As a hint"
-sounds friendlier and usually keeps the main point, but still invents details and takes 10-25 s longer, so it is
-offered, not the default.
-
-| Question | Read out | As a hint | No fact (Off) |
-|---|---|---|---|
-| who was Julius Caesar | "Gaius Julius Caesar (12 July 100 BC - 15 March 44 BC) was a military commander, politician and author..." | "He was the ruler of the Roman Republic." | "Julius Caesar was a Roman emperor who was killed by Poseidon." |
-| what is a penguin | "Penguins are seabirds in the family Spheniscidae..." | "A penguin is a bird that lives in the sea." | "...with a funny-like creature called a polar bear. They live in the Arctic..." |
-| what is a tornado | "...fast spinning winds made by a strong rotating thunderstorm..." | "...like a big spinning spinning in the sky. It dances with the wind..." | "...a long, thin, round thing that can be very wild..." |
-| who was Leonardo da Vinci | "...an Italian polymath who lived during the Renaissance." | "...a very important person in the Roman Catholic Church. He was born in Rome in 1530." (wrong) | "He was a politician." |
-
-**Fact matching: Wide (on).** The clearest gain and no cost: 41 of 50 questions asked in other words found their
-article (Strict, 2.3's matching: 19), none of them the wrong one. Without a match Koko makes things up:
-
-| Question | Strict (2.3) | Wide (2.4) |
-|---|---|---|
-| have you heard of the beatles | "Yes, I can imagine those! It's so exciting to hear them." | "The Beatles were an English pop/rock band, started in Liverpool, England in 1960." |
-| who was the scientist marie curie | "He was a scientist." | "...was a Polish-born French physicist and chemist." |
-| what is the planet venus | "...a big red star in the sky... about 50 light years away" | "Venus is the second planet from the Sun..." |
-| i want to know about the titanic | "A titanicCristan is a common name, like a sponge." | "The RMS Titanic was a British steam ship..." |
-| do you know pikachu | "Pikachu is super cool. It's like a giant playground!" | "Pikachu is a yellow mouse Pokemon... created by Satoshi Tajiri." |
-
-**Memory: On.** Your name is used reliably and makes Koko feel personal; the rest is hit and miss, and a miss does
-no harm. It is told to Koko while you type the first message, so normally there is no wait. Told "My name is Lena.
-I am 10 years old. I live in Vienna. My favorite food is pancakes. I like horses. I have a cat named Mimi.":
-
-| You say | With memory | Without |
-|---|---|---|
-| hi koko! | "Hi Lena! What's your favorite food?" | "Hello there! How can I help you today?" |
-| what is my name? | "Your name is Lena." (every time) | "Your name is Alex, Alex." |
-| what is my cat called? | "It's called Mimi. She's a big cat with a big, fluffy tail." (one seed of two) | "His cat is called the cat." |
-| how old am i? | "You are a puppy, Lena." (age is not used) | "You're a good person, I guess." |
-
-**Word memory: Off.** It changes about half of the replies, but makes them sound like an encyclopedia rather than
-more often right, and on a slow card it may slow Koko down. Try it if you like:
-
-| Question | Off | On |
-|---|---|---|
-| who was the first president of america? | "The first president was John F. Kennedy." | "The first president was George Washington." |
-| how do plants grow? | "...They use their wings to make their own food..." | "Plants grow from tiny plants with little seeds inside them." |
-| what do you know about germany? | "Germany was a country in Europe." | "Germany was founded in the 17th century, but it was called Einsatzgruppen." |
-| what is the biggest animal? | "The biggest animal is the lions." | (the same) |
-
-**Typing: Keyboard (kokoSD 2.5).** The original Koko's on-screen keyboard needs nothing learnt: you see every key.
-The button chords (gbawriter's) are faster once learnt and have a cursor, so they stay one setting away. With the
-keyboard, SELECT opens the menu.
 
 **More facts, better matched.** The fact file (`koko/facts.dat`, made again: 323 MB, of which 52 MB word memory) has 264,618
 articles (2.3: 244,015): titles such as "Mercury (planet)" are now in it, as "mercury planet" and, where no
@@ -330,7 +353,7 @@ per read and saves the results to `/koko-cardtest.txt`. Nothing else is written.
 ## Licence and credits (kokoSD)
 Koko the Chatbot (code, model, weights, fact table, artwork): **rdsilver**,
 https://rdsilver.itch.io/koko-the-chatbot ("The Koko authors" in LICENSE and LICENSE-MODEL).
-kokoSD's additions: Halim Jarrar (halimj), with gbaSD, gbawriter's typing engine, gbamp3's text drawing and
+kokoSD's additions: halimj (Halim Jarrar, https://halimj.itch.io), with gbaSD, gbawriter's typing engine, gbamp3's text drawing and
 GBAVocab's accent folding (all Halim Jarrar, GPL-3.0-or-later) and the SuperFW font
 (David Guillen Fandos, GPL-3.0-or-later; UNSCII and GNU Unifont glyphs).
 
