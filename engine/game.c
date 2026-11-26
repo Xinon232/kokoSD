@@ -111,55 +111,7 @@ static void timer_guard(void) {
     if (t != tick_seen) { tick_seen = t; tick_same = 0; }
     else if (++tick_same > 4000) timers_start();    /* thousands of polls with no tick: the count stands still */
 }
-/* ---------------- kokoSD 2.6.1: freeze detector ----------------
- * poll() is called many times a second in every part of the game (typing, Koko's work, card reads, pages). Timer 1
- * interrupts 4 times a second; when poll() has not run for 15 s, the header shows a black box with the step the
- * game was in (2 decimal digits, WD_*) and the program address it is stuck at (8 hexadecimal digits), drawn from the
- * interrupt itself.
- * Nothing else changes: if the game goes on, the next redraw covers it. (A crash that stops the CPU or interrupts
- * shows nothing: that tells something too.) */
-#define REG_IE       REG16(0x04000200)
-#define REG_IF       REG16(0x04000202)
-#define REG_IME      REG16(0x04000208)
-#define REG_TM1CNT_L REG16(0x04000104)
-#define REG_TM1CNT_H REG16(0x04000106)
-volatile uint32_t wd_hb EW, wd_last EW, wd_n EW, wd_pc EW, wd_shown EW, wd_off EW, wd_test EW;   /* (set in wd_start) */
-volatile uint32_t wd_stage EW;                     /* the step: see WD_* */
-enum { WD_BOOT = 1, WD_TYPING, WD_READING, WD_LOOKUP, WD_HINT, WD_MARKER, WD_REPLY, WD_AFTER, WD_MENU, WD_ARTICLE };
-volatile uint16_t *gfx_line(int y);
-static const uint16_t HEX5[16] = {                 /* 3 x 5 digits, a row per 3 bits */
-    0x7B6F, 0x2C97, 0x73E7, 0x73CF, 0x5BC9, 0x79CF, 0x79EF, 0x7249, 0x7BEF, 0x7BCF, 0x7BED, 0x6BAE, 0x7927, 0x6B6E, 0x79E7, 0x79E4 };
-__attribute__((target("arm"))) static void wd_px(int x, int y, int c) {
-    volatile uint16_t *l = gfx_line(y) + (x >> 1);
-    *l = (uint16_t)((x & 1) ? ((*l & 0x00ff) | c << 8) : ((*l & 0xff00) | c));
-}
-__attribute__((target("arm"))) static void wd_digit(int x, int v) {   /* white on black, twice the size */
-    for (int r = 0; r < 5; r++) for (int c = 0; c < 3; c++) {
-        int on = HEX5[v & 15] >> (14 - (r * 3 + c)) & 1;
-        for (int dy = 0; dy < 2; dy++) for (int dx = 0; dx < 2; dx++) wd_px(x + 2 * c + dx, 3 + 2 * r + dy, on ? 0 : 1);
-    }
-}
-__attribute__((target("arm"), noinline)) static void wd_irq(void) {
-    uint16_t f = REG_IF;
-    REG_IF = f; *(volatile uint16_t *)0x03007FF8 |= f;            /* (the BIOS's copy, for its waits) */
-    if (!(f & 0x10)) return;
-    if (wd_hb != wd_last) { wd_last = wd_hb; wd_n = 0; return; }
-    if (wd_off || wd_shown || ++wd_n < 60) return;
-    wd_shown = 1;
-    wd_pc = *(volatile uint32_t *)0x03007F9C - 4;                 /* the BIOS saved the interrupted lr at the top of the IRQ stack */
-    for (int y = 1; y < 15; y++) for (int x = 100; x < 196; x++) wd_px(x, y, 1);
-    wd_digit(103, (int)(wd_stage / 10 % 10)); wd_digit(111, (int)(wd_stage % 10));   /* the step in decimal */
-    for (int i = 0; i < 8; i++) wd_digit(125 + 8 * i, (int)(wd_pc >> (28 - 4 * i)));
-}
-static void wd_start(void) {
-    wd_hb = wd_last = wd_n = wd_pc = wd_shown = wd_off = wd_test = 0; wd_stage = WD_BOOT;
-    *(volatile uint32_t *)0x03007FFC = (uint32_t)wd_irq;
-    REG_TM1CNT_H = 0; REG_TM1CNT_L = (uint16_t)(65536 - 4096);  /* 16384 / 4096: 4 a second */
-    REG_TM1CNT_H = 0x00C3;                                       /* on, interrupt, 16.78 MHz / 1024 */
-    REG_IE = (uint16_t)(REG_IE | 0x10); REG_IME = 1;
-}
 static void poll(void) {                          /* called often, also from inside the model's work and long redraws */
-    if (!wd_test) wd_hb++;                        /* kokoSD 2.6.1: the freeze detector sees the game is alive */
     timer_guard();
     keep_alive();
     uint16_t raw = (uint16_t)(~REG_KEYINPUT & 0x03FF), k = keys_prev;
@@ -613,7 +565,6 @@ static void self_test(void) {
     dbg.state = ST_CONFIRM; kq_n = 0;
     for (;;) { vsync(); uint16_t d = keys_down(); if (d & BTN_A) break; if (d & (BTN_B | BTN_START)) return; }
     while (stepping) work();
-    wd_off = 1;                                   /* kokoSD 2.6.1: the ROM check and the 90 s wait do not poll */
     st_n = 0; st_log[0] = 0;
     st_add("kokoSD self test\n");
     unsigned pieces = rom_pieces(), round = 0, errors = 0, sd_ok = 0, sd_all = 0, model_bad = 0;
@@ -710,7 +661,6 @@ static void self_test(void) {
         ui_title_note2(d3);
     }
     kq_n = 0;
-    wd_off = 0;
     while (!kq_n) { vsync(); poll(); }
     kq_n = 0;
 }
@@ -825,7 +775,6 @@ static void settings(void) {
 /* The menu (keyboard: SELECT; button chords: START + B, kokoSD 2.6). Returns 1 for a new chat, 2 when a saved chat was opened (3: it failed). */
 static int menu(void) {
     static int sel;
-    wd_stage = WD_MENU;
     const char *items[6] = { "New chat", "Saved chats", "Settings", "How to type", "About kokoSD", "Self test" };
     kq_n = 0;                                     /* presses made while typing are not menu choices */
     for (;;) {
@@ -877,7 +826,7 @@ __attribute__((noinline)) static int edit(void) {
     ui_typing(msg, mlen, mlen);
     koko_mark(); mark_ntok = (int)dbg.ntok;
     nfed = nwant = user_fed = stepping = dirty = nsug = 0; sug_stale = 1;
-    dbg.state = ST_EDIT; dbg.nsug = 0; wd_stage = WD_TYPING;
+    dbg.state = ST_EDIT; dbg.nsug = 0;
     kq_n = 0;
     sent_alone = 0; b_after_send = 0;            /* kokoSD 2.2: a send from before does not count */
     uint32_t last = ticks();
@@ -954,7 +903,6 @@ __attribute__((noinline)) static int edit(void) {
             while (keys_prev) { vsync(); poll(); }
             hq_n = 0; kq_n = 0;
             if (kb_mode) return 4;                           /* kokoSD 2.5: Settings > Typing changed: the keyboard */
-            wd_stage = WD_TYPING;
             writer_reset_keys();
             last = ticks();
             writer_set(msg);
@@ -1018,7 +966,7 @@ __attribute__((noinline)) static int edit_kb(void) {   /* (not inlined into main
     ui_typing_kb(msg, mlen, kx, ky, upper);
     koko_mark(); mark_ntok = (int)dbg.ntok;
     nfed = nwant = user_fed = stepping = dirty = nsug = 0; sug_stale = 1;
-    dbg.state = ST_EDIT; dbg.nsug = 0; dbg.caret = (uint32_t)mlen; wd_stage = WD_TYPING;
+    dbg.state = ST_EDIT; dbg.nsug = 0; dbg.caret = (uint32_t)mlen;
     kq_n = 0;                                     /* (hq: presses made while the keyboard was drawn are typing) */
     sent_alone = 0; b_after_send = 0;
     for (;;) {
@@ -1111,7 +1059,6 @@ __attribute__((noinline)) static int edit_kb(void) {   /* (not inlined into main
             while (keys_prev) { vsync(); poll(); }           /* the presses made in the menu are not typing */
             hq_n = 0; kq_n = 0; prev = keys_prev; st_used = 0;
             if (!kb_mode) return 4;                          /* Settings > Typing changed: the chords from now on */
-            wd_stage = WD_TYPING;
             ui_header(0);
             ui_typing_kb(msg, mlen, kx, ky, upper);
             shown_sug = -1; shown_empty = -1;
@@ -1141,7 +1088,6 @@ static int more_about(const char *s, int n) {      /* "tell me more about X": le
     return n > i + 1 ? i : 0;
 }
 static void read_article(void) {
-    wd_stage = WD_ARTICLE;
     const char *title;
     int n = sdf_article(&title);
     if (n) { ui_message("Reading the article..."); read_pages(title, sdf_article_text, n, ST_ARTICLE); }
@@ -1155,7 +1101,7 @@ static uint32_t ticks(void) {                     /* 1/16384 s */
     return ((uint32_t)hi << 16) | lo;
 }
 static void exchange(void) {
-    dbg.state = ST_RUNNING; wd_stage = WD_READING;
+    dbg.state = ST_RUNNING;
     kq_n = 0;                                     /* kokoSD: presses made while typing (B in letters) are not "stop" */
     while (mlen && msg[mlen - 1] == ' ') msg[--mlen] = 0;    /* a trailing space is not part of the message */
     refold();
@@ -1180,7 +1126,6 @@ static void exchange(void) {
     REG_TM2CNT_H = 0x0083;                        /* 16.78 MHz / 1024 */
     uint32_t t0 = ticks();
     int made = 0;
-    wd_stage = WD_LOOKUP;
     if (helpers) ui_header(sdf_ready ? "looking up..." : "thinking...");   /* kokoSD 1.1.3: each phase is shown */
     static char ans[96] EW;
     int al = 0, an = 0, mark = 0, article = 0;
@@ -1214,7 +1159,7 @@ static void exchange(void) {
             uint16_t *hint = fed; char *q = mem_buf;       /* (RAM is short: buffers not in use now) */
             int hn = an;
             for (int i = 0; i < hn; i++) hint[i] = want[i];
-            ui_header("reading the fact..."); wd_stage = WD_HINT;
+            ui_header("reading the fact...");
             koko_rewind(); dbg.ntok = (uint32_t)mark_ntok; dbg.rewinds++;
             feed(TOK_USER);
             for (int i = 0; i < hn && !b_pressed(); i++) feed(hint[i]);
@@ -1224,9 +1169,7 @@ static void exchange(void) {
             nfed = 0; al = an = 0; mark = 3;
         }
     }
-    wd_stage = WD_MARKER;
     feed(TOK_KOKO);
-    wd_stage = WD_REPLY;
     ui_header("B: stop");
     int stopped = b_pressed() || b_after_send;   /* kokoSD 2.2: also a B made between START and here */
     b_after_send = 0; sent_alone = 0;                           /* B while Koko was still reading: no reply */
@@ -1247,7 +1190,6 @@ static void exchange(void) {
         if (b_pressed()) { stopped = 1; break; }
     }
     koko_reply_end();
-    wd_stage = WD_AFTER;
     ui_reply_button(0);
     ui_rate(made, ticks() - t0);
     if (article && !stopped) read_article();             /* B also means: no article */
@@ -1268,7 +1210,6 @@ int main(void) {
     REG_TM2CNT_H = 0; REG_TM3CNT_H = 0; REG_TM2CNT_L = 0; REG_TM3CNT_L = 0;
     REG_TM3CNT_H = 0x0084; REG_TM2CNT_H = 0x0083;  /* kokoSD: 1/16384 s from the start (debounce, editor frames) */
     video_init();
-    wd_start(); wd_off = 1;                       /* kokoSD 2.6.1: the freeze detector (not while the card starts) */
     koko_yield = poll; ui_yield = poll;
     dbg.magic = 0x4B4F4B4F; dbg.turns = 0; dbg.ntok = 0; dbg.made = 0; dbg.rewinds = 0; dbg.newchats = 0; dbg.pure = 0;
     koko_reset();
@@ -1300,7 +1241,7 @@ int main(void) {
         t[k] = 0;
         ui_title_note2(t);
     }
-    dbg.state = ST_TITLE; dbg.boot_ticks = ticks(); wd_off = 0;   /* kokoSD: the title is up (tests wait for it); start-up time */
+    dbg.state = ST_TITLE; dbg.boot_ticks = ticks();   /* kokoSD: the title is up (tests wait for it); start-up time */
     for (int f = 0;; f++) {
         vsync();
         uint16_t d = keys_down();

@@ -63,12 +63,6 @@ cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 a
   Also the input and hint lines' positions. All are now set at start; a test runs the keyboard with random junk in
   memory (as a GBA leaves it), and the whole test suite was run that way too.
 - The emulator's stack check (test/runner.c) measures from the real end of fast-RAM data again.
-- **A freeze detector.** If the game stops answering for 15 seconds, a black box appears in the header with two
-  numbers: the step it was in and the program address it is stuck at (for example `05 0800A1C4`). Please note
-  them (a photo is fine): they show where a freeze on real hardware happens. Steps: 01 start, 02 typing, 03 reading
-  your message, 04 looking up, 05 reading the fact (hint), 06 Koko reading his turn marker, 07 Koko writing,
-  08 after the reply (memory saved), 09 menu, 10 article. Nothing else changes; the self test and the start are
-  left out (they do not check in for longer on purpose). A freeze that shows no box stopped the processor itself.
 
 ## What was new in 2.6
 - **Button chords: START+B opens the menu** (was START+SELECT). On the keyboard SELECT stays the menu, and
