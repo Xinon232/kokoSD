@@ -571,4 +571,21 @@ for junk in ('0x1234', '0x9876', '0xbeef'):
     del os.environ['KOKO_JUNK']
     t = turns_of(r['hist'])
     check(t and t[0][0] == 'hi', f"keyboard with junk in slow RAM ({junk}): typed {t[0][0] if t else None!r}")
+# 25. kokoSD 2.6.1: the freeze detector: with the game's heartbeat stopped (wd_test) the header shows the step and
+#     the program address after 15 s; in a normal chat with a fact and its article it never shows
+syms = dict((l.split()[2], int(l.split()[0], 16)) for l in subprocess.run(['/opt/devkitpro/devkitARM/bin/arm-none-eabi-nm', 'build/koko.elf'],
+            capture_output=True, text=True).stdout.splitlines() if len(l.split()) == 3)
+forget(keyboard=True)
+subprocess.run([RUNNER, ROM] + BOOT + ['f:120', f"poke:{syms['wd_test']:#x}:1", 'f:1300', 'shot:out/koko_freeze_box.ppm',
+               f"dump:{syms['wd_shown']:#x}:4:out/wd1.bin", f"dump:{syms['wd_pc']:#x}:4:out/wd2.bin", f"dump:{syms['wd_stage']:#x}:4:out/wd3.bin"], check=True)
+shown, pc, stage = (struct.unpack('I', open(f'out/wd{i}.bin', 'rb').read())[0] for i in (1, 2, 3))
+check(shown == 1 and 0x08000000 <= pc < 0x0A000000 and stage == 2, f'freeze detector: shown {shown}, step {stage}, at {pc:#x}')
+if os.path.exists(FACTS) and RUNNER != 'build/runner':
+    old = os.environ['SD_IMAGE']; os.environ['SD_IMAGE'] = 'out/facts-card.img'
+    pad = Pad()
+    run('koko_wd_quiet', pad.text('what is a siberian husky?') + [f'k:{START}', f'until:{DBG + 12:#x}:1:400000', 'f:5'] + pad.text('tell me more')
+        + [f'k:{START}', f'until:{DBG + 4:#x}:4:400000', 'f:1500', f'k:{B}', 'f:30'] + pad.text('tell me a long story about a dragon') + [f'k:{START}', 'f:1500',
+        f"dump:{syms['wd_shown']:#x}:4:out/wd1.bin"], 2)
+    os.environ['SD_IMAGE'] = old
+    check(struct.unpack('I', open('out/wd1.bin', 'rb').read())[0] == 0, 'freeze detector: quiet through a fact, its article and a long reply')
 sys.exit(0 if ok else 1)

@@ -232,6 +232,31 @@ also checks that the cart keeps its data after 90 seconds unread (B skips that
 step). The result is shown and written to `/koko/selftest.txt`. If Koko ever
 freezes or misbehaves, run it and keep the log.
 
+## If Koko freezes
+
+kokoSD watches itself: when the game stops answering for 15 seconds, a black
+box with two numbers appears at the top of the screen, for example
+`05 0800A1C4`. The first is the step the game was in, the second the program
+address where it is stuck. Please write both down (or take a photo) and send
+them in: they show where the freeze happens.
+
+| Step | What the game was doing |
+|---|---|
+| 01 | Starting |
+| 02 | Typing |
+| 03 | Reading your message |
+| 04 | Looking up a fact |
+| 05 | Reading the fact (Facts: As a hint) |
+| 06 | Koko reading his turn |
+| 07 | Koko writing |
+| 08 | After the reply |
+| 09 | The menu |
+| 10 | Reading an article |
+
+If the screen freezes and no box appears, the processor itself stopped; that
+is worth knowing too. Then switch the GBA off and on, and run the self test
+(menu > Self test).
+
 ## About / licence
 
 Koko the Chatbot (the model, its training, the engine and Koko himself) is by
