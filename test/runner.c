@@ -162,7 +162,7 @@ int main(int argc, char **argv) {
         } else { fprintf(stderr, "bad step %s\n", s); return 1; }
     }
     if (getenv("KOKO_JUNK") && *getenv("KOKO_JUNK") == 'm') {   /* kokoSD 1.4.5: the deepest stack use */
-        uint32_t a = 0x03007764;
+        uint32_t a = getenv("KOKO_STACK_FROM") ? (uint32_t)strtoul(getenv("KOKO_STACK_FROM"), 0, 0) : 0x03007764;   /* kokoSD 2.6: the end of IWRAM data */
         while (a < 0x03007F00 && (core->busRead8(core, a) & 0xFF) == 0xA5) a++;
         FILE *f = fopen("/tmp/koko_stack.txt", "a"); if (f) { fprintf(f, "%#x\n", a); fclose(f); }
     }

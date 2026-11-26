@@ -178,6 +178,10 @@ static int nfed, nwant, user_fed, stepping, dirty, nsug, sug_stale, mark_ntok;
 static int helpers = 1;                           /* fact table and calculator on; off = every word comes from the model;
                                                    * kokoSD 2.4: 2 = facts as a hint (Koko is told the fact and answers) */
 static int kb_mode EW;                            /* kokoSD 2.5: typing on the original on-screen keyboard (0: button chords; set in main) */
+/* kokoSD 2.6.1: the keyboard's key, capitals and ready-made message. Slow RAM is not cleared at start (crt0): these
+ * held what the GBA left there, so the cursor started on a random key, outside the keyboard (drawing a key there
+ * wrote outside the screen) and the ready-made message was read from a random place. Set in main. */
+static int kx EW, ky EW, upper EW, q EW;
 static int words_on = 0;                          /* kokoSD 2.4: word memory from the fact file (when it has one); off by default:
                                                    * in tests it made replies sound like Wikipedia, not more often right */
 /* kokoSD 2.4: what Koko remembers about you, told at the start of each new chat (engine/memory.c). Fed in the
@@ -275,7 +279,7 @@ static const char HOW_TO_TYPE_KB[] =                /* kokoSD 2.5 */
     "B while Koko writes: stop him.\n\n"
     "Settings > Typing: Button chords switches to the typing of gbawriter, gbamp3 and the other apps.";
 static const char ABOUT[] =
-    "kokoSD 2.6: Koko the Chatbot with an SD card.\n\n"
+    "kokoSD 2.6.1: Koko the Chatbot with an SD card.\n\n"
     "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
     "Game Boy Advance itself.\n"
     "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "
@@ -954,7 +958,6 @@ static int accent_last(void) {
 }
 /* Returns as edit(): 1 send, 0 new chat, 2 a saved chat opened, 3 it could not be. */
 __attribute__((noinline)) static int edit_kb(void) {   /* (not inlined into main: its buffers would take stack from the self test) */
-    static int kx EW, ky EW, upper EW, q EW;            /* (slow RAM: the fast RAM is full) */
     int shown_sug = -1, shown_empty = -1, st_used = 0;
     uint16_t prev = keys_prev;
     uint32_t held_since = ticks(), last_rep = 0;
@@ -1215,7 +1218,8 @@ int main(void) {
     if (cart_kind >= CART_EZFO) REG_WAITCNT = 0x4317;   /* Omega / EverDrive: fastest cartridge timing + prefetch */
     ui_boot(sd_ready ? "Opening the fact file..." : "No SD card found", sd_cart_name());
     sdf_open();                                   /* and its fact file /koko/facts.dat (0 without one) */
-    kb_mode = 1; mem_load(); settings_load(); words_set();                      /* kokoSD 2.4: memory.txt; the fact file's word memory */
+    kb_mode = 1; kx = ky = upper = q = 0;         /* kokoSD 2.6.1: slow RAM starts with junk */
+    mem_load(); settings_load(); words_set();                      /* kokoSD 2.4: memory.txt; the fact file's word memory */
     dbg.sd = (uint32_t)sd_ready | (uint32_t)sdf_ready << 1 | (uint32_t)cart_kind << 8;
     ui_title(kb_mode ? "SELECT while typing: menu" : "START+B while typing: menu");   /* the title until START (or A) is pressed */
     if (!sdf_ready) {                             /* kokoSD 1.4.2: why there are no facts from the card (FatFs codes) */

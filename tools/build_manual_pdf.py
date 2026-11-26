@@ -103,7 +103,7 @@ def table(lines):
 
 
 source = (root / 'docs' / 'manual.md').read_text(encoding='utf-8')
-version = re.search(r'^# kokoSD (\d+\.\d+)$', source, re.M).group(1)
+version = re.search(r'^# kokoSD ([\d.]+)$', source, re.M).group(1)
 lines = source.splitlines()
 story: list[Flowable] = []
 checks = []                       # texts that must be in the PDF

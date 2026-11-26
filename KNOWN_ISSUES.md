@@ -1,6 +1,6 @@
-# kokoSD 2.6: known issues and open points
+# kokoSD 2.6.1: known issues and open points
 
-kokoSD 2.6 passes its emulator checks on the SuperCard SD model (engine/test_game.py, with the 2.4 checks for
+kokoSD 2.6.1 passes its emulator checks (also with random junk in memory at start, as a GBA leaves it) on the SuperCard SD model (engine/test_game.py, with the 2.4 checks for
 Settings, memory, hints, matching and word memory) and the random button sessions of
 tools/crash_test.py. On real hardware it runs on a SuperChis Prime with SuperFW (stable since 2.1: chats, facts,
 tell me more, saved chats); the other carts are not tested on hardware yet. These are known and not fixed yet:

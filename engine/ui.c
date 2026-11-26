@@ -142,11 +142,14 @@ void ui_title(const char *menu_hint) {
 /* kokoSD 1.1: what the start is doing (finding the SD card and the fact file take a moment). */
 void ui_boot(const char *what, const char *detail) {
     fill(0, 0, 240, 160, C_WHITE);
-    small_centre(5, "kokoSD 2.6", C_BLACK);
+    small_centre(5, "kokoSD 2.6.1", C_BLACK);
     centre(64, what, C_BLACK);
     if (detail && *detail) small_centre(88, small_fit(detail, 228), C_GREY);
 }
+static int field_y EW, hint_y EW, kb_on EW;      /* (slow RAM: the fast RAM is full; 0: at the bottom; set in ui_init:
+                                                   * kokoSD 2.6.1, slow RAM starts with what the GBA left there) */
 void ui_init(void) {
+    field_y = hint_y = kb_on = 0;
     for (int i = 0; i < UI_PAL_N; i++) ui_pal[i] = i < P_N ? PAL_RGB[i] : C_WHITE;
     fill(0, 0, 240, 160, C_WHITE);
 }
@@ -169,7 +172,6 @@ static int drawn_bot;                              /* first row below the drawn 
 #define KB_Y 96                                     /* the keyboard: 4 rows of 16 from here */
 #define FIELD_KB (KB_Y - 18)
 #define HINT_KB (FIELD_KB - 11)
-static int field_y EW, hint_y EW, kb_on EW;      /* (slow RAM: the fast RAM is full; 0: at the bottom) */
 #define FIELD_Y (field_y ? field_y : FIELD_BOTTOM)
 #define HINT_Y (hint_y ? hint_y : HINT_BOTTOM)
 #define CHAT_BOT_TYPING (HINT_Y - 2)

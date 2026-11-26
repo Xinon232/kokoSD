@@ -562,4 +562,13 @@ check(struct.unpack('2I', open('out/sb.bin', 'rb').read())[1] == 5 and x['caret'
 pad = Pad()
 x = after(BOOT + pad.text('hello') + ['f:30'] + pad.start_with(SELECT) + ['f:60'], 'start_select')
 check(x['state'] in (0, 3) and x['caret'] == 5, f"START+SELECT: no menu any more, still typing ({x})")
+# 24. kokoSD 2.6.1: slow RAM is not cleared at start: with the junk a GBA leaves there, the keyboard starts on its
+#     first key and types as it should (2.5-2.6: the cursor started on a random key, outside the keyboard)
+for junk in ('0x1234', '0x9876', '0xbeef'):
+    os.environ['KOKO_JUNK'] = junk
+    kb = KB()
+    r = run(f'koko_kb_junk', kb.text('hi') + [f'k:{START}'], 1, keyboard=True)
+    del os.environ['KOKO_JUNK']
+    t = turns_of(r['hist'])
+    check(t and t[0][0] == 'hi', f"keyboard with junk in slow RAM ({junk}): typed {t[0][0] if t else None!r}")
 sys.exit(0 if ok else 1)

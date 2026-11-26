@@ -1,4 +1,4 @@
-# kokoSD 2.6
+# kokoSD 2.6.1
 
 ## Instruction manual
 

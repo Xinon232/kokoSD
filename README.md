@@ -17,7 +17,7 @@ through [gbaSD](https://github.com/Xinon232/gbaSD). It adds:
 The model itself is Koko's, unchanged. GBA only (no browser version). kokoSD's changes are by
 Halim Jarrar; the original Koko README follows further down.
 
-Current version: **kokoSD 2.6**.
+Current version: **kokoSD 2.6.1**.
 
 ## Install
 From the [Releases](../../releases) page:
@@ -53,7 +53,18 @@ cartridge's own table of 34,127 facts, once with the SD card's file of 244,015 a
   questions that do not match a title exactly (see KNOWN_ISSUES.md).
 
 
-## What is new in 2.6
+## What is new in 2.6.1
+- **Fix for freezes with the keyboard (2.5-2.6).** The GBA's slow RAM is not cleared at start, and the keyboard's
+  cursor, capitals and ready-made-message number were kept there without being set: they started with whatever the
+  GBA (or the flash cart's menu) had left in that memory. In the emulator that memory is zero, so it never showed.
+  On a GBA the keyboard could start with capitals on and the cursor outside the keyboard; the first move then drew
+  "the old key" at a random place, and with no clipping that wrote into memory far outside the screen (Koko's
+  data, the program), which could freeze Koko later at any point (for example while he reads your message).
+  Also the input and hint lines' positions. All are now set at start; a test runs the keyboard with random junk in
+  memory (as a GBA leaves it), and the whole test suite was run that way too.
+- The emulator's stack check (test/runner.c) measures from the real end of fast-RAM data again.
+
+## What was new in 2.6
 - **Button chords: START+B opens the menu** (was START+SELECT). On the keyboard SELECT stays the menu, and
   START+B opens it there too. The title screen shows the menu button of the chosen typing.
 
