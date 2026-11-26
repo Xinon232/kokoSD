@@ -72,15 +72,63 @@ class Pad:
     def words_toggle(self): return self.settings(3)
 
 
-def forget(img=None):
-    """kokoSD 2.4: no /koko/memory.txt or settings.txt on the card (each test starts as a first meeting, default settings)"""
-    for f in ('memory.txt', 'settings.txt'): subprocess.run(['mdel', '-i', img or os.environ['SD_IMAGE'], '::/koko/' + f], capture_output=True)
+class KB:
+    """kokoSD 2.5: text -> presses on the original Koko's on-screen keyboard (engine/ui.c keyrow), from the key the
+    cursor is on (the game keeps it between messages: one KB per boot)."""
+    ROWS = ("abcdefghijklm", "nopqrstuvwxyz", "0123456789+-\x02", ".,!?'___/()\x01<")
+    def __init__(self): self.x, self.y, self.upper = 0, 0, False
+    @staticmethod
+    def bar(r, c): return r == 3 and 5 <= c <= 7
+    def move(self, x, y, dx, dy):
+        nx, ny = x, y
+        if dy: ny = (y + dy) % 4
+        if dx:
+            nx = (x + dx) % 13
+            if self.bar(ny, nx) and self.bar(y, x): nx = 8 if dx > 0 else 4
+        if self.bar(ny, nx): nx = 6
+        return nx, ny
+    def go(self, tx, ty):
+        from collections import deque
+        prev = {(self.x, self.y): None}; dq = deque([(self.x, self.y)])
+        while dq:
+            p = dq.popleft()
+            if p == (tx, ty): break
+            for b, dx, dy in ((LEFT, -1, 0), (RIGHT, 1, 0), (UP, 0, -1), (DOWN, 0, 1)):
+                q = self.move(*p, dx, dy)
+                if q not in prev: prev[q] = (p, b); dq.append(q)
+        path, p = [], (tx, ty)
+        while prev[p]: p, b = prev[p]; path.append(b)
+        self.x, self.y = tx, ty
+        return [f'k:{b}' for b in reversed(path)]
+    def key(self, r, c): return self.go(c, r) + [f'k:{A}']
+    def text(self, s):
+        out = []
+        for ch in s:
+            if ch == 'é': out += self.text('e') + self.key(3, 11); continue
+            want_up = ch.isalpha() and ch.isupper()
+            if ch.isalpha() and want_up != self.upper: out += self.key(2, 12); self.upper = want_up
+            c = ch.lower() if ch.isalpha() else ch
+            if c == ' ': out += self.key(3, 6); continue
+            r = next(i for i, row in enumerate(self.ROWS) if c in row)
+            out += self.key(r, self.ROWS[r].index(c))
+        return out
+
+
+def forget(img=None, keyboard=False):
+    """kokoSD 2.4: no /koko/memory.txt on the card (each test starts as a first meeting) and the default settings, but
+    (kokoSD 2.5) typing with button chords unless keyboard: the tests type with the chords (Pad)"""
+    img = img or os.environ['SD_IMAGE']
+    for f in ('memory.txt', 'settings.txt'): subprocess.run(['mdel', '-i', img, '::/koko/' + f], capture_output=True)
+    if not keyboard:
+        open('out/settings-chords.txt', 'w').write('facts=1\nmatching=1\nmemory=1\nwords=0\nkeyboard=0\n')
+        subprocess.run(['mmd', '-i', img, '::/koko'], capture_output=True)
+        subprocess.run(['mcopy', '-o', '-i', img, 'out/settings-chords.txt', '::/koko/settings.txt'], check=True)
 def card_file(path, img=None):
     return subprocess.run(['mtype', '-i', img or os.environ['SD_IMAGE'], path], capture_output=True).stdout
 
 
-def run(name, steps, nturn, keep_memory=False):
-    if not keep_memory: forget()
+def run(name, steps, nturn, keep_memory=False, keyboard=False):
+    if not keep_memory: forget(keyboard=keyboard)
     steps = BOOT + steps + [f'until:{DBG + 12:#x}:{nturn}:400000', 'f:5', f'shot:out/{name}.ppm', f'dump:{DBG:#x}:{44 + 2 * HISTMAX}:out/{name}.bin']
     subprocess.run([RUNNER, ROM] + steps, check=True)
     from PIL import Image
@@ -411,7 +459,7 @@ r = run('koko_memoff', pad.memory_off() + pad.text('my name is sam') + [f'k:{STA
 t = turns_of(r['hist'])
 check(len(t) == 1 and t[0][0] == 'hi' and not card_file('::/koko/memory.txt'), f'memory off: no memory.txt, the new chat is only the new message: {t}')
 st = card_file('::/koko/settings.txt')
-check(st == b'facts=1\nmatching=1\nmemory=0\nwords=0\n', f'Settings are kept on the card: {st!r}')
+check(st == b'facts=1\nmatching=1\nmemory=0\nwords=0\nkeyboard=0\n', f'Settings are kept on the card: {st!r}')
 # 19c. kokoSD 2.4: Settings > What these settings do opens a page to read (state 6)
 pad = Pad()
 subprocess.run([RUNNER, ROM] + BOOT + pad.menu() + [f'k:{DOWN}', 'f:20', f'k:{DOWN}', 'f:20', f'k:{A}', 'f:40'] + [f'k:{UP}', 'f:30', f'k:{A}',
@@ -473,4 +521,38 @@ if os.path.exists(WFACTS) and RUNNER != 'build/runner' and open(WFACTS, 'rb').re
     check(native_reply(res['off']['hist'], res['off']['seed']), 'word memory off (menu): the reply is the native engine\'s alone')
 else:
     print('SKIP word memory: no fact file with word tables (python3 tools/words_sd.py out/koko-v24b/facts.dat)')
+# 22. kokoSD 2.5: the original Koko's on-screen keyboard (the default typing): typed, sent, replied as the native engine
+kb = KB()
+r = run('koko_kb', kb.text('hi koko') + [f'k:{START}'], 1, keyboard=True)
+t = turns_of(r['hist'])
+check(t and t[0][0] == 'hi koko' and native_reply(r['hist'], r['seed']), f"keyboard: {t[0] if t else None} (the native engine's reply)")
+# 22b. START on an empty line gives a ready-made message; B deletes it; capitals and an accent
+kb = KB()
+r = run('koko_kb2', [f'k:{START}', 'f:10'] + [f'k:{B}'] * 3 + kb.text('Café') + [f'k:{START}'], 1, keyboard=True)
+t = turns_of(r['hist'])
+check(t and t[0][0] == 'Cafe', f"keyboard: ready-made message deleted, 'Café' typed with the arrow and accent keys: Koko read {t[0][0] if t else None!r}")
+kb = KB()
+r = run('koko_kb3', [f'k:{START}', 'f:10', f'k:{START}'], 1, keyboard=True)
+t = turns_of(r['hist'])
+check(t and t[0][0] == 'hi', f"keyboard: START on an empty line, then START: the ready-made 'hi' is sent ({t[0][0] if t else None!r})")
+# 22c. SELECT alone opens the menu; Settings > Typing: Button chords, and the chords type from then on
+forget(keyboard=True)
+subprocess.run([RUNNER, ROM] + BOOT + [f'k:{SELECT}', f'until:{DBG + 4:#x}:5:3000', 'f:20', 'shot:out/koko_kb_menu.ppm', f'dump:{DBG:#x}:8:out/kbm.bin'], check=True)
+check(struct.unpack('2I', open('out/kbm.bin', 'rb').read())[1] == 5, 'keyboard: SELECT opens the menu')
+forget(keyboard=True)
+pad = Pad()
+steps = BOOT + [f'k:{SELECT}', f'until:{DBG + 4:#x}:5:3000', 'f:20', f'k:{DOWN}', 'f:20', f'k:{DOWN}', 'f:20', f'k:{A}', 'f:40'] + [f'k:{DOWN}', 'f:30'] * 4 \
+    + [f'k:{A}', 'f:40', f'k:{B}', 'f:40'] + [f'k:{UP}', 'f:30'] * 2 + [f'k:{B}', 'f:60'] + pad.text('hello') + [f'k:{START}', f'until:{DBG + 12:#x}:1:400000', 'f:5',
+    f'dump:{DBG:#x}:{44 + 2 * HISTMAX}:out/kbsw.bin']
+subprocess.run([RUNNER, ROM] + steps, check=True)
+t = turns_of(parse('out/kbsw.bin')['hist'])
+st = card_file('::/koko/settings.txt')
+check(t and t[0][0] == 'hello' and b'keyboard=0' in st, f"Settings > Typing: Button chords: typed with the chords {t[0][0] if t else None!r}; {st!r}")
+# 22d. START + A saves the chat while typing on the keyboard
+forget(keyboard=True)
+kb = KB()
+r = run('koko_kb_save', kb.text('hi') + [f'k:{START}', f'until:{DBG + 12:#x}:1:400000', 'f:5', f'k:{B}', 'f:30'] + Pad().start_with(A) + ['f:300'], 1, keyboard=True)
+files = subprocess.run(['mdir', '-i', os.environ['SD_IMAGE'], '-b', '::/koko/chats'], capture_output=True, text=True).stdout.split()
+check(any(f.lower().endswith('.kch') for f in files), f'keyboard: START+A saved the chat ({files})')
+subprocess.run(['mdeltree', '-i', os.environ['SD_IMAGE'], '::/koko/chats'], capture_output=True)
 sys.exit(0 if ok else 1)

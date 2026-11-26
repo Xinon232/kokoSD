@@ -1,9 +1,17 @@
-# kokoSD 2.4: known issues and open points
+# kokoSD 2.5: known issues and open points
 
-kokoSD 2.4 passes its emulator checks on the SuperCard SD model (engine/test_game.py, with the 2.4 checks for
+kokoSD 2.5 passes its emulator checks on the SuperCard SD model (engine/test_game.py, with the 2.4 checks for
 Settings, memory, hints, matching and word memory) and the random button sessions of
 tools/crash_test.py. On real hardware it runs on a SuperChis Prime with SuperFW (stable since 2.1: chats, facts,
 tell me more, saved chats); the other carts are not tested on hardware yet. These are known and not fixed yet:
+
+## kokoSD 2.5
+- **The keyboard** always types at the end of the message (as in the original Koko); to change a word earlier,
+  delete back to it (or use the button chords, which have a cursor). It is drawn again whole when the arrow (capitals)
+  key is pressed, which takes a moment.
+- The random-button crash test (tools/crash_test.py) still drives the button chords; the keyboard has its own checks
+  in engine/test_game.py.
+- Not tested on hardware yet.
 
 ## kokoSD 2.4
 - **Word memory on a real card:** each word Koko writes asks the card for 1-2 sectors of the word table. The

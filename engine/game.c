@@ -13,6 +13,7 @@
 #include "memory.h"
 int sum_reply(const char *s, int n, char *out);   /* engine/sums.c */
 int fact_reply(const char *msg, int n, uint16_t *ids, int max);   /* engine/facts.c */
+FIL *chat_fil(void);                              /* engine/chats.c: its file object */
 extern int fact_wide;                             /* kokoSD 2.4: the wider matching (engine/facts.c) */
 
 #define REG16(a) (*(volatile uint16_t *)(a))
@@ -176,6 +177,7 @@ static uint16_t fed[MSG_TOK], want[MSG_TOK], sug[3];      /* koko_suggest return
 static int nfed, nwant, user_fed, stepping, dirty, nsug, sug_stale, mark_ntok;
 static int helpers = 1;                           /* fact table and calculator on; off = every word comes from the model;
                                                    * kokoSD 2.4: 2 = facts as a hint (Koko is told the fact and answers) */
+static int kb_mode EW;                            /* kokoSD 2.5: typing on the original on-screen keyboard (0: button chords; set in main) */
 static int words_on = 0;                          /* kokoSD 2.4: word memory from the fact file (when it has one); off by default:
                                                    * in tests it made replies sound like Wikipedia, not more often right */
 /* kokoSD 2.4: what Koko remembers about you, told at the start of each new chat (engine/memory.c). Fed in the
@@ -261,8 +263,19 @@ static const char HOW_TO_TYPE[] =
     "They are shown as typed; Koko reads them as plain letters (é as e).\n\n"
     "B while Koko writes: stop him.\n\n"
     "The same typing as gbawriter, gbamp3 and the other apps.";
+static const char HOW_TO_TYPE_KB[] =                /* kokoSD 2.5 */
+    "Keyboard (Settings > Typing):\n"
+    "D-pad: move on the keyboard (hold to repeat). A: type the key. B: delete (hold to repeat).\n\n"
+    "The arrow key (right end of the digits): capitals on / off. The e-acute key (before the delete key): an accent "
+    "on the last letter; again: the next accent (e: \xc3\xa9 \xc3\xa8 \xc3\xab \xc3\xaa). Koko reads them as plain letters.\n\n"
+    "L / R: the first or second suggested word (shown above the keyboard).\n\n"
+    "START: send. On an empty line, START offers a ready-made message; START again sends it (delete it and press START for the next one).\n\n"
+    "SELECT: the menu (New chat, Saved chats, Settings ...).\n\n"
+    "Hold START and press A: save the chat. Hold START and press Up / Down: scroll the chat.\n\n"
+    "B while Koko writes: stop him.\n\n"
+    "Settings > Typing: Button chords switches to the typing of gbawriter, gbamp3 and the other apps.";
 static const char ABOUT[] =
-    "kokoSD 2.4: Koko the Chatbot with an SD card.\n\n"
+    "kokoSD 2.5: Koko the Chatbot with an SD card.\n\n"
     "Koko, a friendly husky, is a language model of 72 million two-bit weights that runs on the "
     "Game Boy Advance itself.\n"
     "\nFacts: \"who is\", \"what is\" and \"tell me about\" are answered from Simple English Wikipedia "
@@ -274,6 +287,7 @@ static const char ABOUT[] =
     "koko/memory.txt and told to him at the start of each new chat. The menu shows it, turns it off or forgets it.\n"
     "\nWord memory: which words follow which in the Wikipedia text on the card (in facts.dat) is mixed into Koko's "
     "choice of the next word.\n"
+    "\nTyping: the original Koko's on-screen keyboard (SELECT: menu), or gbawriter's button chords (Settings > Typing).\n"
     "\nKoko the Chatbot (the model, its training, the engine and Koko himself) is by rdsilver: "
     "rdsilver.itch.io/koko-the-chatbot. kokoSD (SD card, typing, saved chats, this look) is by halimj.\n"
     "\nCode: Koko (MIT), gbaSD and gbawriter typing by Halim Jarrar (GPL-3.0-or-later); the cartridge "
@@ -616,9 +630,10 @@ static void self_test(void) {
     st_add("rounds "); st_num(round); st_add(", errors "); st_num(errors); st_add(", SD lookups "); st_num(sd_ok); st_add("/"); st_num(sd_all); st_add("\n");
     int saved = 0;
     if (sd_ready) {
-        FIL lf; UINT done;
+        FIL *lf = chat_fil(); UINT done;                 /* kokoSD 2.5: the chats' file object: a FIL on the stack (550 bytes)
+                                                          * left too little for Koko's own check when opened from the keyboard */
         f_mkdir("/koko");
-        if (f_open(&lf, "/koko/selftest.txt", FA_WRITE | FA_CREATE_ALWAYS) == FR_OK) { saved = f_write(&lf, st_log, (UINT)st_n, &done) == FR_OK && done == (UINT)st_n; f_close(&lf); }
+        if (f_open(lf, "/koko/selftest.txt", FA_WRITE | FA_CREATE_ALWAYS) == FR_OK) { saved = f_write(lf, st_log, (UINT)st_n, &done) == FR_OK && done == (UINT)st_n; f_close(lf); }
     }
     /* kokoSD 1.4.1: the details on screen too (with no card there is no log) */
     static char d1[64] __attribute__((section(".bss.ewram"))), d2[64] __attribute__((section(".bss.ewram")));
@@ -674,6 +689,11 @@ static const char SETTINGS_HELP[] =
     "For each word Koko writes, the fact file is asked which words usually follow his last words in Wikipedia, "
     "and that is mixed into his choice. His replies sound more like an encyclopedia (\"Germany was founded in ...\"), "
     "but in tests they were not more often right. On a slow SD card it may make him slower. Needs the 2.4 fact file.\n\n"
+    "TYPING (default: Keyboard)\n"
+    "Keyboard: the original Koko's on-screen keyboard. D-pad: move, A: type the key, B: delete, L / R: the "
+    "suggested words, START: send (on an empty line: a ready-made message), SELECT: the menu. The arrow key turns capitals on and "
+    "off, the e-acute key puts an accent on the last letter (again: the next accent).\n"
+    "Button chords: the typing of gbawriter and the other apps (How to type).\n\n"
     "Settings are kept in koko/settings.txt.";
 /* kokoSD 2.4: the settings are kept in /koko/settings.txt ("facts=1" ...: 0 off, 1 read out, 2 as a hint) */
 static int set_val(const char *t, int n, const char *key, int dflt) {
@@ -685,7 +705,6 @@ static int set_val(const char *t, int n, const char *key, int dflt) {
     }
     return dflt;
 }
-FIL *chat_fil(void);
 static void settings_load(void) {
     UINT got = 0;
     if (!sd_ready || f_open(chat_fil(), "/koko/settings.txt", FA_READ) != FR_OK) return;
@@ -694,13 +713,14 @@ static void settings_load(void) {
     if (!ok) return;
     helpers = set_val(mem_buf, (int)got, "facts", 1); fact_wide = set_val(mem_buf, (int)got, "matching", 1) & 1;
     mem_on = set_val(mem_buf, (int)got, "memory", 1) & 1; words_on = set_val(mem_buf, (int)got, "words", 0) & 1;
+    kb_mode = set_val(mem_buf, (int)got, "keyboard", 1) & 1;
     ui_helpers(helpers); dbg.pure = (uint16_t)!helpers;
 }
 static void settings_save(void) {
     if (!sd_ready) return;
     char *t = mem_buf; int n = 0;
-    const char *k[4] = { "facts=", "matching=", "memory=", "words=" }; int v[4] = { helpers, fact_wide, mem_on, words_on };
-    for (int i = 0; i < 4; i++) { for (const char *p = k[i]; *p; p++) t[n++] = *p; t[n++] = (char)('0' + v[i]); t[n++] = '\n'; }
+    const char *k[5] = { "facts=", "matching=", "memory=", "words=", "keyboard=" }; int v[5] = { helpers, fact_wide, mem_on, words_on, kb_mode };
+    for (int i = 0; i < 5; i++) { for (const char *p = k[i]; *p; p++) t[n++] = *p; t[n++] = (char)('0' + v[i]); t[n++] = '\n'; }
     UINT done; f_mkdir("/koko");
     if (f_open(chat_fil(), "/koko/settings.txt", FA_WRITE | FA_CREATE_ALWAYS) != FR_OK) return;
     f_write(chat_fil(), t, (UINT)n, &done);
@@ -709,7 +729,7 @@ static void settings_save(void) {
 /* kokoSD 2.4: the menu's Settings: the four 2.4 features, each on or off (A changes the row) */
 static void settings(void) {
     int sel = 0, changed = 0;
-    const char *items[6];
+    const char *items[7];
     static char mem_item[32];
     kq_n = 0;
     for (;;) {
@@ -721,25 +741,27 @@ static void settings(void) {
           while (*a) mem_item[k++] = *a++;
           if (c >= 10) mem_item[k++] = (char)('0' + c / 10);
           mem_item[k++] = (char)('0' + c % 10); mem_item[k++] = ')'; mem_item[k] = 0; }
-        items[4] = mem_item;
-        items[5] = "What these settings do";
+        items[4] = kb_mode ? "Typing: Keyboard" : "Typing: Button chords";
+        items[5] = mem_item;
+        items[6] = "What these settings do";
         dbg.state = ST_MENU; dbg.menu = (uint32_t)(16 + sel);
-        ui_menu("Settings", items, 6, sel);
+        ui_menu("Settings", items, 7, sel);
         for (;;) {
             vsync();
             uint16_t d = keys_down();
             if (!d) continue;
-            if (d & BTN_UP) { sel = (sel + 5) % 6; break; }
-            if (d & BTN_DOWN) { sel = (sel + 1) % 6; break; }
+            if (d & BTN_UP) { sel = (sel + 6) % 7; break; }
+            if (d & BTN_DOWN) { sel = (sel + 1) % 7; break; }
             if (d & (BTN_B | BTN_START)) { if (changed) settings_save(); return; }
             if (d & BTN_A) {
                 if (sel == 0) { helpers = (helpers + 1) % 3; ui_helpers(helpers); dbg.pure = (uint16_t)!helpers; }
                 if (sel == 1) fact_wide = !fact_wide;
                 if (sel == 2) mem_on = !mem_on;
                 if (sel == 3 && sdf_words_ready()) { words_on = !words_on; words_set(); }
-                if (sel == 4) memory_page();
-                if (sel == 5) { rom_text = SETTINGS_HELP; read_pages("What these settings do", rom_src, (int)sizeof SETTINGS_HELP - 1, ST_PAGE); }
-                changed |= sel < 4;
+                if (sel == 4) kb_mode = !kb_mode;
+                if (sel == 5) memory_page();
+                if (sel == 6) { rom_text = SETTINGS_HELP; read_pages("What these settings do", rom_src, (int)sizeof SETTINGS_HELP - 1, ST_PAGE); }
+                changed |= sel < 5;
                 kq_n = 0;
                 break;
             }
@@ -765,7 +787,8 @@ static int menu(void) {
                 if (sel == 0) return 1;
                 if (sel == 1) { int r = saved_chats(); if (r) return r + 1; }
                 if (sel == 2) settings();                /* kokoSD 2.4 */
-                if (sel == 3) { rom_text = HOW_TO_TYPE; read_pages("How to type", rom_src, (int)sizeof HOW_TO_TYPE - 1, ST_PAGE); }
+                if (sel == 3) { if (kb_mode) { rom_text = HOW_TO_TYPE_KB; read_pages("How to type", rom_src, (int)sizeof HOW_TO_TYPE_KB - 1, ST_PAGE); }
+                                else { rom_text = HOW_TO_TYPE; read_pages("How to type", rom_src, (int)sizeof HOW_TO_TYPE - 1, ST_PAGE); } }
                 if (sel == 4) { rom_text = ABOUT; read_pages("About kokoSD", rom_src, (int)sizeof ABOUT - 1, ST_PAGE); }
                 if (sel == 5) { self_test(); if (dbg.article) return 1; }   /* it ran: a new chat (the model was used) */
                 kq_n = 0;
@@ -788,9 +811,10 @@ static void typing_hint(void) {                  /* kokoSD 1.1: as gbamp3's Sear
     ui_writer_status(writer_group(), writer_caps() ? "Caps" : writer_shift() ? "Shift" : "");
     ui_hint(mlen);
 }
-/* Returns 1 to send the message, 0 to start a new chat, 2 when a saved chat was opened, 3 when it could not be. */
+/* Returns 1 to send the message, 0 to start a new chat, 2 when a saved chat was opened, 3 when it could not be,
+ * 4 when Settings > Typing was changed (kokoSD 2.5). */
 #define SUG_SIG() (nsug ? sug[0] * 3 + sug[nsug - 1] * 7 + nsug : 0)
-static int edit(void) {
+__attribute__((noinline)) static int edit(void) {
     int shown_sug = -1, shown_hint = -1;
     writer_begin(msg);
     refold();
@@ -874,6 +898,7 @@ static int edit(void) {
              * deleted a letter here, START sent the message. Wait for every button to be let go, then forget them. */
             while (keys_prev) { vsync(); poll(); }
             hq_n = 0; kq_n = 0;
+            if (kb_mode) return 4;                           /* kokoSD 2.5: Settings > Typing changed: the keyboard */
             writer_reset_keys();
             last = ticks();
             writer_set(msg);
@@ -888,6 +913,153 @@ static int edit(void) {
         if (hint != shown_hint) { typing_hint(); shown_hint = hint; }
         if (changed) { retarget(); ui_input(msg, mlen, (int)writer_caret()); dbg.caret = writer_caret(); }
         else if (fl & WRITER_TEXT) ui_input(msg, mlen, (int)writer_caret());
+    }
+}
+
+/* ---------------- kokoSD 2.5: typing on the original Koko's on-screen keyboard ---------------- */
+static const char *const quick[] = { "hi", "who are you", "tell me a story about a fox", "what is the capital of France?",
+                                     "can you tell me a joke" };       /* START on an empty line (as the original Koko) */
+static const char *const ACC[] = {                 /* the accent key: the last letter, then each of these in turn */
+    "a\0\xc3\xa0\0\xc3\xa1\0\xc3\xa2\0\xc3\xa4\0\xc3\xa3\0\xc3\xa5\0", "e\0\xc3\xa9\0\xc3\xa8\0\xc3\xab\0\xc3\xaa\0",
+    "i\0\xc3\xad\0\xc3\xac\0\xc3\xae\0\xc3\xaf\0", "o\0\xc3\xb3\0\xc3\xb2\0\xc3\xb4\0\xc3\xb6\0\xc3\xb5\0",
+    "u\0\xc3\xba\0\xc3\xb9\0\xc3\xbb\0\xc3\xbc\0", "c\0\xc3\xa7\0", "n\0\xc3\xb1\0", "y\0\xc3\xbd\0\xc3\xbf\0",
+    "A\0\xc3\x80\0\xc3\x81\0\xc3\x82\0\xc3\x84\0\xc3\x83\0\xc3\x85\0", "E\0\xc3\x89\0\xc3\x88\0\xc3\x8b\0\xc3\x8a\0",
+    "I\0\xc3\x8d\0\xc3\x8c\0\xc3\x8e\0\xc3\x8f\0", "O\0\xc3\x93\0\xc3\x92\0\xc3\x94\0\xc3\x96\0\xc3\x95\0",
+    "U\0\xc3\x9a\0\xc3\x99\0\xc3\x9b\0\xc3\x9c\0", "C\0\xc3\x87\0", "N\0\xc3\x91\0", 0 };
+static int last_char(void) {                       /* start of the message's last (UTF-8) character */
+    int i = mlen - 1;
+    while (i > 0 && ((unsigned char)msg[i] & 0xC0) == 0x80) i--;
+    return i < 0 ? 0 : i;
+}
+static int accent_last(void) {
+    if (!mlen) return 0;
+    int st = last_char(), n = mlen - st;
+    for (int a = 0; ACC[a]; a++) {
+        const char *p = ACC[a], *first = p;
+        while (*p) {
+            int l = 0; while (p[l]) l++;
+            if (l == n) { int eq = 1; for (int j = 0; j < n; j++) if (p[j] != msg[st + j]) eq = 0;
+                if (eq) {
+                    const char *nx = p + l + 1; if (!*nx) nx = first;           /* the next accent, after the last: the letter */
+                    int nl = 0; while (nx[nl]) nl++;
+                    if (st + nl > MSG_MAX) return 0;
+                    for (int j = 0; j < nl; j++) msg[st + j] = nx[j];
+                    mlen = st + nl; msg[mlen] = 0;
+                    return 1;
+                } }
+            p += l + 1;
+        }
+    }
+    return 0;
+}
+/* Returns as edit(): 1 send, 0 new chat, 2 a saved chat opened, 3 it could not be. */
+__attribute__((noinline)) static int edit_kb(void) {   /* (not inlined into main: its buffers would take stack from the self test) */
+    static int kx EW, ky EW, upper EW, q EW;            /* (slow RAM: the fast RAM is full) */
+    int shown_sug = -1, shown_empty = -1, st_used = 0;
+    uint16_t prev = keys_prev;
+    uint32_t held_since = ticks(), last_rep = 0;
+    refold();
+    ui_header(0);
+    ui_typing_kb(msg, mlen, kx, ky, upper);
+    koko_mark(); mark_ntok = (int)dbg.ntok;
+    nfed = nwant = user_fed = stepping = dirty = nsug = 0; sug_stale = 1;
+    dbg.state = ST_EDIT; dbg.nsug = 0; dbg.caret = (uint32_t)mlen;
+    kq_n = 0;                                     /* (hq: presses made while the keyboard was drawn are typing) */
+    sent_alone = 0; b_after_send = 0;
+    for (;;) {
+        int busy = work();
+        dbg.state = busy ? ST_EDIT : ST_IDLE;
+        int sig = SUG_SIG();
+        if (sig != shown_sug && !sug_stale) { chips(); shown_sug = sig; }
+        if ((mlen > 0) != shown_empty) { shown_empty = mlen > 0; ui_hint(mlen > 0); }
+        if (!busy) vsync();
+        poll();
+        /* every change of the buttons, in order; then the repeat of a held direction or B */
+        int n = (int)hq_n, act = 0;
+        static uint16_t evs[33] EW;                  /* (not on the stack: the self test, opened from here, needs it all) */
+        for (int i = 0; i < n; i++) evs[i] = hq[i];
+        hq_n = 0;
+        uint32_t now = ticks();
+        if (now < held_since) held_since = now;
+        if (!n && (prev & (BTN_LEFT | BTN_RIGHT | BTN_UP | BTN_DOWN | BTN_B)) && !(prev & BTN_START)
+            && now - held_since > (busy ? 6u : 14u) * 274u && now - last_rep >= 4u * 274u) {
+            evs[n++] = 0xFFFF; last_rep = now;                          /* a repeat */
+        }
+        for (int i = 0; i < n && !act; i++) {
+            uint16_t k = evs[i], dn;
+            if (k == 0xFFFF) { k = prev; dn = prev & (BTN_LEFT | BTN_RIGHT | BTN_UP | BTN_DOWN | BTN_B); }
+            else { dn = (uint16_t)(k & ~prev); uint16_t upm = (uint16_t)(prev & ~k); prev = k; held_since = now; last_rep = now;
+                if (dn & BTN_START) st_used = 0;
+                if ((upm & BTN_START) && !st_used && !(k & BTN_START)) {     /* START alone: send, or a ready-made message */
+                    if (readable()) { act = 1; break; }
+                    if (!mlen) {
+                        q = q % 5 + 1;                               /* 1..5: the next of the five */
+                        for (mlen = 0; quick[q - 1][mlen]; mlen++) msg[mlen] = quick[q - 1][mlen];
+                        msg[mlen] = 0; refold(); retarget(); ui_input(msg, mlen, mlen); dbg.caret = (uint32_t)mlen;
+                    } else ui_message("Koko cannot read that: type letters or numbers");
+                    sent_alone = 0; b_after_send = 0;
+                    continue;
+                }
+            }
+            if (!dn) continue;
+            seed = seed * 1664525u + REG_TM0CNT_L + 1013904223u;
+            if (k & BTN_START) {                                     /* START held: kokoSD's chords */
+                if (!(dn & ~BTN_START)) continue;
+                st_used = 1;
+                if (dn & BTN_A) {
+                    if (!sd_ready) ui_message("No SD card: the chat cannot be saved");
+                    else if (!chat_turns) ui_message("Nothing to save yet");
+                    else { ui_header("saving..."); int ok = save_chat(); ui_header(0);
+                           ui_message(ok ? "Chat saved (SELECT: Saved chats)" : "Could not save the chat"); }
+                    shown_sug = -2;
+                }
+                if (dn & (BTN_UP | BTN_DOWN)) {
+                    ui_scroll((dn & BTN_UP) ? 1 : -1);
+                    if (ui_scrolled()) ui_message("Older lines    START+Down: newer"); else chips();
+                    shown_sug = -2;
+                }
+                if (dn & BTN_SELECT) act = 2;
+                continue;
+            }
+            if (dn & BTN_SELECT) { act = 2; break; }                 /* SELECT: the menu */
+            int old_mlen = mlen, okx = kx, oky = ky, del = (dn & BTN_B) != 0;
+            if (dn & BTN_LEFT) ui_key_move(&kx, &ky, -1, 0);
+            if (dn & BTN_RIGHT) ui_key_move(&kx, &ky, 1, 0);
+            if (dn & BTN_UP) ui_key_move(&kx, &ky, 0, -1);
+            if (dn & BTN_DOWN) ui_key_move(&kx, &ky, 0, 1);
+            if (okx != kx || oky != ky) { ui_keycap(oky, okx, 0, upper); ui_keycap(ky, kx, 1, upper); }
+            if (dn & BTN_A) {
+                int ch = ui_key(ky, kx);
+                if (ch == UI_KEY_CAPS) { upper = !upper; ui_keyboard(kx, ky, upper); }
+                else if (ch == UI_KEY_ACCENT) accent_last();
+                else if (ch == '<') del = 1;
+                else {
+                    if (ch == '_') ch = ' ';
+                    else if (upper && ky < 2) ch -= 32;
+                    if (mlen < MSG_MAX && !(ch == ' ' && (mlen == 0 || msg[mlen - 1] == ' '))) { msg[mlen++] = (char)ch; msg[mlen] = 0; }
+                }
+            }
+            if (del && mlen) { mlen = last_char(); msg[mlen] = 0; }
+            if ((dn & BTN_L) && nsug > 0) accept(0);
+            if ((dn & BTN_R) && nsug > 1) accept(1);
+            if (mlen != old_mlen || (dn & (BTN_A | BTN_L | BTN_R))) {
+                refold(); retarget(); ui_input(msg, mlen, mlen); dbg.caret = (uint32_t)mlen;
+                if (ui_scrolled()) { ui_scroll_home(); chips(); }
+            }
+        }
+        if (act == 1) return 1;
+        if (act == 2) {
+            while (stepping) work();
+            int m = menu();
+            if (m == 1) return 0;
+            if (m >= 2) return m;
+            while (keys_prev) { vsync(); poll(); }           /* the presses made in the menu are not typing */
+            hq_n = 0; kq_n = 0; prev = keys_prev; st_used = 0;
+            if (!kb_mode) return 4;                          /* Settings > Typing changed: the chords from now on */
+            ui_header(0);
+            ui_typing_kb(msg, mlen, kx, ky, upper);
+            shown_sug = -1; shown_empty = -1;
+        }
     }
 }
 
@@ -1043,7 +1215,7 @@ int main(void) {
     if (cart_kind >= CART_EZFO) REG_WAITCNT = 0x4317;   /* Omega / EverDrive: fastest cartridge timing + prefetch */
     ui_boot(sd_ready ? "Opening the fact file..." : "No SD card found", sd_cart_name());
     sdf_open();                                   /* and its fact file /koko/facts.dat (0 without one) */
-    mem_load(); settings_load(); words_set();                      /* kokoSD 2.4: memory.txt; the fact file's word memory */
+    kb_mode = 1; mem_load(); settings_load(); words_set();                      /* kokoSD 2.4: memory.txt; the fact file's word memory */
     dbg.sd = (uint32_t)sd_ready | (uint32_t)sdf_ready << 1 | (uint32_t)cart_kind << 8;
     ui_title();                                   /* the title until START (or A) is pressed */
     if (!sdf_ready) {                             /* kokoSD 1.4.2: why there are no facts from the card (FatFs codes) */
@@ -1080,7 +1252,13 @@ int main(void) {
     while (keys_prev) { vsync(); poll(); }        /* kokoSD: the START that left the title types nothing */
     hq_n = 0;
     for (;;) {
-        int e = edit();
+        int e = kb_mode ? edit_kb() : edit();
+        if (e == 4) {                             /* kokoSD 2.5: the other way of typing: the message is read again */
+            while (stepping || pre_fed < npre || pre_mark) work();
+            koko_rewind(); dbg.ntok = (uint32_t)mark_ntok;
+            nfed = 0; user_fed = 0; dirty = 0;
+            continue;
+        }
         if (e != 1) {                             /* new chat (0), a saved chat opened (2) or one that could not be (3) */
             while (stepping) work();
             if (e == 0) new_chat_state();

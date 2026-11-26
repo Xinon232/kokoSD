@@ -34,6 +34,14 @@ void ui_header(const char *right);               /* "Koko" centred, a grey hint 
 void ui_rate(int made, uint32_t ticks);          /* header hint: tokens per second (ticks of 1/16384 s) */
 void ui_typing(const char *msg, int mlen, int caret);   /* kokoSD: the whole typing layout (gbawriter typing, no keyboard) */
 void ui_input(const char *msg, int mlen, int caret);    /* kokoSD: the input bar with the cursor at byte `caret` */
+/* kokoSD 2.5: the original Koko's on-screen keyboard (13 x 4), in kokoSD's look */
+#define UI_KEY_ACCENT 1                          /* row 3, column 11: an accent on the last letter */
+#define UI_KEY_CAPS 2                            /* row 2, column 12: capitals on / off */
+int ui_key(int r, int c);
+int ui_key_move(int *kx, int *ky, int dx, int dy);
+void ui_keycap(int r, int c, int sel, int upper);
+void ui_keyboard(int kx, int ky, int upper);
+void ui_typing_kb(const char *msg, int mlen, int kx, int ky, int upper);
 void ui_menu(const char *title, const char *const *items, int n, int sel);   /* kokoSD: START+SELECT menu */
 void ui_chips(int n, const char *a, int alen, const char *b, int blen); /* the suggestions (START+L, START+R), or the hint */
 void ui_hint(int has_text);                      /* kokoSD 1.1: the hint shown without suggestions (START: send / ideas) */

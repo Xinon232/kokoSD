@@ -51,6 +51,7 @@ def run(seed, n):
     # Liveness: leave any reply / page / menu with B, wait for typing, then type and see the cursor move
     steps += ['f:5', f'k:{B}', 'f:60', f'k:{B}', 'f:60', f'k:{B}', 'f:60', f'k:{SELECT}', f'until:{DBG + 4:#x}:3:3000'] + dumps('a') + pad.text('zz') + ['f:40'] + dumps('b')
     env = dict(os.environ, SD_IMAGE=os.environ.get('CRASH_CARD', 'out/facts-card.img'), SD_ALLOW_INDEX_WRITES='1')
+    forget(env['SD_IMAGE'], keyboard=os.environ.get('CRASH_KEYBOARD') == '1')   # kokoSD 2.5: the sessions type with the chords (or the keyboard)
     try:
         r = subprocess.run([RUNNER, 'build/koko.gba'] + steps + [f'shot:{S}last-{seed}.ppm'], capture_output=True, text=True, timeout=900, env=env)
     except subprocess.TimeoutExpired:

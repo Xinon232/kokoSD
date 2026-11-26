@@ -142,7 +142,7 @@ void ui_title(void) {
 /* kokoSD 1.1: what the start is doing (finding the SD card and the fact file take a moment). */
 void ui_boot(const char *what, const char *detail) {
     fill(0, 0, 240, 160, C_WHITE);
-    small_centre(5, "kokoSD 2.4", C_BLACK);
+    small_centre(5, "kokoSD 2.5", C_BLACK);
     centre(64, what, C_BLACK);
     if (detail && *detail) small_centre(88, small_fit(detail, 228), C_GREY);
 }
@@ -162,10 +162,18 @@ static int drawn_bot;                              /* first row below the drawn 
 #define CHAT_TOP 17
 #define LH 16
 #define GAP 4                                       /* between a run of the user's lines and Koko's */
-#define FIELD_Y 143                                 /* the input field (17 rows, as gbamp3's Search field) */
-#define HINT_Y 132                                  /* typing: suggestions or a hint in the small font */
+/* the input field (17 rows, as gbamp3's Search field) and the hint line (suggestions or a hint, small font) above it:
+ * at the bottom, or (kokoSD 2.5, the on-screen keyboard) above the keyboard */
+#define FIELD_BOTTOM 143
+#define HINT_BOTTOM 132
+#define KB_Y 96                                     /* the keyboard: 4 rows of 16 from here */
+#define FIELD_KB (KB_Y - 18)
+#define HINT_KB (FIELD_KB - 11)
+static int field_y EW, hint_y EW, kb_on EW;      /* (slow RAM: the fast RAM is full; 0: at the bottom) */
+#define FIELD_Y (field_y ? field_y : FIELD_BOTTOM)
+#define HINT_Y (hint_y ? hint_y : HINT_BOTTOM)
 #define CHAT_BOT_TYPING (HINT_Y - 2)
-#define CHAT_BOT_REPLY (FIELD_Y - 1)
+#define CHAT_BOT_REPLY (FIELD_BOTTOM - 1)
 static int nline, chat_bot = CHAT_BOT_REPLY, cur_y;   /* cur_y: where the last line was drawn (-1: not visible) */
 static int scroll_back;                            /* kokoSD 1.2: lines hidden below the view (START+Up / Down) */
 
@@ -342,7 +350,8 @@ static void hint_line(const char *t) {
     small_draw(6, HINT_Y, small_fit(t, 228), C_GREY);
 }
 void ui_hint(int has_text) {
-    const char *h = has_text ? "START: send    START+A: save chat" : "START+SELECT: menu    START+A: save chat";
+    const char *h = kb_on ? (has_text ? "START: send    SELECT: menu" : "START: ideas    SELECT: menu")
+                          : has_text ? "START: send    START+A: save chat" : "START+SELECT: menu    START+A: save chat";
     if (h == idle_hint) return;
     idle_hint = h;
     if (!chips_n) hint_line(h);
@@ -354,7 +363,7 @@ void ui_chips(int n, const char *a, int alen, const char *b, int blen) {
     for (int j = 0; j < n; j++) {
         const char *p = j ? b : a; int len = j ? blen : alen;
         if (len && p[0] == ' ') { p++; len--; }
-        const char *pre = j ? "     START+R: " : "START+L: ";
+        const char *pre = kb_on ? (j ? "     R: " : "L: ") : j ? "     START+R: " : "START+L: ";
         while (*pre && k < 80) s[k++] = *pre++;
         for (int i = 0; i < len && k < 94; i++) s[k++] = p[i];
     }
@@ -404,11 +413,67 @@ void ui_list(const char *title, const char *const *items, int n, int sel, int to
     }
 }
 void ui_typing(const char *msg, int mlen, int caret) {
+    kb_on = 0; field_y = FIELD_BOTTOM; hint_y = HINT_BOTTOM; idle_hint = "START+SELECT: menu    START+A: save chat";
     chat_bot = CHAT_BOT_TYPING;
     chat_draw();
     fill(0, chat_bot, 240, FIELD_Y - chat_bot, C_WHITE);
     YIELD();
     ui_input(msg, mlen, caret); ui_chips(0, 0, 0, 0, 0);
+}
+/* ---------------- kokoSD 2.5: the on-screen keyboard of the original Koko (13 x 4 keys), in kokoSD's look ---------------- */
+static const char *const keyrow[4] = { "abcdefghijklm", "nopqrstuvwxyz", "0123456789+-\002", ".,!?'___/()\001<" };   /* ___: the space bar (three cells) */
+#define KEY_W 18
+#define KEY_H 16
+#define KEY_X 3
+int ui_key(int r, int c) { return keyrow[r][c]; }
+#define BAR(r, c) ((r) == 3 && (c) >= 5 && (c) <= 7)
+int ui_key_move(int *kx, int *ky, int dx, int dy) {            /* one step (round the edges); the space bar is one key */
+    int x = *kx, y = *ky;
+    if (dy) y = (y + dy + 4) % 4;
+    if (dx) { x = (x + dx + 13) % 13; if (BAR(y, x) && BAR(*ky, *kx)) x = dx > 0 ? 8 : 4; }
+    if (BAR(y, x)) x = 6;
+    int moved = x != *kx || y != *ky;
+    *kx = x; *ky = y;
+    return moved;
+}
+void ui_keycap(int r, int c, int sel, int upper) {
+    int ch = keyrow[r][c], x = KEY_X + c * KEY_W, y = KB_Y + r * KEY_H;
+    uint16_t bg = sel ? C_BLUE : C_WHITE;
+    if (BAR(r, c)) {                                                 /* the space bar: one wide key */
+        if (c != 6) return;
+        int bx = KEY_X + 5 * KEY_W;
+        fill(bx, y, 3 * KEY_W, KEY_H, bg);
+        fill(bx + 15, y + 11, 24, 1, C_BLACK); fill(bx + 15, y + 8, 1, 3, C_BLACK); fill(bx + 38, y + 8, 1, 3, C_BLACK);
+        return;
+    }
+    fill(x, y, KEY_W, KEY_H, bg);
+    if (ch == UI_KEY_CAPS) {                                         /* capitals: an arrow up, underlined when on */
+        for (int i = 0; i < 5; i++) fill(x + 9 - i, y + 3 + i, 1 + 2 * i, 1, C_BLACK);
+        fill(x + 7, y + 8, 5, 4, C_BLACK);
+        if (upper) fill(x + 4, y + 14, 11, 1, C_BLACK);
+        return;
+    }
+    if (ch == '<') { for (int i = 0; i < 4; i++) fill(x + 5 + i, y + 8 - i, 1, 1 + 2 * i, C_BLACK); fill(x + 9, y + 8, 5, 1, C_BLACK); return; }  /* delete */
+    char t[4] = { (char)ch, 0, 0, 0 };
+    if (ch == UI_KEY_ACCENT) { t[0] = (char)0xC3; t[1] = (char)0xA9; }   /* the accent key: é */
+    else if (upper && r < 2) t[0] = (char)(ch - 32);
+    int w = (int)text_width(t);
+    text_draw_bg(x + (KEY_W - w) / 2, y, x, x + KEY_W, t, 0, C_BLACK, bg);
+}
+void ui_keyboard(int kx, int ky, int upper) {
+    fill(0, KB_Y - 1, 240, 1, C_LIGHT);
+    fill(0, KB_Y, KEY_X, 160 - KB_Y, C_WHITE); fill(KEY_X + 13 * KEY_W, KB_Y, 240 - KEY_X - 13 * KEY_W, 160 - KB_Y, C_WHITE);
+    for (int r = 0; r < 4; r++) { YIELD(); for (int c = 0; c < 13; c++) ui_keycap(r, c, r == ky && c == kx, upper); }
+}
+void ui_typing_kb(const char *msg, int mlen, int kx, int ky, int upper) {
+    kb_on = 1; field_y = FIELD_KB; hint_y = HINT_KB; idle_hint = "START: ideas    SELECT: menu";
+    chat_bot = CHAT_BOT_TYPING;
+    chat_draw();
+    fill(0, chat_bot, 240, FIELD_Y - chat_bot, C_WHITE);
+    fill(0, FIELD_Y + 17, 240, KB_Y - 1 - FIELD_Y - 17, C_WHITE);
+    YIELD();
+    ui_input(msg, mlen, mlen); ui_chips(0, 0, 0, 0, 0);
+    ui_keyboard(kx, ky, upper);
 }
 void ui_menu(const char *title, const char *const *items, int n, int sel) {
     frame_start();
@@ -435,7 +500,8 @@ void ui_reply_button(int stop) {                      /* the field while Koko an
 void ui_reply_layout(const char *msg, int mlen) {
     chat_bot = CHAT_BOT_REPLY;
     line_push(L_USER); line_add(msg, mlen, USER_W);
-    fill(0, CHAT_BOT_TYPING, 240, FIELD_Y - CHAT_BOT_TYPING, C_WHITE);
+    fill(0, CHAT_BOT_TYPING, 240, FIELD_BOTTOM - CHAT_BOT_TYPING, C_WHITE);
+    kb_on = 0; field_y = FIELD_BOTTOM; hint_y = HINT_BOTTOM;
     chat_draw();
     reply_stop = -1; ui_reply_button(1);
 }
